@@ -1,0 +1,4 @@
+build123d==0.10.0
+trimesh==4.8.3
+platformio==6.1.18
+ocp_gordon==0.1.18

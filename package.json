@@ -1,0 +1,47 @@
+{
+  "name": "dreamatic-make",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --import tsx scripts/dev.ts",
+    "server": "node --import tsx apps/server/src/index.ts",
+    "build": "tsc --noEmit && vite build",
+    "check": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:ui": "node --import tsx scripts/test-ui.ts",
+    "setup:cad": "python3 -m venv .venv && .venv/bin/python -m pip install -r workers/cad/requirements.lock",
+    "test:engineering": "node --import tsx scripts/test-engineering.ts",
+    "test:pipeline": "node --import tsx scripts/test-pipeline.ts",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,css,html}\" \"packages/**/*.ts\" \"scripts/**/*.ts\" \"tests/**/*.ts\" \"*.json\" \"*.md\" \"docs/*.md\" \".pi/**/*.md\"",
+    "test:ui:language": "node --import tsx scripts/test-navigation-i18n.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-ai": "1.3.0",
+    "@earendil-works/pi-coding-agent": "1.3.0",
+    "cheerio": "1.1.2",
+    "dotenv": "16.6.1",
+    "fflate": "0.8.3",
+    "lucide-react": "0.544.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1",
+    "three": "0.180.0",
+    "typebox": "1.3.27",
+    "yaml": "2.9.1",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.6",
+    "@types/react": "19.1.16",
+    "@types/react-dom": "19.1.9",
+    "@types/three": "0.180.0",
+    "@vitejs/plugin-react": "5.0.4",
+    "playwright-core": "1.60.0",
+    "prettier": "3.6.2",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vite": "7.3.7"
+  }
+}

@@ -1,0 +1,45 @@
+# Dependencies and build output
+node_modules/
+/dist/
+coverage/
+*.tsbuildinfo
+.vite/
+.cache/
+
+# Local settings and secrets; keep the configuration template
+.env
+.env.*
+!.env.example
+
+# Project runtime data, sessions, uploads and generated engineering artifacts
+/workspace/
+
+# Python and CAD / firmware tool caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pio/
+
+# Test output and browser reports
+/test-results/
+/playwright-report/
+/blob-report/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+
+# Operating system and personal editor settings
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/

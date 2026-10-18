@@ -1,0 +1,3 @@
+[
+  {"id":"rpi-pico","name":"Raspberry Pi Pico","manufacturer":"Raspberry Pi","revision":"Pico 1 / 无预焊排针","source":"https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html","licenseSource":"https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#resources-for-non-wireless-raspberry-pi-pico-boards","openHardware":"verified","geometryVerified":false,"dimensions":{"width":21,"depth":51,"height":null},"holes":[],"voltage":"VSYS 1.8–5.5V；USB 5V","logic":"3.3V GPIO，不能直接接入 5V 信号","interfaces":["I2C","SPI","UART","ADC","USB"],"notes":"官方提供设计文件与 STEP。板框 21×51mm；本目录未核验器件高度、USB 插拔空间和安装孔。请提供实测包络后才能确认精确结构。","checkedAt":"2026-10-18"}
+]
