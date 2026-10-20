@@ -1,0 +1,161 @@
+# Product Design Engine — first release
+
+This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
+
+**The sample models are synthetic assumptions. Successful simulation is not physical validation.** This package is independent of the Node.js application. A future adapter must keep Context authoritative; see the [system design](../docs/system-design.md). A model bundle is an immutable snapshot input, not another canonical BOM.
+
+## Install and run
+
+Requires Python 3.11+ and Pydantic 2.x. Run from the repository root, preferably in a virtual environment:
+
+```bash
+python -m venv .venv
+# Activate the environment using your platform's usual command.
+python -m pip install "pydantic>=2,<3"
+python -B -m unittest discover -s engine/tests -v
+
+python -m engine validate engine/examples/actuator.bundle.json
+python -m engine simulate engine/examples/actuator.bundle.json --scenario engine/examples/actuator.scenario.json
+python -m engine simulate engine/examples/fan.bundle.json --scenario engine/examples/fan.scenario.json
+python -m engine simulate engine/examples/lamp.bundle.json --scenario engine/examples/lamp.scenario.json
+```
+
+The CLI entry point is `python -m engine`; this repository does not currently define an installed console command. All test cases are offline and use `unittest`; no paid models or network calls are involved. Installation may fetch the declared Python dependencies.
+
+The examples cover:
+
+| Example | Actual computation | Important limitation |
+| --- | --- | --- |
+| Actuator and rigid link | A pulse-width fixture maps to a target angle; an ideal supply gates output; velocity-limited positioning drives a fixed-mounted link | Pulse width is an abstract scalar fixture, not a wire-level PWM waveform; no torque or backlash |
+| Continuous fan | An angular-speed fixture drives continuous rotation; material inlet/outlet/path are retained | Material topology only; no calculated airflow |
+| Temperature-triggered indicator | Celsius input converts to Kelvin, sampling and latency precede a threshold and digital light effect | No thermal solver, physical sensor noise, or illuminance calculation |
+
+## Python API
+
+```python
+from engine.io.load import load
+from engine.compiler.lower import compile_model
+from engine.simulator.engine import simulate
+from engine.projection.scene import project_scene
+from engine.projection.circuit import project_circuit
+
+bundle = load("engine/examples/actuator.bundle.json")
+scenario = load("engine/examples/actuator.scenario.json")
+ir = compile_model(bundle)
+result = simulate(ir, scenario)
+scene = project_scene(ir, result)
+circuit = project_circuit(ir, result)
+assert scene["snapshot_id"] == circuit["snapshot_id"]
+```
+
+`compile_model` raises `ModelError` with structured diagnostics for invalid engineering relationships. `simulate` returns `completed`, `failed`, `unsupported`, or `cancelled`, plus diagnostics and coverage. Schema violations raise Pydantic validation errors. Invalid JSON and unavailable files produce standard value/I/O errors. An unsuccessful run can retain earlier frames; `actual_end_s` identifies the last recorded time.
+
+Read `diagnostics`, sample `quality`, and `coverage` even when status is `completed`: unknown inputs, missing geometry, and topology-only domains can coexist with a completed run. A collision report denotes overlap of the declared envelopes, not automatically proven physical interference. No aggregate product acceptance or physical-pass flag is produced.
+
+## Layout
+
+| Directory | Responsibility |
+| --- | --- |
+| `base/` | Strict contracts, immutable maps, identities, units, frames, references, evidence, samples and diagnostics |
+| `interface/` | Geometry, joints/transmissions, mounts, material paths, terminals/nets, protocol contracts, sensing, effects, behaviors and function/principle mappings |
+| `schema/` | Components, assemblies, self-contained bundles, scenarios and simulation results |
+| `io/` | Bounded strict JSON, deterministic serialization, explicit asset access and JSON Schema export |
+| `compiler/` | Version/hash resolution, recursive instance expansion, aliases, semantic checks and read-only IR |
+| `simulator/` | Kinematics, sampled collisions, four-state logic, built-in behaviors, sensor/event scheduling and traces |
+| `projection/` | Stable-ID scene, circuit/logic and material topology projections |
+| `examples/` | Reproducible assumed fixtures and their builder |
+| `tests/` | Offline contract, physics, compilation, event, projection and CLI tests |
+
+The implementation refines some proposal sketches: behavior-output references are structured objects, instances have no unvalidated free-form configuration, scalar fixtures carry an explicit signal type, and bundles embed fixed-version definitions instead of importing arbitrary paths. There is no general expression evaluator, configuration scripting, or automatic migration from the earlier research DSL.
+
+## Data and identity rules
+
+- A component JSON contains its physical/electronic domains; Python source files organize semantic types, not individual component records.
+- A definition reference includes `id`, positive `revision`, and `content_hash`. Compute it with `engine.io.save.content_hash(definition)` after schema validation. The hash covers the expanded/defaulted JSON representation, with sorted object keys and preserved array order. This is an application-specific encoding, not RFC 8785 or a cross-language semantic hash. Python float fields normalize integer inputs during validation; different units are retained in the source representation.
+- A bundle pins every definition and the root reference. Nested assemblies expand without ambient directory discovery. Exported ports alias descendant objects. Recursive definitions, conflicting revisions, broken hashes, and missing objects fail compilation.
+- References use `{instance_path, collection, object_id}`. Expanded IDs look like `left/servo/joints/axis`; source IDs cannot contain `/`. Ports and connected objects retain these IDs in every view.
+- Maps are frozen after validation, and sequences use tuples. Compilation revalidates its input so unchecked Pydantic copy/construct operations cannot bypass external contracts. Do not use unchecked Pydantic construction as an authoring API.
+- Project revision bindings are preserved as `input_revisions`. The engine does not enforce user/role permissions or fetch current Context versions. The future server adapter must perform those checks before accepting snapshots or publishing results.
+- Parameter bindings are validated against the definition's configurable flag, dimensions and declared range. In this release they are metadata overrides, not an implicit expression language: geometry and behavior parameters must be materialized explicitly in a revised definition before simulation.
+- A scenario pins `snapshot_id`; projections reject results from a different snapshot. Result fingerprints also include scenario contents, solver options and random seed. The current models are deterministic and do not generate random noise.
+
+`loads` rejects duplicate JSON keys, non-finite numbers, coercible strings/booleans in numeric fields, extra fields, and unsupported versions. The 16 MiB input bound, 1,000-instance/32-depth expansion limits, 5,000 expanded object limit, collision pair budget, step budget, and trace-cell budget limit common accidental resource explosions. These are not an OS security sandbox; a future host still needs process isolation, cancellation and time/memory limits.
+
+`AssetRef` uses an Artifact ID or a relative library path, plus SHA-256 and media type. The explicit `read_asset` function checks path confinement, resolved symlinks, size and content hash. Artifact IDs must be resolved by the application. No compiler or simulator silently fetches assets or URLs. `save` refuses to overwrite existing files unless explicitly requested; replacement uses a temporary file and atomic rename. Creating a new file uses exclusive creation and is not an application transaction.
+
+## Supported calculations and boundaries
+
+| Area | Implemented | Represented or deferred |
+| --- | --- | --- |
+| Geometry | Multiple bodies/envelopes, local poses, visual asset references | No CAD generation, mesh parsing or STEP/B-rep |
+| Motion | Fixed, revolute, continuous and prismatic tree kinematics; explicit initial conditions and limits | No closed-loop constraint solver, inertia, force or contact dynamics |
+| Transmission | Signed rotary ratios and screw lead; follower limits and cycle/driver checks | No gear tooth contact, backlash or elastic belt model |
+| Mounts | Typed endpoints, basic kind/thread compatibility; fixed mount compilation or explicit joint binding | Dimension/tolerance fit, friction and contact response are not solved |
+| Collision | Sphere/sphere, sphere/OBB, OBB/OBB with AABB broad phase | Cylinders/capsules require opt-in outer-box approximation; convex assets unsupported; no continuous collision proof |
+| Electrical | Terminal/network integrity, single ideal power source, voltage rating checks, shared-reference supply gating; `0/1/X/Z`, push-pull and ideal weak pulls/open-drain | No voltage/current network solver, startup/current budget, GPIO mux, I2C addresses, analog ADC, firmware execution or protocol transactions |
+| Electronic interfaces | Typed bindings, behavior/supply references and descriptive protocol metadata | Protocol contracts are not executable adapters; unsupported parts are identified in diagnostics |
+| Behavior | Constant/pass, NOT/AND/OR, scalar threshold, abstract pulse-to-position, on-delay timer, event state machine | No arbitrary Python, `eval`, general expressions, scripting or dynamic plug-in import |
+| Sensing | Typed environment fixtures and committed joint-position samples, independent sample periods and latency | No camera rendering, measurement acquisition, noise or stochastic models |
+| Effects | Motion commands; recorded scalar/digital light, sound, heat, display and transport effects | Only motion is physically coupled; other effects do not imply field or flow computation |
+| Material | Port/path/connection semantics and topology projection; separately callable mass-conserving inventory primitive | Inventory primitive is not automatically coupled to a path; no CFD, granular dynamics, pressure losses or blockage prediction |
+| Design semantics | Functions, principles, realization references and source evidence | No general constraint-expression solver, automatic synthesis or optimization |
+
+Each kinematic root must have an explicit scenario placement. Non-root bodies cannot also receive independent world placements. `anchored=false` records the assumption, but the kinematics mode still retains that root pose; it does not simulate falling or free motion. Missing initial joint positions block simulation. Position drives also require a finite positive speed limit.
+
+Solid, keepout and service envelopes participate in queries; same-body envelope pairs are ignored. Adjacent-body contacts are not silently exempted. Missing solid envelopes and unknown/inner approximations produce coverage diagnostics. Assets are only referenced in projections; the Python package does not render a UI.
+
+Nets must be declared once per terminal after alias resolution. This release deliberately rejects terminals assigned to multiple named nets rather than merging them implicitly. To connect a nested assembly to an outer net, export an otherwise unconnected terminal and declare the complete net at a common assembly scope.
+
+## Behavior and time semantics
+
+All runtime scalar samples use SI values. Source/fixture types can use supported display units, including affine Celsius-to-Kelvin conversion. Direct numeric constant bindings and state-machine numeric outputs are already SI. Angles and lengths remain distinct dimensions.
+
+Fixture names can be instance-scoped, such as `left/enable` and `right/enable`; a local `channel: "enable"` binding uses its full instance path first, then an explicitly provided global `enable` channel. Sensors follow the same rule. This permits independent instances without copying definitions.
+
+The scheduler visits fixed macro boundaries, input events, timer wakeups, sensor sampling times and sensor delivery times. At each boundary:
+
+1. Apply fixture and direct-joint input events.
+2. Sample the committed physical state and deliver due observations.
+3. Iterate networks and behavior outputs to a bounded fixed point, evaluating state transitions against the same previous state each time.
+4. Commit behavior state once, record the boundary, then hold resulting commands while advancing motion to the next boundary.
+
+Macro and sensor sampling intervals must be at least 1 ns. Event-boundary comparisons use a 1 ps tolerance; this engine is not intended for sub-nanosecond circuit timing.
+
+Effects never overwrite joint definitions. Invalid/unknown supply produces unknown output and resets behavior state; absence of a valid motion command holds the numerical position for that interval. This is an explicit ideal-model policy, not a prediction of an unpowered physical actuator.
+
+The timer is an on-delay: continuous valid `1` starts it, a low/unknown input resets it, and its output rises exactly at the scheduled delay. State-machine inputs are event-name changes: a held event token fires once, and repeating the same event requires an intervening different or null token. Ambiguous transitions are rejected. Each state machine exposes one typed `value` output. Unknown combinational cycles remain unknown; nonconvergent evaluation fails the run. Step refinement tests check the supported examples, not general stability of every user model.
+
+## CLI and future server integration
+
+```bash
+python -m engine schema model_bundle
+python -m engine compile engine/examples/actuator.bundle.json
+python -m engine scene engine/examples/actuator.bundle.json
+python -m engine circuit engine/examples/actuator.bundle.json
+python -m engine flow engine/examples/fan.bundle.json
+python -m engine request
+```
+
+`request` reads exactly one JSON object from standard input and then exits:
+
+```json
+{
+  "request_id": "caller-request-id",
+  "method": "simulate",
+  "bundle": {},
+  "scenario": {}
+}
+```
+
+The empty objects above are placeholders for complete validated records. Methods are `validate`, `compile`, `simulate`, `scene`, `circuit`, and `flow`. Standard output contains one JSON result/error object; validation errors omit the submitted values. Exit status is `0` for completed requests and `2` for invalid/failed/unsupported/cancelled requests. Static validation can succeed with unknown/unsupported coverage diagnostics. Simulation emits inline frames; `simulator.recorder.write_ndjson` can serialize frames separately in an explicit host-owned output stream.
+
+The future Node.js adapter should pass bounded inline snapshots, isolate the Python process, retain Context ownership/read-version checks and appearance gates, save outputs as immutable artifacts, and mark changed inputs stale before publishing results. Credentials and runtime orchestration stay in `apps/server`; no integration has been added by this first release.
+
+To regenerate the committed synthetic fixtures after an intentional contract change:
+
+```bash
+python -m engine.examples.build_examples
+python -B -m unittest discover -s engine/tests -v
+```
+
+Repository-wide checks remain `npm run check`, `npm test`, and `npm run build`. Python tests are a separate explicit command; the Node application does not acquire a Python startup dependency.

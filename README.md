@@ -44,6 +44,19 @@ Current engineering support covers parameterized enclosures and Raspberry Pi Pic
 
 Project files, uploads, agent sessions, toolchains, and generated artifacts live in `workspace/` by default. This directory and `.env` are excluded from Git; back up your workspace separately.
 
+## Product design engine
+
+The lightweight Python library and CLI in [`engine/`](engine/README.md) validate, compile, and simulate product designs and generate scene, circuit, and flow projections. It runs independently of the Node.js application.
+
+With Python 3.11+ and Pydantic 2.x installed, run from the repository root:
+
+```bash
+python -m engine validate engine/examples/actuator.bundle.json
+python -B -m unittest discover -s engine/tests -v
+```
+
+See the [engine documentation](engine/README.md) for setup, API examples, and calculation limits. Local AI collaboration documents in `agent/` are excluded from Git.
+
 ## Development checks
 
 ```bash

@@ -14,6 +14,9 @@ coverage/
 # Project runtime data, sessions, uploads and generated engineering artifacts
 /workspace/
 
+# Local AI collaboration documents
+/agent/
+
 # Python and CAD / firmware tool caches
 .venv/
 venv/

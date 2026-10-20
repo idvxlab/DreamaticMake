@@ -1,0 +1,1 @@
+"""Shared, strict data contracts."""
