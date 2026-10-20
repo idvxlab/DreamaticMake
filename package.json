@@ -10,6 +10,7 @@
     "check": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:ui": "node --import tsx scripts/test-ui.ts",
+    "test:ui:engine": "node --import tsx scripts/test-engine-ui.ts",
     "setup:cad": "python3 -m venv .venv && .venv/bin/python -m pip install -r workers/cad/requirements.lock",
     "test:engineering": "node --import tsx scripts/test-engineering.ts",
     "test:pipeline": "node --import tsx scripts/test-pipeline.ts",

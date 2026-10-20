@@ -115,6 +115,18 @@ export const fields: ConfigField[] = [
     description: "用于图片理解和图生 CAD 参数提取，需要支持图片输入。",
   },
   {
+    key: "MAKE_ENGINE_PYTHON",
+    label: "设计引擎 Python 路径",
+    default:
+      process.platform === "win32"
+        ? ".venv/Scripts/python.exe"
+        : ".venv/bin/python",
+    module: "cad",
+    example: ".venv/Scripts/python.exe",
+    description:
+      "已安装 Pydantic 2 的 Python 3.11+ 解释器；用于模型校验与仿真。",
+  },
+  {
     key: "MAKE_PYTHON",
     label: "CAD Python 路径",
     default: ".venv/bin/python",

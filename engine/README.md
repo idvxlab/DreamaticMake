@@ -2,7 +2,7 @@
 
 This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
 
-**The sample models are synthetic assumptions. Successful simulation is not physical validation.** This package is independent of the Node.js application. A future adapter must keep Context authoritative; see the [system design](../docs/system-design.md). A model bundle is an immutable snapshot input, not another canonical BOM.
+**The sample models are synthetic assumptions. Successful simulation is not physical validation.** The package remains usable independently of the Node.js application. The web workbench now invokes its CLI through the [server adapter](../docs/design-engine-integration.md), keeping Context authoritative. A model bundle is an immutable snapshot input, not another canonical BOM.
 
 ## Install and run
 
@@ -125,7 +125,7 @@ Effects never overwrite joint definitions. Invalid/unknown supply produces unkno
 
 The timer is an on-delay: continuous valid `1` starts it, a low/unknown input resets it, and its output rises exactly at the scheduled delay. State-machine inputs are event-name changes: a held event token fires once, and repeating the same event requires an intervening different or null token. Ambiguous transitions are rejected. Each state machine exposes one typed `value` output. Unknown combinational cycles remain unknown; nonconvergent evaluation fails the run. Step refinement tests check the supported examples, not general stability of every user model.
 
-## CLI and future server integration
+## CLI and server integration
 
 ```bash
 python -m engine schema model_bundle
@@ -147,9 +147,9 @@ python -m engine request
 }
 ```
 
-The empty objects above are placeholders for complete validated records. Methods are `validate`, `compile`, `simulate`, `scene`, `circuit`, and `flow`. Standard output contains one JSON result/error object; validation errors omit the submitted values. Exit status is `0` for completed requests and `2` for invalid/failed/unsupported/cancelled requests. Static validation can succeed with unknown/unsupported coverage diagnostics. Simulation emits inline frames; `simulator.recorder.write_ndjson` can serialize frames separately in an explicit host-owned output stream.
+The empty objects above are placeholders for complete validated records. Methods are `validate`, `compile`, `simulate`, `scene`, `circuit`, `flow`, `preview`, and `workspace`. `preview` resolves initial placement and returns all three projections without publishing a simulation result. `workspace` runs the scenario and returns projections plus the simulation result and recorded frames. Standard output contains one JSON result/error object; validation errors omit the submitted values. Exit status is `0` for completed requests and `2` for invalid/failed/unsupported/cancelled requests. Static validation can succeed with unknown/unsupported coverage diagnostics. Simulation emits inline frames; `simulator.recorder.write_ndjson` can serialize frames separately in an explicit host-owned output stream.
 
-The future Node.js adapter should pass bounded inline snapshots, isolate the Python process, retain Context ownership/read-version checks and appearance gates, save outputs as immutable artifacts, and mark changed inputs stale before publishing results. Credentials and runtime orchestration stay in `apps/server`; no integration has been added by this first release.
+The Node.js adapter in `apps/server/src/design-engine.ts` passes bounded inline snapshots to a separate Python process, checks Context fingerprints before and after execution, saves immutable run records, and marks changed inputs stale. It never approves stages or replaces the canonical BOM. Credentials and runtime orchestration stay in `apps/server`. The web UI supports envelope rendering, replay, circuit samples, material topology and diagnostics; see the [adapter contract](../docs/design-engine-integration.md) for execution limits and the remaining integration boundaries.
 
 To regenerate the committed synthetic fixtures after an intentional contract change:
 

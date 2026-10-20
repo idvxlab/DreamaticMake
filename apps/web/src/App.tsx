@@ -70,6 +70,11 @@ import { SettingsDialog } from "./components/SettingsDialog";
 const ModelViewer = lazy(() =>
   import("./components/ModelViewer").then((m) => ({ default: m.ModelViewer })),
 );
+const DesignWorkbench = lazy(() =>
+  import("./components/DesignWorkbench").then((m) => ({
+    default: m.DesignWorkbench,
+  })),
+);
 const statusLabels: Record<string, string> = {
   not_started: "尚未开始",
   running: "正在执行",
@@ -817,16 +822,18 @@ export function App() {
                 <>
                   <div className="section-heading">
                     <div>
-                      <div className="eyebrow">PARAMETRIC DESIGN</div>
-                      <h1>{t("让设计成为实体")}</h1>
+                      <div className="eyebrow">PRODUCT DESIGN</div>
+                      <h1>{t("产品设计与工程验证")}</h1>
                       <p>
-                        {t("参考图 / 自然语言 → 参数确认 → 真实 STEP 与 STL。")}
+                        {t("查看装配与信号，运行模型仿真，继续生成工程 CAD。")}
                       </p>
                     </div>
-                    <span className="badge">{t("毫米 · FDM")}</span>
+                    <span className="badge">3D · {t("仿真")} · CAD</span>
                   </div>
                   <Suspense fallback={<p>{t("加载 3D 预览…")}</p>}>
-                    <ModelViewer
+                    <DesignWorkbench
+                      key={project.id}
+                      projectVersion={project.version}
                       parameters={parameters}
                       artifacts={
                         JSON.stringify(parameters) ===

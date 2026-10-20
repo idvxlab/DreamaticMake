@@ -11,6 +11,7 @@ import { join, resolve, relative, isAbsolute } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { EventEmitter } from "node:events";
+import { replaceFile } from "./atomic-file";
 import {
   stages,
   defaultEnclosure,
@@ -217,7 +218,7 @@ export class Store {
   async save(p: Project) {
     const tmp = join(this.dir(p.id), `${randomUUID()}.tmp`);
     await writeFile(tmp, JSON.stringify(p, null, 2));
-    await rename(tmp, join(this.dir(p.id), "project.json"));
+    await replaceFile(tmp, join(this.dir(p.id), "project.json"));
     await mkdir(join(this.dir(p.id), "context"), { recursive: true });
     for (const stage of Object.values(p.stages))
       if (stage.draft) {
@@ -236,7 +237,7 @@ export class Store {
             2,
           ),
         );
-        await rename(draftTmp, file);
+        await replaceFile(draftTmp, file);
       }
   }
   async update<T>(id: string, fn: (p: Project) => T | Promise<T>): Promise<T> {
