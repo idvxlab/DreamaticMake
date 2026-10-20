@@ -12,6 +12,10 @@ These routes inherit the local application's host/origin checks and require an e
 | GET    | `/api/projects/:id/engine/examples/:name` | Committed bundle/scenario pair; name is `actuator`, `fan`, or `lamp` |
 | POST   | `/api/projects/:id/engine`                | Execute `validate`, `preview`, or `workspace`                        |
 | POST   | `/api/projects/:id/engine/cancel`         | Abort that project's active engine process                           |
+| GET    | `/api/projects/:id/engine/meshes`         | Project STL asset metadata |
+| GET    | `/api/projects/:id/engine/meshes/:assetId` | Verified original STL bytes |
+| POST   | `/api/projects/:id/engine/meshes`         | Inspect and save `{name, unit, data}` (base64 STL) |
+| POST   | `/api/projects/:id/engine/mesh-model`     | Build pinned bundle/scenario from explicit asset placements |
 
 POST takes `{method, bundle, scenario?, contextKey}`. Fetch `contextKey` from GET first. All inputs are inline records; the client cannot supply commands, filesystem paths, or asset resolver instructions. `preview` and `workspace` require a scenario pinned to the model snapshot. `preview` returns initial placement and projections with `result: null`; `workspace` returns projections and the actual simulation result, including failed/unsupported states and partial frames.
 
@@ -29,12 +33,24 @@ Before execution and again under the project's update queue before publication, 
 
 ## View semantics and known boundaries
 
-- Scene geometry comes from declared boxes, spheres, cylinders, and capsules. External visual/convex assets are reported as not loaded, rather than fetched or silently approximated. Collision queries and coverage remain the engine's responsibility.
+- Scene geometry comes from declared boxes, spheres, cylinders, capsules and project-owned STL triangle assets. The browser verifies SHA-256 and scales the STL's explicit unit into meters without recentering. External visual/convex assets remain unsupported. Collision queries and coverage remain the engine's responsibility.
 - Body transforms, signal samples, effects, and overlap highlights use the same recorded frame. Replay uses recorded timestamps and does not rerun or interpolate physical calculations.
 - Frames may be partial on failure. Quality (`valid`, `unknown`, `stale`, `fault`), origin, diagnostics, and coverage remain visible. Unknown samples are never replaced with zero.
 - Material paths are topology only. Geometric overlap does not establish physical interference. Engine completion does not certify fabrication, electrical safety, firmware execution, or product acceptance.
-- This adapter supports model/scenario import and JSON editing. Automatic model synthesis from project BOMs, mesh loading, CAD model generation from engine geometry, and agent-driven model authoring remain separate work.
+- This adapter supports STL assembly creation, model/scenario import and JSON editing. Automatic model synthesis from project BOMs, CAD model generation from engine geometry, and agent-driven model authoring remain separate work.
+
+## STL workflow and collision backend
+
+Install `engine/requirements-mesh.txt` in the configured engine Python environment. In the STL panel, upload one or more files, declare their source units, choose surface or closed-solid collision, set positions in mm and XYZ Euler rotations in degrees, then create the assembly and run. Creating an assembly replaces the editable bundle/scenario; placement edits are applied when that button is pressed. The initial scenario is static (`duration_s: 0`); moving mechanisms can reference these same shapes from existing body/joint definitions in JSON.
+
+The `mesh-model` request is `{contextKey, meshes: [{assetId, unit, collisionMode, position, rotation}]}`. API positions are **meters**, rotations are XYZ Euler degrees, and the host converts them to xyzw quaternions. It accepts 1–32 instances, verifies each asset and checks Context before/after building documents. Asset metadata version 1 records raw-byte SHA-256, declared units, counts, bounds and topology findings. Original bytes live under `workspace/<project>/uploads/engine-meshes/<uuid>.stl`; metadata is published after the bytes. Files are not BOM parts or CAD-stage approval artifacts.
+
+Uploads accept ASCII/binary STL, capped at 5 MB and 100,000 triangles each. Models may inline at most 8 MB of unique assets (32 assets), within the engine's 16 MiB protocol bound; simulation caps expanded triangles at 300,000. Mesh operations share the engine concurrency/cancellation slots and inspection/build subprocesses have a 60-second timeout. Invalid STL produces HTTP 422. Browser asset URLs are confined to the current project; run requests reject filesystem paths, foreign asset IDs, and mismatched hashes.
+
+Trimesh reads topology; FCL uses triangle BVHs and native primitives; Rtree accelerates closed-volume containment. Surface mode tests intersections, while closed-solid mode adds complete-containment checks for watertight, consistently wound, positive-volume meshes. It does not validate all self-intersections or repair the input. The engine preserves concave features and reports the chosen coverage. Detection is sampled and does not implement contact response or continuous collision detection. Primitive-only runs do not need this optional dependency stack.
 
 ## Verification
 
 Run `npm run check`, `npm test`, `npm run build`, and `python -B -m unittest discover -s engine/tests -v`. With `MAKE_ENGINE_TEST_PYTHON` configured, `npm test` includes real HTTP → Python → projection tests for all three examples, failed snapshots, and schema diagnostics. Adapter tests additionally cover concurrency, cancellation, immutable records, and Context changes during execution. `npm run test:ui:engine` uses `MAKE_ENGINE_TEST_PYTHON` and `MAKE_TEST_BROWSER` to exercise the browser workflow against real Python results and save screenshots.
+
+Set `MAKE_ENGINE_TEST_MESH=1` alongside the interpreter with optional mesh dependencies to include real STL HTTP and browser regressions. Python mesh tests cover ASCII/binary units, malformed geometry, hashes, surface vs solid containment, concave cavities, rotation, disconnected components, native mixed shapes, margins, same-body exclusion and CLI import.

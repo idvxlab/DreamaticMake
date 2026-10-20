@@ -62,7 +62,9 @@ In **Settings → CAD**, set **Design engine Python path** to that interpreter. 
 
 Open a project → **CAD workbench**. Load the servo/linkage, fan, or temperature-indicator example, or import a model bundle and scenario JSON. Validate the model, load its initial scene, or run a simulation. The workbench provides envelope geometry with body selection, keepout/service toggles, overlap highlighting, recorded-frame playback, electrical network and signal inspection, material topology, diagnostics, and JSON run export. **Enclosure CAD** retains the existing STL/parametric view and CAD workflow.
 
-Models remain independent immutable snapshots; this integration does not synthesize a model from the BOM or update the authoritative Context. Engine results bind to project inputs and become stale after those inputs change. An initial preview is not a completed simulation, and a completed simulation is not physical validation. External mesh assets are not loaded; material flow is topology only. See the [adapter contract](docs/design-engine-integration.md) for limits and endpoints.
+For STL import and mesh collision, install the optional stack with `python -m pip install -r engine/requirements-mesh.txt` in the chosen engine environment. A separate `.venv-engine` is also supported: point **Design engine Python path** at its interpreter. Open **Import STL / assemble meshes**, upload ASCII or binary STL, declare mm/cm/m, set placement and surface/solid mode, create the assembly, then run. Original coordinates and concavities are preserved; overlap highlights come from FCL triangle queries, with containment checks for valid closed solids.
+
+Models remain independent immutable snapshots; this integration does not synthesize a model from the BOM or update the authoritative Context. Engine results bind to project inputs and become stale after those inputs change. An initial preview is not a completed simulation, and a completed simulation is not physical validation. Mesh collision is sampled, without contact dynamics or continuous collision guarantees; material flow is topology only. See the [adapter contract](docs/design-engine-integration.md) for limits and endpoints.
 
 With Python 3.11+ and Pydantic 2.x installed, run from the repository root:
 
@@ -87,6 +89,7 @@ Optional integration checks:
 - `npm run test:pipeline` — eight-stage workflow with local model fixtures and engineering workers.
 - `npm run test:ui` / `npm run test:ui:language` — browser regressions; require Chrome at the standard macOS installation path.
 - Set `MAKE_ENGINE_TEST_PYTHON` to an installed Python interpreter before `npm test` to include the real engine HTTP tests; otherwise that integration test is explicitly skipped.
+- Also set `MAKE_ENGINE_TEST_MESH=1` when that interpreter has `engine/requirements-mesh.txt` installed to include STL HTTP and browser checks. Python mesh tests explicitly skip when the optional stack is absent.
 - `npm run test:ui:engine` — real browser + Python engine checks. Set `MAKE_ENGINE_TEST_PYTHON` and `MAKE_TEST_BROWSER` to local Python and Chromium/Edge executable paths first. Screenshots are written to ignored `test-results/`.
 
 See [system design](docs/system-design.md), [implementation status](docs/implementation-status.md), and the [agent protocol](.pi/PROTOCOL.md) for details.

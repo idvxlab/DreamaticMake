@@ -147,6 +147,7 @@ def preflight(ir, scenario):
                 diagnostics.append(warning("supply.unavailable", "Invalid or unknown supply; behavior output remains unknown", key, terminal_key))
     if scenario.solver_options.collision:
         envelopes = ir.collection("envelopes")
+        mesh_mode = any(o.spec.shape.kind == "triangle_mesh" for o in envelopes.values())
         if len(envelopes) * (len(envelopes) - 1) // 2 > 250000:
             diagnostics.append(error("collision.budget", "Collision pair budget exceeded; narrow the snapshot"))
         represented = {"/".join((*obj.scope, "bodies", obj.spec.body_ref)) for obj in envelopes.values() if obj.spec.purpose == "solid"}
@@ -156,7 +157,10 @@ def preflight(ir, scenario):
         for key, obj in ir.collection("envelopes").items():
             shape = obj.spec.shape.kind
             if shape not in ("box", "sphere"):
-                if shape in ("cylinder", "capsule") and scenario.solver_options.conservative_shapes:
+                if mesh_mode and shape in ("triangle_mesh", "cylinder", "capsule"):
+                    if shape == "triangle_mesh" and obj.spec.shape.collision_mode == "surface":
+                        diagnostics.append(warning("collision.surface_only", "Mesh surface queries do not establish an enclosed solid volume", key))
+                elif shape in ("cylinder", "capsule") and scenario.solver_options.conservative_shapes:
                     diagnostics.append(warning("collision.approximation", "Using an explicitly requested outer box", key))
                 else:
                     diagnostics.append(Diagnostic(code="collision.unsupported", severity="error", outcome="unsupported", message=f"Collision shape {shape} is not supported in this mode", object_refs=(key,)))
@@ -165,14 +169,16 @@ def preflight(ir, scenario):
     return diagnostics
 
 
-def simulate(ir, scenario: Scenario, *, cancelled=None) -> SimulationResult:
+def simulate(ir, scenario: Scenario, *, cancelled=None, asset_resolver=None) -> SimulationResult:
     scenario = Scenario.model_validate_json(canonical_json(scenario))
     diagnostics = preflight(ir, scenario)
     frames = []
     coverage = ["tree forward kinematics", "four-state logic", "registered ideal behaviors",
                 "sampled fixture/joint sensors", "scalar values use SI units",
                 "no dynamics, circuit transient solver, physical validation, or flow solver"]
-    coverage.append("sampled sphere/OBB collision queries; no continuous collision guarantee" if scenario.solver_options.collision else "collision checks disabled")
+    mesh_mode = any(o.spec.shape.kind == "triangle_mesh" for o in ir.collection("envelopes").values())
+    coverage.append(("sampled FCL triangle-BVH/native primitives + closed-volume containment; no continuous collision guarantee" if mesh_mode else
+                     "sampled sphere/OBB collision queries; no continuous collision guarantee") if scenario.solver_options.collision else "collision checks disabled")
 
     def result(status):
         # Deduplicate recurring diagnostics without discarding object attribution.
@@ -184,6 +190,18 @@ def simulate(ir, scenario: Scenario, *, cancelled=None) -> SimulationResult:
 
     if any(d.severity == "error" for d in diagnostics):
         return result("unsupported" if any(d.outcome == "unsupported" and d.severity == "error" for d in diagnostics) else "failed")
+    mesh_world = None
+    if mesh_mode and scenario.solver_options.collision:
+        from engine.io.mesh import MeshDependencyError
+        from engine.simulator.mesh_collision import MeshCollisionWorld
+        try:
+            mesh_world = MeshCollisionWorld(ir, asset_resolver)
+        except MeshDependencyError as exc:
+            diagnostics.append(Diagnostic(code="collision.dependency", severity="error", outcome="unsupported", message=str(exc)))
+            return result("unsupported")
+        except (ValueError, OSError) as exc:
+            diagnostics.append(error("collision.mesh_asset", str(exc)))
+            return result("failed")
     state = SimulationState()
     state.joint_positions = {key: j.spec.initial_position.si_value for key, j in ir.joints.items() if j.spec.kind != "fixed"}
     before = dict(state.joint_positions)
@@ -230,7 +248,7 @@ def simulate(ir, scenario: Scenario, *, cancelled=None) -> SimulationResult:
                 motion_commands[ir.resolve(obj.spec.target_joint, obj.scope)] = (obj.spec.mode, output.value)
         try:
             state.body_poses = forward_kinematics(ir, state.joint_positions, roots)
-            collisions = query_collisions(ir, state.body_poses, scenario.solver_options.conservative_shapes) if scenario.solver_options.collision else ()
+            collisions = (mesh_world.query(state.body_poses) if mesh_world else query_collisions(ir, state.body_poses, scenario.solver_options.conservative_shapes)) if scenario.solver_options.collision else ()
         except (ValueError, OverflowError) as exc:
             diagnostics.append(error("simulation.numeric", str(exc)))
             return result("failed")

@@ -1,6 +1,21 @@
 /** Web adapter v1. Engine records remain immutable DSL 0.2.0-proposal snapshots. */
 export type EngineMethod = "validate" | "preview" | "workspace";
 export type EngineDocument = Record<string, unknown>;
+export type EngineMeshAsset = {
+  assetVersion: 1;
+  id: string;
+  name: string;
+  sha256: string;
+  bytes: number;
+  triangles: number;
+  vertices: number;
+  bounds_m: [number[], number[]];
+  watertight: boolean;
+  volume_candidate: boolean;
+  unit: "mm" | "cm" | "m";
+  warnings: string[];
+  createdAt: string;
+};
 export type EngineDiagnostic = {
   message: string;
   code?: string;
@@ -34,7 +49,18 @@ export type EngineShape =
   | { kind: "sphere"; radius_m: number }
   | { kind: "cylinder"; radius_m: number; length_m: number }
   | { kind: "capsule"; radius_m: number; segment_length_m: number }
-  | { kind: "convex_asset" };
+  | { kind: "convex_asset" }
+  | {
+      kind: "triangle_mesh";
+      unit: "m" | "cm" | "mm";
+      collision_mode: "surface" | "solid";
+      asset_ref: {
+        artifact_id?: string | null;
+        relative_path?: string | null;
+        sha256: string;
+        media_type: string;
+      };
+    };
 export type EngineScene = {
   snapshot_id: string;
   bodies: { entity_ref: string; world_pose: EnginePose | null }[];

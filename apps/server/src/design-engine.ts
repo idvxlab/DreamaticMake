@@ -18,6 +18,7 @@ import { inputHash } from "../../../packages/core/src/workflow";
 import { Settings } from "../../../packages/core/src/settings";
 import { runProcess } from "../../../packages/core/src/worker";
 import { replaceFile } from "../../../packages/core/src/atomic-file";
+import { MeshLibrary, meshUploadSchema, meshModelSchema } from "./mesh-assets";
 
 const requestSchema = z
   .object({
@@ -34,12 +35,159 @@ export const engineContextKey = (p: Project) =>
 /** A bounded, credential-free process per request; never publishes approvals or BOMs. */
 export class DesignEngine {
   private active = new Map<string, AbortController>();
+  readonly meshes: MeshLibrary;
   constructor(
     private root: string,
     private store: Store,
     private settings: Settings,
     private execute: typeof runProcess = runProcess,
-  ) {}
+  ) {
+    this.meshes = new MeshLibrary(store);
+  }
+
+  private async meshTask<T>(
+    id: string,
+    task: (controller: AbortController) => Promise<T>,
+    signal?: AbortSignal,
+  ) {
+    if (this.active.has(id) || this.active.size >= 2)
+      throw new HttpError(409, "设计引擎忙，请稍后重试");
+    const controller = new AbortController();
+    this.active.set(id, controller);
+    const cancel = () => controller.abort();
+    signal?.addEventListener("abort", cancel, { once: true });
+    if (signal?.aborted) controller.abort();
+    try {
+      return await task(controller);
+    } finally {
+      this.active.delete(id);
+      signal?.removeEventListener("abort", cancel);
+    }
+  }
+
+  private async meshCommand(
+    method: "inspect_stl" | "mesh_bundle",
+    input: Record<string, unknown>,
+    signal: AbortSignal,
+  ) {
+    const config = await this.settings.snapshot(),
+      requestId = randomUUID();
+    const python = config.MAKE_ENGINE_PYTHON;
+    let result;
+    try {
+      result = await this.execute(
+        /[\\/]/.test(python) ? resolve(this.root, python) : python,
+        ["-B", "-m", "engine", "request"],
+        {
+          cwd: this.root,
+          input: JSON.stringify({ request_id: requestId, method, ...input }),
+          timeout: 60000,
+          signal,
+          env: { PYTHONIOENCODING: "utf-8" },
+        },
+      );
+    } catch {
+      throw new HttpError(
+        503,
+        "STL 处理失败或已取消，请安装 engine/requirements-mesh.txt 并检查引擎 Python 设置",
+      );
+    }
+    let reply;
+    try {
+      reply = JSON.parse(result.stdout);
+    } catch {
+      throw new HttpError(503, "STL 处理进程返回异常");
+    }
+    if (reply.request_id !== requestId || ![0, 2].includes(result.code))
+      throw new HttpError(503, "STL 处理进程返回异常");
+    if (reply.type === "error")
+      throw new HttpError(
+        422,
+        (reply.diagnostics ?? [])
+          .map((d: { message: string }) => d.message)
+          .join("; ")
+          .slice(0, 2000),
+      );
+    if (reply.type !== "result" || !reply.payload)
+      throw new HttpError(503, "STL 处理进程返回异常");
+    return reply.payload;
+  }
+
+  async uploadMesh(id: string, input: unknown, signal?: AbortSignal) {
+    const data = meshUploadSchema.parse(input);
+    return this.meshTask(
+      id,
+      async (controller) => {
+        await this.store.get(id);
+        const inspection = await this.meshCommand(
+          "inspect_stl",
+          { data: data.data, unit: data.unit },
+          controller.signal,
+        );
+        if (controller.signal.aborted)
+          throw new HttpError(409, "引擎任务已取消");
+        return this.meshes.save(id, data, inspection);
+      },
+      signal,
+    );
+  }
+
+  async meshModel(id: string, input: unknown, signal?: AbortSignal) {
+    const data = meshModelSchema.parse(input);
+    return this.meshTask(
+      id,
+      async (controller) => {
+        if (engineContextKey(await this.store.get(id)) !== data.contextKey)
+          throw new HttpError(409, "项目输入已变化，请刷新设计引擎");
+        const entries = [];
+        for (const [i, item] of data.meshes.entries()) {
+          const { metadata } = await this.meshes.get(id, item.assetId);
+          if (item.collisionMode === "solid" && !metadata.volume_candidate)
+            throw new HttpError(400, "该 STL 不能用于封闭实体模式");
+          const [x, y, z] = item.rotation.map((v) => (v * Math.PI) / 360);
+          const [cx, cy, cz, sx, sy, sz] = [
+            Math.cos(x),
+            Math.cos(y),
+            Math.cos(z),
+            Math.sin(x),
+            Math.sin(y),
+            Math.sin(z),
+          ];
+          entries.push({
+            id: `mesh_${i + 1}`,
+            shape: {
+              kind: "triangle_mesh",
+              unit: item.unit,
+              collision_mode: item.collisionMode,
+              asset_ref: {
+                artifact_id: metadata.id,
+                sha256: metadata.sha256,
+                media_type: "model/stl",
+              },
+            },
+            world_pose: {
+              translation_m: item.position,
+              rotation_xyzw: [
+                sx * cy * cz + cx * sy * sz,
+                cx * sy * cz - sx * cy * sz,
+                cx * cy * sz + sx * sy * cz,
+                cx * cy * cz - sx * sy * sz,
+              ],
+            },
+          });
+        }
+        const documents = await this.meshCommand(
+          "mesh_bundle",
+          { meshes: entries },
+          controller.signal,
+        );
+        if (engineContextKey(await this.store.get(id)) !== data.contextKey)
+          throw new HttpError(409, "项目输入已变化，请刷新设计引擎");
+        return documents;
+      },
+      signal,
+    );
+  }
   isBusy(id: string) {
     return this.active.has(id);
   }
@@ -110,6 +258,16 @@ export class DesignEngine {
       const config = await this.settings.snapshot();
       const python = config.MAKE_ENGINE_PYTHON;
       const requestId = randomUUID();
+      const assets = await this.meshes.inlineAssets(id, data.bundle);
+      const workerInput = JSON.stringify({
+        request_id: requestId,
+        method: data.method,
+        bundle: data.bundle,
+        scenario: data.scenario,
+        assets,
+      });
+      if (Buffer.byteLength(workerInput) > 16 * 1024 * 1024)
+        throw new HttpError(413, "引擎输入及资产总大小超限");
       let result;
       try {
         result = await this.execute(
@@ -117,12 +275,7 @@ export class DesignEngine {
           ["-B", "-m", "engine", "request"],
           {
             cwd: this.root,
-            input: JSON.stringify({
-              request_id: requestId,
-              method: data.method,
-              bundle: data.bundle,
-              scenario: data.scenario,
-            }),
+            input: workerInput,
             timeout: Math.min(+config.MAKE_WORKER_TIMEOUT * 1000, 120000),
             signal: controller.signal,
             env: { PYTHONIOENCODING: "utf-8" },

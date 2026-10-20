@@ -33,7 +33,15 @@ class ConvexAsset(Contract):
     asset_ref: AssetRef
 
 
-Shape = Annotated[Box | Sphere | Cylinder | Capsule | ConvexAsset, Field(discriminator="kind")]
+class TriangleMesh(Contract):
+    kind: Literal["triangle_mesh"] = "triangle_mesh"
+    asset_ref: AssetRef
+    # STL has no unit metadata: require the caller to declare it.
+    unit: Literal["m", "cm", "mm"]
+    collision_mode: Literal["surface", "solid"] = "surface"
+
+
+Shape = Annotated[Box | Sphere | Cylinder | Capsule | ConvexAsset | TriangleMesh, Field(discriminator="kind")]
 
 
 class RigidBody(Contract):

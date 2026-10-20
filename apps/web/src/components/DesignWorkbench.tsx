@@ -19,6 +19,7 @@ import { api } from "../api";
 import { t, useLanguage } from "../i18n";
 import { ModelViewer } from "./ModelViewer";
 import { EngineScene } from "./EngineScene";
+import { MeshImporter } from "./MeshImporter";
 
 const pretty = (value: unknown) => JSON.stringify(value, null, 2);
 function sampleText(sample?: EngineSample | null) {
@@ -210,6 +211,17 @@ export function DesignWorkbench(
           {t("导出运行记录")}
         </button>
       </div>
+      <MeshImporter
+        projectId={props.projectId}
+        contextKey={state?.contextKey}
+        busy={busy}
+        onBusy={setBusy}
+        onDocuments={(b, s) => {
+          edit("bundle", pretty(b));
+          edit("scenario", pretty(s));
+          setView("scene");
+        }}
+      />
       <details className="engine-inputs">
         <summary>
           <Upload size={14} />
@@ -353,6 +365,7 @@ export function DesignWorkbench(
           {view === "scene" && payload?.scene && (
             <div className="engine-scene-layout">
               <EngineScene
+                projectId={props.projectId}
                 scene={payload.scene}
                 frame={frame}
                 selected={selected}

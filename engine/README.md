@@ -1,4 +1,4 @@
-# Product Design Engine — first release
+# Product Design Engine — 0.2.0
 
 This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
 
@@ -87,11 +87,11 @@ The implementation refines some proposal sketches: behavior-output references ar
 
 | Area | Implemented | Represented or deferred |
 | --- | --- | --- |
-| Geometry | Multiple bodies/envelopes, local poses, visual asset references | No CAD generation, mesh parsing or STEP/B-rep |
+| Geometry | Multiple bodies/envelopes, local poses, explicit STL triangle assets and units, visual asset references | No CAD generation or STEP/B-rep |
 | Motion | Fixed, revolute, continuous and prismatic tree kinematics; explicit initial conditions and limits | No closed-loop constraint solver, inertia, force or contact dynamics |
 | Transmission | Signed rotary ratios and screw lead; follower limits and cycle/driver checks | No gear tooth contact, backlash or elastic belt model |
 | Mounts | Typed endpoints, basic kind/thread compatibility; fixed mount compilation or explicit joint binding | Dimension/tolerance fit, friction and contact response are not solved |
-| Collision | Sphere/sphere, sphere/OBB, OBB/OBB with AABB broad phase | Cylinders/capsules require opt-in outer-box approximation; convex assets unsupported; no continuous collision proof |
+| Collision | Sphere/OBB analytic queries; optional FCL triangle BVH with native box/sphere/cylinder/capsule queries and closed-volume containment | Without a mesh, cylinders/capsules still require opt-in outer boxes; convex assets unsupported; no continuous collision proof |
 | Electrical | Terminal/network integrity, single ideal power source, voltage rating checks, shared-reference supply gating; `0/1/X/Z`, push-pull and ideal weak pulls/open-drain | No voltage/current network solver, startup/current budget, GPIO mux, I2C addresses, analog ADC, firmware execution or protocol transactions |
 | Electronic interfaces | Typed bindings, behavior/supply references and descriptive protocol metadata | Protocol contracts are not executable adapters; unsupported parts are identified in diagnostics |
 | Behavior | Constant/pass, NOT/AND/OR, scalar threshold, abstract pulse-to-position, on-delay timer, event state machine | No arbitrary Python, `eval`, general expressions, scripting or dynamic plug-in import |
@@ -125,6 +125,28 @@ Effects never overwrite joint definitions. Invalid/unknown supply produces unkno
 
 The timer is an on-delay: continuous valid `1` starts it, a low/unknown input resets it, and its output rises exactly at the scheduled delay. State-machine inputs are event-name changes: a held event token fires once, and repeating the same event requires an intervening different or null token. Ambiguous transitions are rejected. Each state machine exposes one typed `value` output. Unknown combinational cycles remain unknown; nonconvergent evaluation fails the run. Step refinement tests check the supported examples, not general stability of every user model.
 
+## STL import and optional mesh collision
+
+The core primitive path still requires only Pydantic. Install the optional mesh backend in the interpreter used for the engine:
+
+```bash
+python -m pip install -r engine/requirements-mesh.txt
+python -m engine import-stl path/to/part.stl --unit mm
+```
+
+`import-stl` prints `{bundle, scenario, inspection}`. Save the two document values separately, then run `python -m engine simulate bundle.json --scenario scenario.json --asset-root path/to`. The generated asset reference is relative to that explicit root. Imports never recenter, take a convex hull, fill holes, fix winding, or discover arbitrary files. A model authored through Python can instead pass an explicit `asset_resolver(ref) -> bytes` to `simulate` or `cli.dispatch`. Browser uploads use project-owned Artifact IDs.
+
+`triangle_mesh` extends DSL `0.2.0-proposal` with `asset_ref`, required `unit` (`mm`, `cm`, `m`), and `collision_mode` (`surface` by default, or `solid`). No existing primitive fields/defaults change, so the committed example hashes stay valid. The SHA-256 covers original STL bytes; the snapshot also covers declared units and collision mode. Version 0.2.0 of the engine reports these capabilities in result coverage.
+
+- **Surface:** triangle intersections and optional envelope margins. A part entirely inside another surface does not imply collision with that surface.
+- **Solid:** additionally detects complete containment. Requires a watertight, consistently wound, positive-volume mesh. These topology checks do not certify freedom from self-intersections, manufacturing defects, or intended material semantics. Use surface mode for open sheets, scanned surfaces, or uncertain topology.
+- **Mixed scenes:** when any envelope is a triangle mesh, FCL handles all envelopes, including native boxes, spheres, cylinders and capsules. Surface intersections are followed by point-in-volume checks using one representative per connected mesh component (or the primitive center). Queries use current body and local envelope poses. Same-body pairs are excluded as in the original backend.
+- **Limits:** 5 MB and 100,000 triangles per STL; 512 connected components per mesh; 300,000 triangles after instance expansion per simulation. Non-finite/degenerate geometry and coordinates outside ±10 km after scaling are rejected. The web adapter adds aggregate byte and instance limits. ASCII and binary STL are supported; STL has no reliable built-in unit.
+
+We use [Trimesh](https://trimesh.org/install.html) for parsing and topology, [python-fcl](https://github.com/BerkeleyAutomation/python-fcl) for FCL triangle BVHs/native shapes, and Rtree for containment acceleration. FCL provides collision/distance queries without adding a full rigid-body world or changing the existing kinematics scheduler. The dependencies are optional and installed only for this feature; Python-FCL includes native code, so a compatible wheel/toolchain is required.
+
+This integration performs **discrete collision detection**, not bouncing, friction, gravity, or a continuous swept-volume guarantee. Fast motion can pass through between sampled poses. Convex decomposition is not applied: it would change the represented concavities. Closed-volume checks assume a meaningful enclosed volume; neither an overlap nor a lack of overlap certifies a manufactured fit.
+
 ## CLI and server integration
 
 ```bash
@@ -149,7 +171,9 @@ python -m engine request
 
 The empty objects above are placeholders for complete validated records. Methods are `validate`, `compile`, `simulate`, `scene`, `circuit`, `flow`, `preview`, and `workspace`. `preview` resolves initial placement and returns all three projections without publishing a simulation result. `workspace` runs the scenario and returns projections plus the simulation result and recorded frames. Standard output contains one JSON result/error object; validation errors omit the submitted values. Exit status is `0` for completed requests and `2` for invalid/failed/unsupported/cancelled requests. Static validation can succeed with unknown/unsupported coverage diagnostics. Simulation emits inline frames; `simulator.recorder.write_ndjson` can serialize frames separately in an explicit host-owned output stream.
 
-The Node.js adapter in `apps/server/src/design-engine.ts` passes bounded inline snapshots to a separate Python process, checks Context fingerprints before and after execution, saves immutable run records, and marks changed inputs stale. It never approves stages or replaces the canonical BOM. Credentials and runtime orchestration stay in `apps/server`. The web UI supports envelope rendering, replay, circuit samples, material topology and diagnostics; see the [adapter contract](../docs/design-engine-integration.md) for execution limits and the remaining integration boundaries.
+The request protocol also accepts `inspect_stl` (`data` as base64, explicit `unit`) and `mesh_bundle` (`meshes` as explicit IDs, shapes and world poses). Model requests may carry an `assets` map from SHA-256 to base64 bytes. Such references must use host-owned Artifact IDs; relative paths are refused in this protocol. `validate`/`compile` verify referenced STL bytes as well as the model contracts.
+
+The Node.js adapter in `apps/server/src/design-engine.ts` passes bounded inline snapshots and verified project assets to a separate Python process, checks Context fingerprints before and after execution, saves immutable run records, and marks changed inputs stale. It never approves stages or replaces the canonical BOM. Credentials and runtime orchestration stay in `apps/server`. The web UI supports STL import, assembly placement, envelope rendering, replay, circuit samples, material topology and diagnostics; see the [adapter contract](../docs/design-engine-integration.md) for execution limits and the remaining integration boundaries.
 
 To regenerate the committed synthetic fixtures after an intentional contract change:
 

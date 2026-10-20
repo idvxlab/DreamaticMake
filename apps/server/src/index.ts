@@ -283,6 +283,40 @@ export async function createApp(
       if (match) {
         const [, id, action = ""] = match;
         let p = await store.get(id);
+        if (action === "engine/meshes" && method === "GET") {
+          json(res, await designEngine.meshes.list(id));
+          return;
+        }
+        const meshFile = action.match(/^engine\/meshes\/([a-f0-9-]{36})$/);
+        if (meshFile && method === "GET") {
+          const { bytes } = await designEngine.meshes.get(id, meshFile[1]);
+          res.writeHead(200, {
+            "Content-Type": "model/stl",
+            "Cache-Control": "no-store",
+          });
+          res.end(bytes);
+          return;
+        }
+        if (
+          ["engine/meshes", "engine/mesh-model"].includes(action) &&
+          method === "POST"
+        ) {
+          const input = await body(req),
+            controller = new AbortController();
+          const cancel = () => controller.abort();
+          res.once("close", cancel);
+          try {
+            json(
+              res,
+              action === "engine/meshes"
+                ? await designEngine.uploadMesh(id, input, controller.signal)
+                : await designEngine.meshModel(id, input, controller.signal),
+            );
+          } finally {
+            res.off("close", cancel);
+          }
+          return;
+        }
         if (action === "engine" && method === "GET") {
           json(res, await designEngine.state(id));
           return;

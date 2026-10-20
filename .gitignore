@@ -19,6 +19,7 @@ coverage/
 
 # Python and CAD / firmware tool caches
 .venv/
+.venv-engine/
 venv/
 __pycache__/
 *.py[cod]

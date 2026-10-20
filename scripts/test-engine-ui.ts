@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { once } from "node:events";
 import assert from "node:assert/strict";
+import { cubeStl } from "../tests/fixtures/stl";
 
 if (!process.env.MAKE_ENGINE_TEST_PYTHON || !process.env.MAKE_TEST_BROWSER)
   throw new Error(
@@ -88,7 +89,7 @@ try {
   assert.match(await bench.innerText(), /1 · valid · simulated/);
   await bench.getByRole("button", { name: "外壳 CAD", exact: true }).click();
   await bench.locator(".model-stage canvas").waitFor();
-  await bench.locator("summary").click();
+  await bench.locator("summary").filter({ hasText: "模型与场景 JSON" }).click();
   await bench
     .getByRole("textbox", { name: "模型快照", exact: true })
     .fill("{}");
@@ -105,6 +106,74 @@ try {
     .click();
   await page.getByRole("button", { name: "CAD 工作台", exact: true }).click();
   await slider.waitFor();
+  if (process.env.MAKE_ENGINE_TEST_MESH) {
+    await bench.locator("summary").filter({ hasText: "导入 STL" }).click();
+    await bench.getByLabel("上传 STL", { exact: true }).setInputFiles([
+      { name: "housing.stl", mimeType: "model/stl", buffer: cubeStl() },
+      { name: "part.stl", mimeType: "model/stl", buffer: cubeStl() },
+    ]);
+    await bench.getByLabel("part.stl 碰撞模式", { exact: true }).waitFor();
+    await bench
+      .getByLabel("housing.stl 碰撞模式", { exact: true })
+      .selectOption("solid");
+    await bench
+      .getByLabel("part.stl 碰撞模式", { exact: true })
+      .selectOption("solid");
+    await bench.getByLabel("part.stl position X", { exact: true }).fill("15");
+    await bench
+      .getByRole("button", { name: "用所选 STL 创建装配", exact: true })
+      .click();
+    await bench.getByRole("button", { name: "运行仿真", exact: true }).click();
+    await bench
+      .locator(".engine-run-status")
+      .filter({ hasText: "completed" })
+      .waitFor();
+    await bench.getByRole("button", { name: /诊断与覆盖/ }).click();
+    await bench.getByText(/FCL triangle-BVH/).waitFor();
+    await bench
+      .getByText(/Envelope overlap at t=0s/)
+      .first()
+      .waitFor();
+    await bench.getByRole("button", { name: "三维场景", exact: true }).click();
+    await bench.locator(".engine-scene canvas").waitFor();
+    // Wait for both asynchronous asset loads, not merely for the WebGL canvas.
+    await bench.locator('.engine-scene[data-loaded-meshes="2"]').waitFor();
+    await bench
+      .locator(".mesh-importer")
+      .screenshot({ path: "test-results/design-engine-stl-import.png" });
+    await bench.locator("summary").filter({ hasText: "导入 STL" }).click();
+    await bench.locator(".engine-scene-layout").scrollIntoViewIfNeeded();
+    await bench.locator(".engine-scene-layout").screenshot({
+      path: "test-results/design-engine-stl-overlap.png",
+    });
+    assert.equal(await bench.locator(".viewer-error").count(), 0);
+    await bench.locator("summary").filter({ hasText: "导入 STL" }).click();
+    await bench.getByLabel("part.stl position X", { exact: true }).fill("40");
+    await bench.getByLabel("part.stl rotation Z", { exact: true }).fill("45");
+    await bench
+      .getByRole("button", { name: "用所选 STL 创建装配", exact: true })
+      .click();
+    await bench.getByRole("button", { name: "运行仿真", exact: true }).click();
+    await bench
+      .locator(".engine-run-status")
+      .filter({ hasText: "completed" })
+      .waitFor();
+    assert.equal(await bench.locator(".engine-collision").count(), 0);
+    await bench.locator('.engine-scene[data-loaded-meshes="2"]').waitFor();
+    await bench.locator("summary").filter({ hasText: "导入 STL" }).click();
+    await bench.locator(".engine-scene-layout").scrollIntoViewIfNeeded();
+    await bench.locator(".engine-scene-layout").screenshot({
+      path: "test-results/design-engine-stl-separated.png",
+    });
+    await page.reload();
+    await page
+      .getByRole("button", { name: "引擎集成验证", exact: false })
+      .first()
+      .click();
+    await page.getByRole("button", { name: "CAD 工作台", exact: true }).click();
+    await bench.locator('.engine-scene[data-loaded-meshes="2"]').waitFor();
+    assert.equal(await bench.locator(".viewer-error").count(), 0);
+  }
   const project = (await app.store.list())[0];
   await app.store.update(project.id, (p) => {
     p.parameters.width++;
@@ -115,8 +184,14 @@ try {
   await bench.screenshot({ path: "test-results/design-engine-narrow.png" });
   assert.deepEqual(errors, []);
   console.log(
-    "Engine UI: preview, 3D, replay, circuit signals, material flow, CAD, invalid input, persistence and stale Context passed",
+    "Engine UI: preview, 3D, replay, circuit signals, material flow, CAD, invalid input, persistence, stale Context and optional STL upload/render/collision passed",
   );
+} catch (error) {
+  await page.screenshot({
+    path: "test-results/design-engine-failure.png",
+    fullPage: true,
+  });
+  throw error;
 } finally {
   await browser.close();
   app.server.closeAllConnections();
