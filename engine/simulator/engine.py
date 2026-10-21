@@ -12,7 +12,7 @@ from engine.schema.result import SimulationResult
 from engine.compiler.resolve import error
 from engine.compiler.validate import warning
 from engine.simulator.state import SimulationState
-from engine.simulator.registry import check_behavior
+from engine.simulator.registry import check_behavior, input_signal_type
 from engine.simulator.logic import sample, settle
 from engine.simulator.environment import SensorScheduler
 from engine.simulator.kinematics import forward_kinematics, apply_transmissions, advance_positions
@@ -115,16 +115,7 @@ def preflight(ir, scenario):
                 diagnostics.append(error("behavior.fixture", "Required fixture channel is missing", key))
         for name, binding in b.inputs.items():
             source_type = input_type(binding, obj.scope)
-            if b.model_id in ("pass", "constant"):
-                expected = b.output_type
-            elif b.model_id in ("not", "and", "or", "timer"):
-                expected = SignalType(kind="digital")
-            elif b.model_id == "pulse_position_command":
-                expected = SignalType(kind="scalar", unit="s")
-            elif b.model_id == "threshold":
-                expected = SignalType(kind="scalar", unit=b.parameters["threshold"].unit)
-            else:
-                expected = SignalType(kind="event")
+            expected = input_signal_type(b)
             if source_type and not compatible(source_type, expected):
                 diagnostics.append(error("behavior.input_type", "Behavior input has incompatible signal type", key, name))
             if binding.kind == "constant":
@@ -211,7 +202,8 @@ def simulate(ir, scenario: Scenario, *, cancelled=None, asset_resolver=None) -> 
         return result("failed")
     state.joint_velocities = {key: 0.0 for key in state.joint_positions}
     roots = {ir.resolve(p.body_ref): p.world_pose for p in scenario.roots}
-    fixtures = {key: sample(typed_value(c.initial_value, c.signal_type), 0.0, "fixture") for key, c in scenario.channels.items()}
+    fixtures = {key: sample(typed_value(c.initial_value, c.signal_type), 0.0, "fixture", kind=c.signal_type.kind)
+                for key, c in scenario.channels.items()}
     stimuli = sorted(scenario.stimuli, key=lambda e: (e.time_s, e.channel))
     commands = sorted(scenario.joint_commands, key=lambda e: (e.time_s, e.target.key()))
     stimulus_index = command_index = 0
@@ -224,7 +216,8 @@ def simulate(ir, scenario: Scenario, *, cancelled=None, asset_resolver=None) -> 
             return result("cancelled")
         while stimulus_index < len(stimuli) and stimuli[stimulus_index].time_s <= now + 1e-12:
             event = stimuli[stimulus_index]
-            fixtures[event.channel] = sample(typed_value(event.value, scenario.channels[event.channel].signal_type), now, "fixture")
+            signal_type = scenario.channels[event.channel].signal_type
+            fixtures[event.channel] = sample(typed_value(event.value, signal_type), now, "fixture", kind=signal_type.kind)
             stimulus_index += 1
         while command_index < len(commands) and commands[command_index].time_s <= now + 1e-12:
             event = commands[command_index]

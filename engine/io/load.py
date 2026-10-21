@@ -28,12 +28,20 @@ def _nonfinite(value):
     raise ValueError(f"Non-finite JSON number: {value}")
 
 
-def loads(text: str, record_type: type[T] | None = None) -> T | BaseModel:
+def _record_object(text: str) -> dict:
     if len(text.encode("utf-8")) > MAX_BYTES:
         raise ValueError("Model JSON exceeds the 16 MiB input limit")
     data = json.loads(text, object_pairs_hook=_unique, parse_constant=_nonfinite)
     if not isinstance(data, dict):
         raise ValueError("A record must be a JSON object")
+    return data
+
+
+def loads(text: str, record_type: type[T] | None = None) -> T | BaseModel:
+    data = _record_object(text)
+    if record_type is None and data.get("record_kind") == "component_design":
+        from engine.io.components import parse_component
+        return parse_component(data)
     cls = record_type or RECORDS.get(data.get("record_kind"))
     if cls is None:
         raise ValueError("Unknown record_kind")
@@ -41,7 +49,33 @@ def loads(text: str, record_type: type[T] | None = None) -> T | BaseModel:
     return cls.model_validate_json(json.dumps(data, allow_nan=False))
 
 
+def loads_model(text: str):
+    """CLI model input, retaining support for legacy bundles without record_kind."""
+    data = _record_object(text)
+    kind = data.get("record_kind", "model_bundle")
+    if kind == "component_design":
+        from engine.io.components import parse_component
+        return parse_component(data)
+    if kind != "model_bundle":
+        raise ValueError("Expected a model bundle or component design")
+    return ModelBundle.model_validate_json(json.dumps(data, allow_nan=False))
+
+
+def load_model(path: str | Path):
+    if Path(path).suffix.lower() == ".toml":
+        from engine.io.components import load_component
+        return load_component(path)
+    with Path(path).open("rb") as stream:
+        data = stream.read(MAX_BYTES + 1)
+    if len(data) > MAX_BYTES:
+        raise ValueError("Model JSON exceeds the 16 MiB input limit")
+    return loads_model(data.decode("utf-8"))
+
+
 def load(path: str | Path, record_type: type[T] | None = None):
+    if record_type is None and Path(path).suffix.lower() == ".toml":
+        from engine.io.components import load_component
+        return load_component(path)
     with Path(path).open("rb") as stream:
         data = stream.read(MAX_BYTES + 1)
     if len(data) > MAX_BYTES:

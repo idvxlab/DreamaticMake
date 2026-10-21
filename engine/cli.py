@@ -8,7 +8,7 @@ from pathlib import Path
 from pydantic import ValidationError
 from engine.base.diagnostic import ModelError
 from engine.compiler.lower import compile_model
-from engine.io.load import load, loads, MAX_BYTES
+from engine.io.load import load, loads, load_model, loads_model, MAX_BYTES
 from engine.io.save import content_hash, canonical_json
 from engine.io.json_schema import export_schema
 from engine.schema.assembly import ModelBundle
@@ -97,7 +97,7 @@ def main(argv=None):
                     if ref.sha256 not in assets:
                         raise ValueError("Referenced STL asset was not supplied")
                     return base64.b64decode(assets[ref.sha256], validate=True)
-                bundle = loads(json.dumps(request["bundle"], allow_nan=False), ModelBundle)
+                bundle = loads_model(json.dumps(request["bundle"], allow_nan=False))
                 scenario = loads(json.dumps(request["scenario"], allow_nan=False), Scenario) if request.get("scenario") else None
                 payload = dispatch(request["method"], bundle, scenario, asset_resolver=resolver)
             output = {"request_id": request_id, "type": "result", "payload": payload}
@@ -114,8 +114,8 @@ def main(argv=None):
                 "sha256": info["sha256"], "media_type": "model/stl"}}}]), "inspection": info}
         else:
             if not args.input:
-                raise ValueError("A model bundle path is required")
-            bundle = load(args.input, ModelBundle)
+                raise ValueError("A model bundle or component design path is required")
+            bundle = load_model(args.input)
             scenario = load(args.scenario, Scenario) if args.scenario else None
             from engine.io.load import read_asset
             resolver = (lambda ref: read_asset(ref, Path(args.asset_root))) if args.asset_root else None

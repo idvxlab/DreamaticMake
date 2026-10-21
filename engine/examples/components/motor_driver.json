@@ -1,0 +1,30 @@
+{
+  "id": "example.motor_driver",
+  "name": "Motor enable driver, logical model only",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "driver_kind": "motor",
+  "channels": {
+    "enable": {
+      "model_id": "pass",
+      "inputs": {
+        "value": {
+          "kind": "fixture",
+          "channel": "enable"
+        }
+      },
+      "output_type": {
+        "kind": "digital"
+      },
+      "kind": "builtin"
+    }
+  },
+  "category": "driver",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "example.oled",
+  "name": "128x64 OLED text command",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "width_px": 128,
+  "height_px": 64,
+  "text": {
+    "kind": "constant",
+    "value": "Ready"
+  },
+  "category": "display",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

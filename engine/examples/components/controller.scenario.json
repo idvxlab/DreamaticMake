@@ -1,0 +1,28 @@
+{
+  "channels": {
+    "temperature": {
+      "initial_value": 40.0,
+      "signal_type": {
+        "kind": "scalar",
+        "protocol": null,
+        "unit": "degC"
+      }
+    }
+  },
+  "dsl_version": "0.2.0-proposal",
+  "duration_s": 0.5,
+  "id": "example.controller.demo",
+  "joint_commands": [],
+  "random_seed": 0,
+  "record_kind": "scenario",
+  "roots": [],
+  "snapshot_id": "0d6579cb308030039833876a03a27de3668c7a2e804f67cc255ab3e87cf2d0ec",
+  "solver_options": {
+    "collision": true,
+    "conservative_shapes": false,
+    "logic_iterations": 32,
+    "max_steps": 10000,
+    "step_s": 0.01
+  },
+  "stimuli": []
+}

@@ -1,0 +1,70 @@
+{
+  "id": "example.slider",
+  "name": "Position-controlled linear actuator",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "case",
+    "bodies": {
+      "case": {},
+      "shaft": {}
+    },
+    "envelopes": {
+      "case": {
+        "body_ref": "case",
+        "shape": {
+          "size_m": [
+            0.04,
+            0.02,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "technology": "linear",
+  "joint": {
+    "kind": "prismatic",
+    "parent_body": {
+      "collection": "bodies",
+      "object_id": "case"
+    },
+    "child_body": {
+      "collection": "bodies",
+      "object_id": "shaft"
+    },
+    "axis": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "position_limit": {
+      "min": {
+        "value": 0.0,
+        "unit": "mm"
+      },
+      "max": {
+        "value": 100.0,
+        "unit": "mm"
+      }
+    },
+    "velocity_limit": {
+      "value": 0.05,
+      "unit": "m/s"
+    },
+    "initial_position": {
+      "value": 0.0,
+      "unit": "mm"
+    },
+    "drive_mode": "position"
+  },
+  "category": "actuator",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

@@ -1,17 +1,17 @@
 from engine.base.signal import Sample, channel_key
 from engine.base.reference import ObjectRef
 from engine.simulator.electrical import resolve_logic, supply_valid
-from engine.simulator.registry import evaluate
+from engine.simulator.registry import evaluate, input_signal_type
 
 
-def sample(value, now, origin="simulated"):
-    quality = "unknown" if value is None or value in ("X", "Z") else "valid"
+def sample(value, now, origin="simulated", *, kind="digital"):
+    quality = "unknown" if value is None or (kind == "digital" and value in ("X", "Z")) else "valid"
     return Sample(value=value, time_s=now, quality=quality, origin=origin)
 
 
 def input_sample(ir, obj, binding, outputs, nets, sensors, fixtures, now):
     if binding.kind == "constant":
-        return sample(binding.value, now)
+        return sample(binding.value, now, kind=input_signal_type(obj.spec).kind)
     if binding.kind == "fixture":
         return fixtures.get(channel_key(obj.scope, binding.channel, fixtures), sample(None, now, "fixture"))
     key = ir.resolve(binding.ref, obj.scope)
@@ -53,7 +53,7 @@ def settle(ir, state, fixtures, now, max_iterations):
                           for terminal in obj.spec.supply_terminals)
             if powered:
                 value, candidate, wakeup = evaluate(obj.spec, inputs, state.behavior_states.get(key, {}), now)
-                new_outputs[key] = sample(value, now)
+                new_outputs[key] = sample(value, now, kind=obj.spec.output_type.kind)
                 candidate_states[key] = candidate
                 if wakeup is not None:
                     wakeups.append(wakeup)

@@ -9,13 +9,23 @@ from engine.schema.assembly import ModelBundle
 from engine.compiler.ir import SimulationIR, BoundJoint, BoundNet, BoundTransmission
 from engine.compiler.resolve import resolve, error
 from engine.compiler.validate import validate_resolved, warning
+from engine.components.base import ComponentDesign
 
 
-def compile_model(bundle: ModelBundle) -> SimulationIR:
+def compile_model(bundle: ModelBundle | ComponentDesign) -> SimulationIR:
+    if isinstance(bundle, ComponentDesign):
+        from engine.io.components import parse_component
+        bundle = parse_component(bundle).to_bundle()
     # Revalidate callers that used unchecked Pydantic model_copy/model_construct.
     bundle = ModelBundle.model_validate_json(canonical_json(bundle))
     r = resolve(bundle)
     diagnostics = validate_resolved(r)
+    for scope, component in r.components.items():
+        if "_component_design" in component.sources:
+            diagnostics.append(warning("component.design_contract",
+                "Category metadata is a design contract. Only lowered geometry, joints, signals and topology execute; "
+                "no firmware, pixel/audio rendering, energy release or physical performance is verified.",
+                "/".join(scope) or component.id))
     if any(d.severity == "error" for d in diagnostics):
         raise ModelError(diagnostics)
     joints = {}

@@ -32,6 +32,38 @@ The examples cover:
 
 ## Python API
 
+For category-specific authoring, start with [the component design API](components/README.md)
+and [16 common component examples](examples/components/README.md). `engine.components` provides
+strict, immutable types for structure, transmission, actuators, light, displays, sound, human
+input, sensors, controllers, drivers, power, transport and mechanical energy storage. Python
+constructors, mappings, JSON and TOML all lower into the existing execution contracts; structure
+also has an explicit STL import entry point. Existing bundles and their hashes are unchanged.
+
+```python
+from engine.components import Light
+from engine.interface.behavior import InputBinding
+from engine.compiler.lower import compile_model
+
+led = Light(id="status", name="Status LED",
+            channels={"brightness": InputBinding(kind="constant", value=0.5)})
+ir = compile_model(led)
+bundle = led.to_bundle()  # Use in the existing application/assembly contract.
+```
+
+```bash
+python -m engine schema component_design
+python -m engine compile engine/examples/components/indicator.toml
+python -m engine simulate engine/examples/components/servo.json --scenario engine/examples/components/servo.scenario.json
+python -m engine.examples.component_assembly
+python -m engine.examples.import_structure
+```
+
+TOML requires Python 3.11+; the STL example requires the optional mesh stack. Control functions
+are typed, named declarative behaviors, while firmware source references remain descriptive.
+Design metadata (e.g. display resolution and energy capacity) is hash-pinned but does not add a
+pixel renderer, energy solver or firmware execution. Save the original `component_design` for
+editing: the lowered definition retains its provenance hash, not the complete source record.
+
 ```python
 from engine.io.load import load
 from engine.compiler.lower import compile_model
@@ -58,8 +90,9 @@ Read `diagnostics`, sample `quality`, and `coverage` even when status is `comple
 | --- | --- |
 | `base/` | Strict contracts, immutable maps, identities, units, frames, references, evidence, samples and diagnostics |
 | `interface/` | Geometry, joints/transmissions, mounts, material paths, terminals/nets, protocol contracts, sensing, effects, behaviors and function/principle mappings |
+| `components/` | Category-specific authoring contracts, validated methods and lowering to stable component/assembly definitions |
 | `schema/` | Components, assemblies, self-contained bundles, scenarios and simulation results |
-| `io/` | Bounded strict JSON, deterministic serialization, explicit asset access and JSON Schema export |
+| `io/` | Bounded strict JSON, category-dispatched mapping/JSON/TOML inputs, deterministic serialization, explicit asset access and JSON Schema export |
 | `compiler/` | Version/hash resolution, recursive instance expansion, aliases, semantic checks and read-only IR |
 | `simulator/` | Kinematics, sampled collisions, four-state logic, built-in behaviors, sensor/event scheduling and traces |
 | `projection/` | Stable-ID scene, circuit/logic and material topology projections |
@@ -70,7 +103,7 @@ The implementation refines some proposal sketches: behavior-output references ar
 
 ## Data and identity rules
 
-- A component JSON contains its physical/electronic domains; Python source files organize semantic types, not individual component records.
+- A standard component JSON contains its physical/electronic domains. A `component_design` instead exposes category-specific fields and is lowered explicitly; Python modules define authoring types, not dynamically loaded device plug-ins.
 - A definition reference includes `id`, positive `revision`, and `content_hash`. Compute it with `engine.io.save.content_hash(definition)` after schema validation. The hash covers the expanded/defaulted JSON representation, with sorted object keys and preserved array order. This is an application-specific encoding, not RFC 8785 or a cross-language semantic hash. Python float fields normalize integer inputs during validation; different units are retained in the source representation.
 - A bundle pins every definition and the root reference. Nested assemblies expand without ambient directory discovery. Exported ports alias descendant objects. Recursive definitions, conflicting revisions, broken hashes, and missing objects fail compilation.
 - References use `{instance_path, collection, object_id}`. Expanded IDs look like `left/servo/joints/axis`; source IDs cannot contain `/`. Ports and connected objects retain these IDs in every view.

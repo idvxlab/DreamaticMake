@@ -1,6 +1,7 @@
 """Closed built-in registry. Descriptions cannot import Python code."""
 
 from engine.base.quantity import UNITS
+from engine.base.signal import SignalType
 
 MODELS = {
     "constant": ({"value"}, set()),
@@ -13,6 +14,21 @@ MODELS = {
     "timer": ({"value"}, {"delay"}),
     "state_machine": ({"event"}, set()),
 }
+
+
+def input_signal_type(spec):
+    """Expected type of each input for the current closed, homogeneous-input models."""
+    if spec.model_id in ("pass", "constant"):
+        return spec.output_type
+    if spec.model_id in ("not", "and", "or", "timer"):
+        return SignalType(kind="digital")
+    if spec.model_id == "pulse_position_command":
+        return SignalType(kind="scalar", unit="s")
+    if spec.model_id == "threshold":
+        return SignalType(kind="scalar", unit=spec.parameters["threshold"].unit)
+    if spec.model_id == "state_machine":
+        return SignalType(kind="event")
+    raise ValueError(f"Unregistered behavior model: {spec.model_id}")
 
 
 def check_behavior(spec):
