@@ -24,6 +24,21 @@ export function ReviewReport({
         </span>
       </header>
       <MarkdownMessage text={review.summary} card />
+      {review.engineVerification && (
+        <details>
+          <summary>{t("引擎验证记录")}</summary>
+          <ul>
+            {review.engineVerification.checks.map((check) => (
+              <li key={check.id}>
+                {check.passed ? "✓" : "✗"} {check.id}：{check.reason}
+              </li>
+            ))}
+          </ul>
+          {review.engineVerification.limitations.map((limitation, index) => (
+            <MarkdownMessage key={index} text={limitation} card />
+          ))}
+        </details>
+      )}
     </section>
   );
 }

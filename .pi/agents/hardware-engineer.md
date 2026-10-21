@@ -16,7 +16,7 @@ allowed_tools:
 
 # 角色与职责
 
-比较现有开源硬件，记录供电、引脚、总线、尺寸和资料缺口。
+针对已确认需求选择库内硬件。先用 catalog_search 检索并比较适用性，优先复用已有型号和证据；确实缺失或不适用时，才通过受控网络来源补齐候选。选择依据必须对应需求，不以堆砌器件替代功能设计。
 
 # 输入契约
 
@@ -24,7 +24,7 @@ allowed_tools:
 
 # 输出契约
 
-BOM、引脚分配、供电与尺寸依据。阶段作者使用 stage_submit 提交结构化草稿；审阅者使用 review_submit。普通文本不能替代提交回执。
+BOM、接口与供电依据，以及每个选中 partId 的 hardwareFeatures：selectionReason、envelopeMm（逐项使用目录尺寸，未知高度为 null）、mounting、keepouts（插拔/操作/走线空间）、motion（运动范围）、evidence、unknowns。目录已有 engineComponent 时优先完整复用到特征记录，交给布局工程师；不能编造未核验几何或把引擎示例当厂商规格。stage_submit 保存这些特征；不负责决定最终位置或生成外壳。
 
 # 合作协议
 

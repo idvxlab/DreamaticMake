@@ -37,7 +37,7 @@ Before execution and again under the project's update queue before publication, 
 - Body transforms, signal samples, effects, and overlap highlights use the same recorded frame. Replay uses recorded timestamps and does not rerun or interpolate physical calculations.
 - Frames may be partial on failure. Quality (`valid`, `unknown`, `stale`, `fault`), origin, diagnostics, and coverage remain visible. Unknown samples are never replaced with zero.
 - Material paths are topology only. Geometric overlap does not establish physical interference. Engine completion does not certify fabrication, electrical safety, firmware execution, or product acceptance.
-- This adapter supports STL assembly creation, model/scenario import and JSON editing. Automatic model synthesis from project BOMs, CAD model generation from engine geometry, and agent-driven model authoring remain separate work.
+- This adapter supports STL assembly creation, model/scenario import and JSON editing. Runtime-bound agent tools additionally compose versioned layouts, import actual enclosure meshes and execute reviewer verification; see [agent design loop](agent-design-loop.md). Automatic synthesis/optimization and general CAD generation from engine geometry are not implemented.
 
 ## STL workflow and collision backend
 

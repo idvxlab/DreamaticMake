@@ -1,4 +1,7 @@
 {
+  "引擎验证记录": "Engine verification record",
+  "硬件物理与空间特征": "Hardware physical and spatial features",
+  "布局目标与建模约束": "Layout goals and CAD constraints",
   "导入 STL / 组装网格": "Import STL / assemble meshes",
   "STL 不含单位。保留原始坐标，位置单位为 mm，旋转为 XYZ 欧拉角（度）。": "STL has no units. Original coordinates are preserved. Placement uses mm and XYZ Euler angles in degrees.",
   "文件单位": "File units",

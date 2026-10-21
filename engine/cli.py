@@ -76,12 +76,17 @@ def main(argv=None):
             if len(text) > MAX_BYTES:
                 raise ValueError("Request exceeds size limit")
             request = json.loads(text, object_pairs_hook=_unique, parse_constant=_nonfinite)
-            if not isinstance(request, dict) or set(request) - {"request_id", "method", "bundle", "scenario", "assets", "data", "unit", "meshes"}:
+            if not isinstance(request, dict) or set(request) - {"request_id", "method", "bundle", "scenario", "assets", "data", "unit", "meshes", "design", "record_kind"}:
                 raise ValueError("Unexpected request fields")
             request_id = request.get("request_id")
             if not isinstance(request_id, str) or len(request_id) > 128:
                 raise ValueError("request_id must be a short string")
-            if request["method"] == "inspect_stl":
+            if request["method"] == "schema":
+                payload = export_schema(request["record_kind"])
+            elif request["method"] == "compose":
+                from engine.io.design import compose_design
+                payload = compose_design(request["design"], request["scenario"])
+            elif request["method"] == "inspect_stl":
                 from engine.io.mesh import inspect_stl
                 payload = inspect_stl(base64.b64decode(request["data"], validate=True), request["unit"])
             elif request["method"] == "mesh_bundle":

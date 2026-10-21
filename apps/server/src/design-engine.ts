@@ -14,7 +14,8 @@ import {
   Store,
   validId,
 } from "../../../packages/core/src/store";
-import { inputHash } from "../../../packages/core/src/workflow";
+import { currentStage, inputHash } from "../../../packages/core/src/workflow";
+import type { StageId } from "../../../packages/core/src/contracts";
 import { Settings } from "../../../packages/core/src/settings";
 import { runProcess } from "../../../packages/core/src/worker";
 import { replaceFile } from "../../../packages/core/src/atomic-file";
@@ -66,13 +67,20 @@ export class DesignEngine {
   }
 
   private async meshCommand(
-    method: "inspect_stl" | "mesh_bundle",
+    method: "inspect_stl" | "mesh_bundle" | "compose" | "schema",
     input: Record<string, unknown>,
     signal: AbortSignal,
   ) {
     const config = await this.settings.snapshot(),
       requestId = randomUUID();
     const python = config.MAKE_ENGINE_PYTHON;
+    const workerInput = JSON.stringify({
+      request_id: requestId,
+      method,
+      ...input,
+    });
+    if (Buffer.byteLength(workerInput) > 16 * 1024 * 1024)
+      throw new HttpError(413, "引擎建模输入超限");
     let result;
     try {
       result = await this.execute(
@@ -80,7 +88,7 @@ export class DesignEngine {
         ["-B", "-m", "engine", "request"],
         {
           cwd: this.root,
-          input: JSON.stringify({ request_id: requestId, method, ...input }),
+          input: workerInput,
           timeout: 60000,
           signal,
           env: { PYTHONIOENCODING: "utf-8" },
@@ -111,6 +119,22 @@ export class DesignEngine {
     if (reply.type !== "result" || !reply.payload)
       throw new HttpError(503, "STL 处理进程返回异常");
     return reply.payload;
+  }
+
+  async authoring(
+    id: string,
+    method: "compose" | "schema",
+    input: Record<string, unknown>,
+    signal?: AbortSignal,
+  ) {
+    return this.meshTask(
+      id,
+      async (controller) => {
+        await this.store.get(id);
+        return this.meshCommand(method, input, controller.signal);
+      },
+      signal,
+    );
   }
 
   async uploadMesh(id: string, input: unknown, signal?: AbortSignal) {
@@ -228,6 +252,23 @@ export class DesignEngine {
     input: unknown,
     signal?: AbortSignal,
   ): Promise<EngineState> {
+    return this.executeRequest(id, input, signal);
+  }
+  async requestForAgent(
+    id: string,
+    input: unknown,
+    stage: StageId,
+    revision: number,
+    signal?: AbortSignal,
+  ) {
+    return this.executeRequest(id, input, signal, { stage, revision });
+  }
+  private async executeRequest(
+    id: string,
+    input: unknown,
+    signal?: AbortSignal,
+    execution?: { stage: StageId; revision: number },
+  ): Promise<EngineState> {
     const data = requestSchema.parse(input);
     if (this.active.has(id) || this.active.size >= 2)
       throw new HttpError(409, "设计引擎忙，请稍后重试");
@@ -238,7 +279,15 @@ export class DesignEngine {
     if (signal?.aborted) controller.abort();
     try {
       const project = await this.store.get(id);
-      if (project.running) throw new HttpError(409, "请等待项目任务结束");
+      if (execution) {
+        if (
+          !project.running ||
+          currentStage(project) !== execution.stage ||
+          project.stages[execution.stage].revision !== execution.revision
+        )
+          throw new HttpError(409, "智能体引擎执行阶段或版本失效");
+      } else if (project.running)
+        throw new HttpError(409, "请等待项目任务结束");
       if (engineContextKey(project) !== data.contextKey)
         throw new HttpError(409, "项目输入已变化，请刷新设计引擎");
       const bindings = z
@@ -324,6 +373,13 @@ export class DesignEngine {
           throw new HttpError(409, "引擎任务已取消");
         if (engineContextKey(current) !== data.contextKey)
           throw new HttpError(409, "项目输入已变化，本次引擎结果未发布");
+        if (
+          execution &&
+          (!current.running ||
+            currentStage(current) !== execution.stage ||
+            current.stages[execution.stage].revision !== execution.revision)
+        )
+          throw new HttpError(409, "智能体引擎执行阶段或版本失效");
         const folder = join(this.store.dir(id), "jobs", "design-engine");
         await mkdir(folder, { recursive: true });
         await writeFile(

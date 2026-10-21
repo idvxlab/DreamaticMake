@@ -671,6 +671,52 @@ export function App() {
                           </div>
                         ))}
                       </div>
+                      {current.draft.hardwareFeatures?.map((feature) => (
+                        <details key={feature.partId} className="assumptions">
+                          <summary>
+                            {t("硬件物理与空间特征")} · {feature.partId}
+                          </summary>
+                          <MarkdownMessage
+                            text={feature.selectionReason}
+                            card
+                          />
+                          <p>
+                            {feature.envelopeMm.width} ×{" "}
+                            {feature.envelopeMm.depth} ×{" "}
+                            {feature.envelopeMm.height ?? "?"} mm
+                          </p>
+                          {[
+                            ...feature.mounting,
+                            ...feature.keepouts,
+                            ...feature.motion,
+                            ...feature.evidence,
+                            ...feature.unknowns,
+                          ].map((text, index) => (
+                            <MarkdownMessage key={index} text={text} card />
+                          ))}
+                        </details>
+                      ))}
+                      {current.draft.engineDesign && (
+                        <details className="assumptions">
+                          <summary>{t("布局目标与建模约束")}</summary>
+                          {current.draft.engineDesign.constraints.map(
+                            (constraint) => (
+                              <MarkdownMessage
+                                key={constraint.id}
+                                text={`${constraint.kind} · ${constraint.instanceIds.join(", ")}：${constraint.description}`}
+                                card
+                              />
+                            ),
+                          )}
+                          {current.draft.engineDesign.checks.map((check) => (
+                            <MarkdownMessage
+                              key={check.id}
+                              text={`${check.id}：${check.requirement}`}
+                              card
+                            />
+                          ))}
+                        </details>
+                      )}
                       {current.draft.assumptions.length > 0 && (
                         <div className="assumptions">
                           <strong>{t("当前假设")}</strong>

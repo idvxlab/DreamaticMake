@@ -13,6 +13,14 @@ import {
   type Part,
 } from "./contracts";
 import { hash, HttpError, Store } from "./store";
+import { within } from "./store";
+import { readFile } from "node:fs/promises";
+import {
+  designForStage,
+  engineStages,
+  evaluateDesign,
+  type EngineVerification,
+} from "./agent-design";
 export function currentStage(p: Project) {
   return stages.find((s) => p.stages[s].status !== "approved");
 }
@@ -35,7 +43,10 @@ export function inputHash(p: Project, id: StageId) {
     parameters: p.parameters,
     selectedParts: p.selectedParts,
     draft: p.stages[id].draft,
-    artifacts: p.stages[id].artifacts.map((a) => [a.id, a.hash]),
+    // Verification is an output of this input snapshot, never an input to itself.
+    artifacts: p.stages[id].artifacts
+      .filter((a) => a.name !== "engine-verification.json")
+      .map((a) => [a.id, a.hash]),
   });
 }
 export function invalidate(p: Project, id: StageId) {
@@ -66,6 +77,10 @@ export class Workflow {
     input: unknown,
   ) {
     const draft = stageSubmissionSchema(stage).parse(input) as StageDraft;
+    if (draft.engineDesign && !engineStages.includes(stage))
+      throw new HttpError(400, "此阶段不能提交引擎布局");
+    if (draft.hardwareFeatures && stage !== "hardware")
+      throw new HttpError(400, "此阶段不能提交硬件特征");
     if (choiceQuestions(draft.choices))
       throw new HttpError(
         400,
@@ -124,6 +139,19 @@ export class Workflow {
             draft.blockers.push(`${part.name} 的完整安装几何尚未核验`);
         }
         p.selectedParts = draft.partIds;
+        for (const feature of draft.hardwareFeatures ?? []) {
+          const part = selected.find((part) => part.id === feature.partId);
+          if (
+            !part ||
+            feature.envelopeMm.width !== part.dimensions.width ||
+            feature.envelopeMm.depth !== part.dimensions.depth ||
+            feature.envelopeMm.height !== part.dimensions.height
+          )
+            throw new HttpError(
+              400,
+              "硬件特征必须引用选定器件的目录尺寸，不得虚构安装包络",
+            );
+        }
       }
       if (draft.parameters) {
         if (
@@ -152,23 +180,74 @@ export class Workflow {
     revision: number,
     verdict: "pass" | "changes_requested",
     summary: string,
+    verification?: EngineVerification,
   ) {
-    await this.store.update(id, (p) => {
+    await this.store.update(id, async (p) => {
       const s = p.stages[stage];
       if (currentStage(p) !== stage || s.revision !== revision || !s.draft)
         throw new HttpError(409, "审阅输入已失效");
       s.needsReviewOnly = false;
       // A model's prose cannot override current-stage blockers.
-      const inconsistent = verdict === "pass" && s.draft.blockers.length > 0;
+      let engineIssue = "";
+      if (engineStages.includes(stage)) {
+        if (!verification)
+          engineIssue = "缺少当前设计的 engine_verify 执行证据";
+        else {
+          try {
+            await this.verifyEngineEvidence(p, stage, verification);
+          } catch (error) {
+            engineIssue = String(error);
+          }
+        }
+      }
+      const inconsistent =
+        verdict === "pass" && (s.draft.blockers.length > 0 || !!engineIssue);
       s.review = {
         verdict: inconsistent ? "changes_requested" : verdict,
         summary: inconsistent
-          ? `审阅结论未通过服务端校验：当前仍有未解决阻塞，不能确认。硬件完整安装几何缺口必须通过真实资料或实测核验解决，不能通过去重、改写描述或移入 futureChecks 消除；请在硬件页查看待核验器件并补充实测尺寸。\n\n${summary}`
+          ? `审阅结论未通过服务端校验：${engineIssue || "当前仍有未解决阻塞，不能确认。硬件完整安装几何缺口必须通过真实资料或实测核验解决，不能通过去重、改写描述或移入 futureChecks 消除；请在硬件页查看待核验器件并补充实测尺寸。"}\n\n${summary}`
           : summary,
         inputHash: inputHash(p, stage),
+        engineVerification: verification,
       };
       s.status = "awaiting_confirmation";
     });
+  }
+  private async verifyEngineEvidence(
+    p: Project,
+    stage: StageId,
+    verification: EngineVerification,
+  ) {
+    const design = designForStage(p, stage);
+    const artifact = p.stages[stage].artifacts.find(
+      (a) =>
+        a.id === verification.artifactId &&
+        a.name === "engine-verification.json" &&
+        a.revision === p.stages[stage].revision,
+    );
+    if (!design || !artifact || verification.designHash !== hash(design))
+      throw new HttpError(409, "引擎验证缺失或设计已变化");
+    await this.store.verify(p.id, [artifact]);
+    const saved = JSON.parse(
+      await readFile(within(this.store.dir(p.id), artifact.path), "utf8"),
+    );
+    if (
+      saved.designHash !== hash(design) ||
+      saved.record?.contextKey !==
+        hash(stages.map((name) => inputHash(p, name))) ||
+      saved.record?.method !== "workspace" ||
+      saved.record.reply?.type !== "result" ||
+      hash(saved.record.bundle) !== hash(design.bundle) ||
+      hash(saved.record.scenario) !== hash(design.scenario) ||
+      saved.record.reply.payload?.snapshot_id !== design.scenario.snapshot_id ||
+      saved.record.reply.payload?.result?.snapshot_id !==
+        design.scenario.snapshot_id ||
+      !evaluateDesign(design, saved.record.reply.payload).passed
+    )
+      throw new HttpError(
+        409,
+        "当前设计引擎验证未通过，需修复布局/行为/场景或补齐不支持的验证",
+      );
   }
   async approve(
     id: string,
@@ -214,6 +293,15 @@ export class Workflow {
           throw new HttpError(409, "需要当前版本的独立审阅通过");
         if (s.draft.blockers.length)
           throw new HttpError(409, s.draft.blockers.join("；"));
+        if (engineStages.includes(args.stage)) {
+          if (!s.review.engineVerification)
+            throw new HttpError(409, "缺少引擎验证证据");
+          await this.verifyEngineEvidence(
+            p,
+            args.stage,
+            s.review.engineVerification,
+          );
+        }
         if (s.draft.choices.length && !s.draft.selectedChoice)
           throw new HttpError(409, "请先选择方案");
         if (p.messages.some((m) => m.interaction && !m.interaction.answers))

@@ -38,6 +38,7 @@ import { Runtime } from "../../../packages/agent-runtime/src/runtime";
 import { roleIds, loadRole } from "../../../packages/agent-runtime/src/roles";
 import { Engineering } from "./engineering";
 import { DesignEngine } from "./design-engine";
+import { AgentEngine } from "./agent-engine";
 export const root = resolve(
   fileURLToPath(new URL("../../../", import.meta.url)),
 );
@@ -69,6 +70,7 @@ const partSchema = z.object({
   interfaces: z.array(z.string()).max(30),
   notes: z.string().max(5000),
   checkedAt: z.string(),
+  engineComponent: z.record(z.string(), z.unknown()).optional(),
 });
 async function body(req: IncomingMessage) {
   let n = 0;
@@ -115,11 +117,13 @@ export async function createApp(
   }
   const store = new Store(workspace, catalog);
   await store.initialize();
+  const designEngine = new DesignEngine(root, store, settings);
   const workflow = new Workflow(store, catalog),
     engineering = new Engineering(root, store, settings, catalog),
-    runtime = new Runtime(root, store, workflow, settings, engineering);
+    runtime = new Runtime(root, store, workflow, settings, engineering, {
+      agentEngine: new AgentEngine(root, store, designEngine),
+    });
   await store.recover();
-  const designEngine = new DesignEngine(root, store, settings);
   const server = createServer(async (req, res) => {
     try {
       const host = req.headers.host ?? "";
