@@ -108,6 +108,32 @@ try {
   await page.getByRole("button", { name: "创建项目", exact: true }).click();
   await page.getByRole("button", { name: "CAD 工作台", exact: true }).waitFor();
   const project = (await app.store.list())[0];
+  const archivedProject = await app.store.create("归档导航测试", "归档项目");
+  await app.store.update(archivedProject.id, (p) => {
+    p.archived = true;
+  });
+  await page.getByRole("button", { name: "我的项目", exact: true }).click();
+  await page.getByRole("heading", { name: "我的项目", exact: true }).waitFor();
+  const projectBrowser = page.locator(".project-browser");
+  await projectBrowser.getByRole("button", { name: /保留原文项目/ }).waitFor();
+  assert.equal(
+    await projectBrowser.getByRole("button", { name: /归档导航测试/ }).count(),
+    0,
+  );
+  await page.getByLabel("搜索项目", { exact: true }).fill("没有这个项目");
+  await projectBrowser.getByText("没有匹配的项目", { exact: true }).waitFor();
+  await page.getByRole("button", { name: "已归档", exact: true }).click();
+  await page.getByRole("heading", { name: "已归档", exact: true }).waitFor();
+  await projectBrowser.getByRole("button", { name: /归档导航测试/ }).waitFor();
+  assert.equal(
+    await projectBrowser.getByRole("button", { name: /保留原文项目/ }).count(),
+    0,
+  );
+  await page.getByRole("button", { name: "工作台", exact: true }).click();
+  await page.getByRole("heading", { name: /让想法/ }).waitFor();
+  await page.getByRole("button", { name: "我的项目", exact: true }).click();
+  await projectBrowser.getByRole("button", { name: /保留原文项目/ }).click();
+  await page.getByRole("button", { name: "CAD 工作台", exact: true }).waitFor();
   const version = project.version;
   // Returning home must not cancel an active project or mutate project data.
   await app.store.update(project.id, (p) => {

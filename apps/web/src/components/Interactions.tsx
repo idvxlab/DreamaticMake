@@ -1,8 +1,9 @@
 import { ReviewReport } from "./ReviewReport";
+import { ReviewCountdown } from "./ReviewCountdown";
 import { choiceQuestions } from "../../../../packages/core/src/choice-questions";
 import { MarkdownMessage } from "./MarkdownMessage";
 import { t, useLanguage } from "../i18n";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Check,
   ChevronRight,
@@ -200,6 +201,8 @@ export function ApprovalCard({
   onAnswerChoices,
   unverifiedParts = [],
   onInspectHardware,
+  pendingQuestion = false,
+  automaticRepairUsed = false,
 }: {
   stage: Stage;
   disabled: boolean;
@@ -211,6 +214,8 @@ export function ApprovalCard({
   onAnswerChoices?: (answers: Answers) => Promise<void>;
   unverifiedParts?: string[];
   onInspectHardware?: () => void;
+  pendingQuestion?: boolean;
+  automaticRepairUsed?: boolean;
 }) {
   useLanguage();
   const [editing, setEditing] = useState(false),
@@ -222,6 +227,27 @@ export function ApprovalCard({
     !!stage.draft?.choices.length && !stage.draft.selectedChoice;
   const blocked =
     !!stage.draft?.blockers.length || stage.review?.verdict !== "pass";
+  const repairStarted = useRef(false);
+  const repair = async () => {
+    if (repairStarted.current || disabled) return;
+    repairStarted.current = true;
+    try {
+      await onDecision("changes_requested", comment.trim() || undefined);
+    } finally {
+      repairStarted.current = false;
+    }
+  };
+  const automaticRepair =
+    !automaticRepairUsed &&
+    !disabled &&
+    !editing &&
+    !pendingQuestion &&
+    !questions &&
+    !needsChoice &&
+    stage.status === "awaiting_confirmation" &&
+    stage.review?.verdict === "changes_requested" &&
+    !!stage.draft &&
+    unverifiedParts.length === 0;
   return (
     <div className="approval-card">
       <div className="card-kicker">
@@ -309,6 +335,7 @@ export function ApprovalCard({
           onChange={(e) => setComment(e.target.value)}
         />
       )}
+      {automaticRepair && <ReviewCountdown onContinue={repair} />}
       <div className="button-row">
         <button
           disabled={disabled}
@@ -333,9 +360,7 @@ export function ApprovalCard({
           <button
             className="primary"
             disabled={disabled}
-            onClick={() =>
-              void onDecision("changes_requested", comment.trim() || undefined)
-            }
+            onClick={() => void repair()}
           >
             <RotateCcw size={14} /> {t("按审阅意见自动完善")}
           </button>

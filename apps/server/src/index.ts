@@ -3,6 +3,7 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
+import { localLibrary } from "../../../packages/core/src/local-library";
 import { readFile, writeFile, mkdir, stat } from "node:fs/promises";
 import { resolve, join, extname } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -143,6 +144,18 @@ export async function createApp(
       const url = new URL(req.url ?? "/", "http://" + host),
         path = url.pathname;
       const method = req.method ?? "GET";
+      if (path === "/api/local-library" && method === "GET") {
+        json(
+          res,
+          await localLibrary(
+            root,
+            settings,
+            url.searchParams.get("q") ?? "",
+            url.searchParams.get("candidateId") ?? undefined,
+          ),
+        );
+        return;
+      }
       if (path === "/api/health") {
         json(res, { ok: true, pi: "1.3.0", version: "0.1.0" });
         return;

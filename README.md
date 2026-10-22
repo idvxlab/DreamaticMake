@@ -38,6 +38,8 @@ The first firmware build downloads the PlatformIO toolchain and requires network
 
 ## Usage
 
+The hardware tab can search a live local procurement library. Set **Settings → System → Local procurement library directory** to its root (containing `parts_library` and `jd_purchase`). Searches read current SQLite data and extracted parameter evidence without re-exporting; the hardware view refreshes every 30 seconds. Existing project evidence remains versioned. See [local library integration](docs/local-library.md).
+
 Create a project, describe your goals, and answer clarification cards. Review each stage's results before confirming the next stage. The system can revise drafts based on review findings; missing engineering evidence still requires verification. Unverified hardware geometry blocks confirmation.
 
 Current engineering support covers parameterized enclosures and Raspberry Pi Pico firmware. CAD and firmware outputs require actual worker execution; physical printing, assembly, and flashing remain separate steps.

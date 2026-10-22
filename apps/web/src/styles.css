@@ -425,6 +425,72 @@ pre {
   min-height: 0;
   background: #eeede6;
 }
+.local-library {
+  border: 1px solid var(--line);
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow-wrap: anywhere;
+}
+.local-library form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.local-library input {
+  flex: 1;
+  min-width: 120px;
+}
+.local-library article {
+  border-top: 1px solid var(--line);
+  padding: 16px 0;
+}
+.local-library table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.local-library th,
+.local-library td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px;
+  border: 1px solid var(--line);
+}
+.project-browser {
+  padding: 28px;
+  overflow: auto;
+  min-height: 0;
+}
+.project-browser-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.project-browser-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f7f6ef;
+  text-align: left;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.project-browser-card:hover {
+  border-color: #6a854f;
+}
+.project-browser-card p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.project-browser-card small {
+  color: #68745b;
+}
 .workspace-header {
   height: 64px;
   min-height: 64px;

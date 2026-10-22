@@ -1,4 +1,5 @@
 import { validateAnswers } from "../../core/src/answers";
+import { localLibrary } from "../../core/src/local-library";
 import type { Answers } from "../../core/src/contracts";
 import { translate } from "../../core/src/language";
 import { describeToolObject } from "../../core/src/tool-activity";
@@ -481,6 +482,18 @@ export class Runtime {
             catalog: await this.workflow.catalogFor(id),
             attachments: await this.attachments(id),
             research: policy,
+            localLibrary:
+              stage === "hardware"
+                ? await localLibrary(
+                    this.root,
+                    this.settings,
+                    `${p.name} ${p.brief}`.slice(0, 200),
+                  ).catch(() => ({
+                    enabled: true,
+                    error:
+                      "本地采购库暂不可读，请重试；不能将读取故障视为无候选",
+                  }))
+                : undefined,
             submission: {
               geometryAllowed: stage === "appearance" || stage === "structure",
               instructions:
@@ -555,21 +568,65 @@ export class Runtime {
       );
       add(
         "catalog_search",
-        "从带来源和核验状态的本地目录检索硬件。",
+        "检索项目目录和持续更新的本地采购库，返回商品参数证据与独立的需求模板。采购候选须 local_library_read 保存来源后才能 catalog_add；模板不等于商品规格。",
         Type.Object({ query: Type.String() }),
         async ({ query }) => {
           const parts = (await this.workflow.catalogFor(id)).filter((part) =>
             matches(part, query),
           );
-          if (!parts.length) missingQueries.add(query || "当前硬件");
+          const library = await localLibrary(this.root, this.settings, query);
+          const found = parts.length > 0 || !!library.candidates.length;
+          if (!found) missingQueries.add(query || "当前硬件");
+          else missingQueries.delete(query || "当前硬件");
           awaitSource();
           return {
             parts,
-            found: parts.length > 0,
-            nextAction: parts.length
-              ? "核对精确部件与核验状态"
-              : "目录无匹配器件。下一步必须 research_fetch/research_crawl 获取真实官方来源并 catalog_add，或 ask_user 请求来源。不得把用户确认、记忆规格或估计尺寸当作抓取证据。缺少来源且持续无进展时系统会暂停并请求资料。",
+            localLibrary: library,
+            found,
+            nextAction: library.candidates.length
+              ? "先 local_library_read(candidateId) 将参数原文保存为本项目来源，再检查适配和尺寸；资料充分时用同一 URL 执行 catalog_add。不得将需求模板或商品描述视为完整几何核验。"
+              : parts.length
+                ? "核对精确部件与核验状态"
+                : "目录无匹配器件。下一步必须 research_fetch/research_crawl 获取真实官方来源并 catalog_add，或 ask_user 请求来源。不得把用户确认、记忆规格或估计尺寸当作抓取证据。缺少来源且持续无进展时系统会暂停并请求资料。",
             research: parts.length ? undefined : policy,
+          };
+        },
+      );
+      add(
+        "local_library_read",
+        "读取最新的本地采集商品参数及原文，保存不可变来源快照供候选登记和审阅；不会自动选择部件或确认几何。候选 ID 来自 catalog_search 或 context_read.localLibrary。",
+        Type.Object({
+          candidateId: Type.String({ pattern: "^[a-f0-9]{64}$" }),
+        }),
+        async ({ candidateId }) => {
+          const library = await localLibrary(
+            this.root,
+            this.settings,
+            "",
+            candidateId,
+          );
+          const reference = {
+            ...library.record,
+            libraryFingerprint: library.fingerprint,
+            sourceKind: "local_procurement_snapshot",
+          };
+          const artifact = await this.store.artifact(
+            id,
+            stage,
+            revision,
+            "source-local-" + randomUUID() + ".json",
+            JSON.stringify(reference, null, 2),
+            "application/json",
+          );
+          await this.store.update(id, (project) => {
+            if (project.stages[stage].revision !== revision)
+              throw new Error("版本失效");
+            project.stages[stage].artifacts.push(artifact);
+          });
+          return {
+            ...reference,
+            artifactId: artifact.id,
+            artifactHash: artifact.hash,
           };
         },
       );

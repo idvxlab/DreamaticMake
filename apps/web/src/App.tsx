@@ -1,4 +1,5 @@
 import { ReviewReport } from "./components/ReviewReport";
+import { LocalLibrary } from "./components/LocalLibrary";
 import { ChatResizeHandle, readChatWidth } from "./components/ChatResizeHandle";
 import { StageProgress } from "./components/StageProgress";
 import { StageStart } from "./components/StageStart";
@@ -116,6 +117,7 @@ export function App() {
     [tab, setTab] = useState("overview"),
     [search, setSearch] = useState(""),
     [archived, setArchived] = useState(false),
+    [homeView, setHomeView] = useState<"workbench" | "projects">("workbench"),
     [settings, setSettings] = useState(false),
     [newProject, setNewProject] = useState(false),
     [name, setName] = useState(""),
@@ -150,6 +152,8 @@ export function App() {
   const scroll = useRef<HTMLDivElement>(null),
     fileInput = useRef<HTMLInputElement>(null);
   const current = project?.stages[stage];
+  const reviewAttempts = useRef(new Set<string>());
+  const reviewKey = `${project?.id}:${stage}:${current?.revision}:${current?.review?.inputHash}`;
   const pendingQuestion = project?.messages.find(
     (message) => message.interaction && !message.interaction.answers,
   )?.interaction;
@@ -297,6 +301,7 @@ export function App() {
     comment?: string,
   ) {
     if (!project || !current) return;
+    if (decision === "changes_requested") reviewAttempts.current.add(reviewKey);
     await action(async () => {
       await api(`/projects/${project.id}/approvals`, "POST", {
         stage,
@@ -344,6 +349,7 @@ export function App() {
     });
   }
   function openWorkbench() {
+    setHomeView("workbench");
     selectedRef.current = "";
     setSelected("");
     setProject(undefined);
@@ -356,6 +362,12 @@ export function App() {
     setTab("overview");
     setArchived(false);
     setSearch("");
+  }
+  function openProjects(showArchived: boolean) {
+    openWorkbench();
+    setArchived(showArchived);
+    setHomeView("projects");
+    void refreshList().catch((e) => setError(e.message));
   }
   const visible = list.filter(
     (p) =>
@@ -410,10 +422,12 @@ export function App() {
           />
         </label>
         <button
-          className={`nav-item workbench-nav ${!selected ? "active" : ""}`}
+          className={`nav-item workbench-nav ${!selected && homeView === "workbench" ? "active" : ""}`}
           aria-label={t("工作台")}
           title={t("工作台")}
-          aria-current={!selected ? "page" : undefined}
+          aria-current={
+            !selected && homeView === "workbench" ? "page" : undefined
+          }
           onClick={openWorkbench}
         >
           <LayoutDashboard size={16} />
@@ -421,16 +435,28 @@ export function App() {
         </button>
         <div className="nav-caption">WORKSPACE</div>
         <button
-          className={`nav-item ${selected && !archived ? "active" : ""}`}
-          onClick={() => setArchived(false)}
+          className={`nav-item ${!archived && (selected || homeView === "projects") ? "active" : ""}`}
+          aria-label={t("我的项目")}
+          aria-current={
+            !selected && homeView === "projects" && !archived
+              ? "page"
+              : undefined
+          }
+          onClick={() => openProjects(false)}
         >
           <FolderOpen size={16} />
           {t("我的项目")}
           <span>{list.filter((p) => !p.archived).length}</span>
         </button>
         <button
-          className={`nav-item ${selected && archived ? "active" : ""}`}
-          onClick={() => setArchived(true)}
+          className={`nav-item ${archived && (selected || homeView === "projects") ? "active" : ""}`}
+          aria-label={t("已归档")}
+          aria-current={
+            !selected && homeView === "projects" && archived
+              ? "page"
+              : undefined
+          }
+          onClick={() => openProjects(true)}
         >
           <Archive size={16} />
           {t("已归档")}
@@ -499,7 +525,15 @@ export function App() {
                 <Pencil size={12} />
               </button>
             ) : (
-              <strong>{t("工作台")}</strong>
+              <strong>
+                {t(
+                  homeView === "projects"
+                    ? archived
+                      ? "已归档"
+                      : "我的项目"
+                    : "工作台",
+                )}
+              </strong>
             )}
           </div>
           <div className="header-actions">
@@ -745,6 +779,7 @@ export function App() {
               )}
               {tab === "hardware" && (
                 <>
+                  <LocalLibrary />
                   <div className="section-heading">
                     <div>
                       <div className="eyebrow">HARDWARE LIBRARY</div>
@@ -1123,6 +1158,55 @@ export function App() {
               )}
             </div>
           </>
+        ) : homeView === "projects" ? (
+          <section
+            className="project-browser"
+            aria-label={t(archived ? "已归档" : "我的项目")}
+          >
+            <div className="section-heading">
+              <h1>{t(archived ? "已归档" : "我的项目")}</h1>
+            </div>
+            <div className="project-browser-grid">
+              {visible.map((p) => (
+                <button
+                  className="project-browser-card"
+                  key={p.id}
+                  onClick={() => {
+                    setSelected(p.id);
+                    setTab("overview");
+                  }}
+                >
+                  <FolderOpen size={22} />
+                  <strong>{p.name}</strong>
+                  <p>{p.brief}</p>
+                  <small>
+                    {t(
+                      p.running
+                        ? "正在执行"
+                        : stageLabels[
+                            stages.find(
+                              (s) => p.stages[s].status !== "approved",
+                            ) ?? "delivery"
+                          ],
+                    )}
+                  </small>
+                </button>
+              ))}
+            </div>
+            {!visible.length && (
+              <p>
+                {search
+                  ? t("没有匹配的项目")
+                  : t(archived ? "还没有归档项目" : "从一个想法开始你的项目")}
+              </p>
+            )}
+            {!archived && (
+              <button className="primary" onClick={() => setNewProject(true)}>
+                <Plus size={16} />
+                {t("新建项目")}
+              </button>
+            )}
+          </section>
         ) : (
           <div className="welcome">
             <div className="welcome-kicker">
@@ -1289,7 +1373,12 @@ export function App() {
                   !isRunning &&
                   !project.archived && (
                     <ApprovalCard
+                      key={`${project.id}:${stage}:${current.revision}:${current.review.inputHash}`}
                       stage={current}
+                      pendingQuestion={!!pendingQuestion}
+                      automaticRepairUsed={reviewAttempts.current.has(
+                        reviewKey,
+                      )}
                       disabled={!!isRunning || project.archived}
                       onDecision={decision}
                       unverifiedParts={

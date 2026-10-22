@@ -46,6 +46,15 @@ export type ConfigField = {
 };
 export const fields: ConfigField[] = [
   {
+    key: "MAKE_LOCAL_LIBRARY",
+    label: "本地采购库目录",
+    default: "",
+    module: "system",
+    example: "../小家电元件库",
+    description:
+      "只读连接含 parts_library 与 jd_purchase 的目录。每次检索读取最新数据库和参数文件，硬件页每 30 秒刷新。已选项目保留证据快照，不自动改写审批或已确认尺寸。使用 CAD Python，无需另装依赖。",
+  },
+  {
     key: "MAKE_RESEARCH_SOURCES",
     label: "硬件资料入口（HTTPS）",
     default: defaultResearchSources,
