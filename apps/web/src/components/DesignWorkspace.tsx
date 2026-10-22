@@ -36,6 +36,28 @@ export function DesignWorkspace(
   },
 ) {
   useLanguage();
+  type DesignCase = {
+    id: string;
+    title: string;
+    summary: string;
+    focus: string[];
+  };
+  const [cases, setCases] = useState<DesignCase[]>([]),
+    [caseError, setCaseError] = useState("");
+  const [caseSource, setCaseSource] = useState<DesignCase | null>(null);
+  useEffect(() => {
+    let disposed = false;
+    void api<DesignCase[]>("/design-cases")
+      .then((value) => {
+        if (!disposed) setCases(value);
+      })
+      .catch((error) => {
+        if (!disposed) setCaseError(String(error));
+      });
+    return () => {
+      disposed = true;
+    };
+  }, []);
   const [view, setView] = useState("structure"),
     [state, setState] = useState<WorkspaceState | null>(null);
   const [draft, setDraft] = useState<LayoutDraft>(emptyLayout),
@@ -376,7 +398,9 @@ export function DesignWorkspace(
           )
         : result.draft;
       change(next);
+      setProjection(null);
       setRaw(JSON.stringify(next, null, 2));
+      return true;
     } catch (e) {
       setError(String(e));
     } finally {
@@ -389,8 +413,32 @@ export function DesignWorkspace(
         `/projects/${props.projectId}/engine/examples/${name}`,
       );
       await importSource(value.bundle, value.scenario);
+      setCaseSource(null);
     } catch (e) {
       setError(String(e));
+    }
+  }
+  async function loadCase(id: string) {
+    setBusy(true);
+    setError("");
+    try {
+      const value = await api<{
+        metadata: DesignCase;
+        source: object;
+        notebook: NotebookDocument;
+      }>(`/design-cases/${id}`);
+      const doc = notebookSchema.parse(value.notebook);
+      if (await importSource(value.source)) {
+        changeNotebook(doc);
+        setCaseSource(value.metadata);
+        setView("structure");
+        setSelected("");
+        setHovered([]);
+      }
+    } catch (error) {
+      setError(String(error));
+    } finally {
+      setBusy(false);
     }
   }
   function addBox() {
@@ -448,20 +496,21 @@ export function DesignWorkspace(
     const p = draft.ports[ref];
     return p?.body && p.pose ? [{ body: p.body, pose: p.pose }] : [];
   });
-  const frame: EngineFrame | undefined = preview
-    ? {
-        time_s: 0,
-        body_poses: Object.fromEntries(
-          preview.scene.bodies.map((b) => [b.entity_ref, b.world_pose!]),
-        ),
-        joint_positions: preview.motion?.joint_positions ?? jointInputs,
-        network_samples: {},
-        behavior_outputs: {},
-        sensor_samples: {},
-        effects: {},
-        collisions: preview.scene.collisions,
-      }
-    : undefined;
+  const frame: EngineFrame | undefined =
+    preview && preview.snapshot_id === projection?.snapshot_id
+      ? {
+          time_s: 0,
+          body_poses: Object.fromEntries(
+            preview.scene.bodies.map((b) => [b.entity_ref, b.world_pose!]),
+          ),
+          joint_positions: preview.motion?.joint_positions ?? jointInputs,
+          network_samples: {},
+          behavior_outputs: {},
+          sensor_samples: {},
+          effects: {},
+          collisions: preview.scene.collisions,
+        }
+      : undefined;
   const problems = [
     ...(displayed?.diagnostics ?? []),
     ...(preview?.check?.diagnostics ?? []),
@@ -503,6 +552,7 @@ export function DesignWorkspace(
   }
   const scene = projection && (
     <EngineScene
+      key={caseSource?.id ?? "workspace"}
       projectId={props.projectId}
       scene={projection.scene}
       frame={frame}
@@ -576,6 +626,37 @@ export function DesignWorkspace(
                 : t("布局就绪")}
         </span>
       </div>
+      {!!cases.length && (
+        <section className="workspace-cases" aria-label={t("设计案例")}>
+          <div>
+            <strong>{t("设计案例")}</strong>
+            <small>
+              {t(
+                "载入会替换当前未保存的布局与代码；保存草稿后保留到当前项目。",
+              )}
+            </small>
+          </div>
+          <div className="workspace-case-cards">
+            {cases.map((item) => (
+              <button
+                key={item.id}
+                disabled={busy || !state}
+                onClick={() => void loadCase(item.id)}
+              >
+                <strong>{item.title}</strong>
+                <span>{item.focus.join(" · ")}</span>
+                <small>{item.summary}</small>
+              </button>
+            ))}
+          </div>
+          {caseSource && (
+            <p>
+              {t("案例来源")}: projects/{caseSource.id}/
+            </p>
+          )}
+        </section>
+      )}
+      {caseError && <p role="alert">{caseError}</p>}
       {error && (
         <p className="engine-notice error" role="alert">
           {error}
@@ -801,13 +882,13 @@ export function DesignWorkspace(
       </div>
       <div className="engine-actions">
         <button
-          disabled={busy || !projection}
+          disabled={busy || processing || !projection}
           onClick={() => void check("layout_collision")}
         >
           {t("检查当前姿态碰撞")}
         </button>
         <button
-          disabled={busy || !projection}
+          disabled={busy || processing || !projection}
           onClick={() => void check("layout_connectivity")}
         >
           {t("检查连通关系")}
@@ -947,7 +1028,9 @@ export function DesignWorkspace(
             contextKey={state?.contextKey}
             busy={busy}
             onBusy={setBusy}
-            onDocuments={(b, s) => importSource(b, s, true)}
+            onDocuments={async (b, s) => {
+              await importSource(b, s, true);
+            }}
           />
           <CadBindings
             projectId={props.projectId}

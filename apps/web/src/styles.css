@@ -4006,3 +4006,34 @@ pre {
     min-height: 280px;
   }
 }
+.workspace-cases {
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid var(--line, #d9dfcf);
+  border-radius: 12px;
+}
+.workspace-cases > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: baseline;
+}
+.workspace-case-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.workspace-case-cards button {
+  text-align: left;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+.workspace-case-cards small {
+  line-height: 1.6;
+}
+.workspace-cases p {
+  font-size: 12px;
+  margin: 10px 0 0;
+}

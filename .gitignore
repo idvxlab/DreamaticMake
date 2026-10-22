@@ -13,6 +13,7 @@ coverage/
 
 # Project runtime data, sessions, uploads and generated engineering artifacts
 /workspace/
+/projects/
 
 # Local AI collaboration documents
 /agent/

@@ -1,4 +1,7 @@
 {
+  "设计案例": "Design cases",
+  "载入会替换当前未保存的布局与代码；保存草稿后保留到当前项目。": "Loading replaces the current unsaved layout and code. Save the draft to keep it in this project.",
+  "案例来源": "Case source",
   "产品设计工作台": "Product design workspace",
   "布局元件、预览运动、检查连接，并关联 CAD 几何。": "Lay out components, preview motion, check connections and link CAD geometry.",
   "布局、连接与逻辑": "Layout, connections and logic",

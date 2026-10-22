@@ -381,6 +381,7 @@ export function EngineScene({
   return (
     <div
       className="model-stage engine-scene"
+      data-body-count={scene.bodies.length}
       data-loaded-meshes={meshProgress.loaded}
       data-highlighted-bodies={highlighted.join(",")}
     >

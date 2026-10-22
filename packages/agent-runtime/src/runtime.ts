@@ -484,6 +484,7 @@ export class Runtime {
             Type.Literal("component_design"),
             Type.Literal("scenario"),
             Type.Literal("layout_draft"),
+            Type.Literal("layout_project"),
           ]),
         }),
         async ({ kind }) =>

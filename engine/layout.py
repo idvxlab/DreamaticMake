@@ -408,6 +408,9 @@ def dispatch_layout(method, data, resolver=None):
 
 def import_layout(source, scenario=None):
     """Import strict legacy definitions without compiling electrical/kinematic semantics."""
+    if source.get("record_kind") == "layout_project":
+        from engine.layout_project import compose_project
+        return compose_project(source)
     from engine.io.load import loads_model
     from engine.compiler.resolve import resolve
     from engine.components.assembly import assemble_components

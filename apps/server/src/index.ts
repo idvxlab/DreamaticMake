@@ -40,6 +40,7 @@ import { Engineering } from "./engineering";
 import { DesignEngine } from "./design-engine";
 import { AgentEngine } from "./agent-engine";
 import { DesignWorkspace } from "./design-workspace";
+import { DesignCases } from "./design-cases";
 export const root = resolve(
   fileURLToPath(new URL("../../../", import.meta.url)),
 );
@@ -120,6 +121,7 @@ export async function createApp(
   await store.initialize();
   const designEngine = new DesignEngine(root, store, settings);
   const designWorkspace = new DesignWorkspace(store, designEngine);
+  const designCases = new DesignCases(join(root, "projects"));
   const workflow = new Workflow(store, catalog),
     engineering = new Engineering(root, store, settings, catalog),
     runtime = new Runtime(root, store, workflow, settings, engineering, {
@@ -151,6 +153,17 @@ export async function createApp(
       const url = new URL(req.url ?? "/", "http://" + host),
         path = url.pathname;
       const method = req.method ?? "GET";
+      if (path === "/api/design-cases" && method === "GET") {
+        json(res, await designCases.list());
+        return;
+      }
+      const caseMatch = path.match(
+        /^\/api\/design-cases\/([a-z][a-z0-9_-]{0,63})$/,
+      );
+      if (caseMatch && method === "GET") {
+        json(res, await designCases.load(caseMatch[1]));
+        return;
+      }
       if (path.startsWith("/api/notebook/")) {
         if (method !== "GET") throw new HttpError(405, "不支持此方法");
         const asset = path.slice("/api/notebook/".length);
