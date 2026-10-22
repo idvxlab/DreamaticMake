@@ -176,6 +176,77 @@ async function fixture() {
 }
 const real = { skip: !process.env.MAKE_ENGINE_TEST_PYTHON };
 test(
+  "real circuit layouts keep pin positions and cannot pass review without analog coverage",
+  real,
+  async () => {
+    const f = await fixture();
+    try {
+      const input: any = layout();
+      const resistor = {
+        record_kind: "component_design",
+        category: "circuit_element",
+        id: "r1",
+        name: "Assumed resistor",
+        geometry: structuredClone(component.geometry),
+        spec: {
+          kind: "resistor",
+          resistance: { value: 220, unit: "ohm" },
+        },
+        wiring: {
+          terminals: {
+            a: {
+              physical_pin_number: "1",
+              electrical_role: "passive",
+              body_ref: "body",
+              pose: { translation_m: [-0.002, 0, 0] },
+            },
+            b: {
+              physical_pin_number: "2",
+              electrical_role: "passive",
+              body_ref: "body",
+              pose: { translation_m: [0.002, 0, 0] },
+            },
+          },
+        },
+      };
+      input.source.components.led = resistor;
+      input.checks = [input.checks[0]];
+      const design = await f.agent.compose(f.p.id, "structure", 1, input);
+      await f.workflow.submit(f.p.id, "structure", 1, "mechanical-engineer", {
+        title: "Circuit layout",
+        summary: "Geometry and pins only",
+        facts: [],
+        engineDesign: design,
+      });
+      const verification = await f.agent.verify(f.p.id, "structure", 1);
+      assert.equal(verification.passed, false);
+      const state = await f.engine.state(f.p.id);
+      assert.equal(state.record?.reply.type, "result");
+      if (state.record?.reply.type === "result") {
+        const payload = state.record.reply.payload;
+        assert(
+          payload.diagnostics?.some(
+            (d) => d.code === "circuit.analysis_unavailable",
+          ),
+        );
+        assert.equal(payload.circuit?.terminals.length, 2);
+        assert.deepEqual(
+          payload.circuit?.terminals[0].pose?.translation_m,
+          [-0.002, 0, 0],
+        );
+      }
+      const library = await f.agent.library(f.p.id, "resistor");
+      assert(
+        library.templates.some(
+          (item) => item.component.category === "circuit_element",
+        ),
+      );
+    } finally {
+      await rm(f.folder, { recursive: true, force: true });
+    }
+  },
+);
+test(
   "real CAD STL handoff is composed and verified as actual mesh geometry",
   {
     skip:

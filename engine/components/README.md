@@ -27,6 +27,7 @@
 | `power` / `PowerSource` | USB、电池、供电源；本版执行理想定压源 | P01/P02/P07/P12 |
 | `transport` / `Transport` | 风路、水路、颗粒送料、阀、被动流路；不是额外的电机 | P02/P05/P06 |
 | `energy_storage` / `EnergyStorage` | 扭簧、压簧、飞轮的能量容量与初始状态声明 | P13 |
+| `circuit_element` / `CircuitElement` | 电阻、电容、电感、二极管、晶体管、光晶体管输出光耦；规格、封装及接线描述 | 基础电路建模扩展 |
 
 充电、DC/DC、耗电续航、热学、弹性动力学等尚无对应求解器。本版没有把它们包装成可执行能力。网络时间、手机、USB 主机、天气服务是外部参与者，通过场景输入或协议/固件契约描述，不伪装成本地传感器。外购总成和多功能模块可用已有 `AssemblyDefinition` 展开，或保留原底层 `ComponentDefinition` 表达黑盒。
 
@@ -141,3 +142,55 @@ part = Structure.from_stl(
 ## 6. 扩展方式
 
 增加新类别时，在 `components/` 增加严格的 `ComponentDesign` 子类与 `_lower()`，加入 `Component` 判别联合，并补全输入往返、错误类别、编译/仿真或明确不支持的测试。新增输入格式只负责解析到同一契约。新增物理能力则必须扩展底层领域契约/执行器和相应版本，不能只加字段后宣称可计算。
+
+## 7. 紧凑描述接口与基础电路器件
+
+引擎 `0.3.0` 保留 DSL `0.2.0-proposal` 和分类设计字符串版本 `"1"`，类别数增为 14。原有标准定义结构不变；未给新字段时省略扩展字段序列化，原 16 组示例和场景哈希保持兼容。相关类别各增加一个可选 `spec`，类型来自 [specs.py](specs.py)：
+
+| 大类 | `spec` 类型 | 描述内容 |
+| --- | --- | --- |
+| `Structure` / `TransmissionComponent` | `MechanicalDescription` | 子类型、标准、名义尺寸和材料；尺寸检查正长度 |
+| `Actuator` | `ActuatorDescription` | 反馈类型、整步数、限位端子、额定力/转矩；`technology` 增加 solenoid/vibration |
+| `Light` | `LightDescription` | 单灯/RGB/灯带/可寻址类型，数量、颜色顺序、协议、数据端子、功率 |
+| `Display` | `DisplayDescription` | OLED/TFT/字符/电子纸/数码管/点阵技术，可视区、刷新、总线、排线出口 |
+| `Sound` | `SoundDescription` | 阻抗、额定功率、声孔位置 |
+| `Sensor` | `InertialDescription` / `CameraDescription` / `MicrophoneDescription` | IMU 轴到测量项的映射与坐标系；图像/音频流规格和空间接口 |
+| `PowerSource` | `PowerDescription` | 电池容量/化学体系，理想源输出电流上限的描述 |
+
+`PowerSource` 另接受可选 `wiring`，必须提供 `positive/ground` 两个正确角色端子；可保存脚号、刚体、局部位姿和连接器。额定电压与参考地由电源统一补入，冲突输入拒绝。电池容量支持 `C/Ah/mAh`，当前不计算续航或限流响应。
+
+`Sensor.measurements` 对普通传感器/IMU 仍要求非空；camera/microphone 可以只写流描述。IMU 各轴必须引用不同的已声明测量项，并匹配加速度、角速度或磁感应强度量纲。新增 `m/s2/g0/T/uT`；其中标准重力用 `g0`，`g` 仍表示克。所有描述中的局部坐标必须引用本元件已有刚体。
+
+新增 `CircuitElement` 只有必填 `spec/wiring` 两个专有字段，复用公共几何、安装、证据和来源。`spec` 用 `kind` 分派六类严格结构，见 [circuit.py](circuit.py)：
+
+| 子类型 | 规格 | 语义端子名 |
+| --- | --- | --- |
+| `resistor` | 阻值、可选相对容差/功率 | `a/b` |
+| `capacitor` | 容值、极性、可选耐压 | 非极性 `a/b`，极性 `positive/negative` |
+| `inductor` | 电感、可选额定电流 | `a/b` |
+| `diode` | 整流/肖特基/稳压类型，可选正向电压/反向耐压/额定电流 | `anode/cathode` |
+| `transistor` | NPN/PNP/NMOS/PMOS，可选耐压/额定电流 | BJT `base/collector/emitter`；MOSFET `gate/drain/source`，可选 `body` |
+| `optocoupler` | 光晶体管输出，可选隔离电压/电流传输比 | `anode/cathode/collector/emitter`，可选 `base/nc` |
+
+六种规格都可写 `package`。端子的 `physical_pin_number` 用于实际封装编号，须非空且互不重复；语义端子采用 `electrical_role="passive"`，拒绝理想数字驱动/上下拉。新增电路单位为 `ohm/kohm/Mohm/F/uF/nF/pF/H/mH/uH`。电阻允许 0 Ω，其余元件量值和额定值按各自契约校验。
+
+```python
+from engine.components import CircuitElement
+from engine.components.circuit import ResistorSpec
+from engine.base.quantity import Quantity
+from engine.interface.electrical import ElectricalSpec, Terminal
+
+resistor = CircuitElement(id="r1", name="假设电阻",
+    spec=ResistorSpec(resistance=Quantity(value=220.0, unit="ohm"), tolerance=0.05),
+    wiring=ElectricalSpec(terminals={
+        "a": Terminal(physical_pin_number="1", electrical_role="passive"),
+        "b": Terminal(physical_pin_number="2", electrical_role="passive")}))
+```
+
+需要实体布局时，应另外补齐公共 `geometry` 与端子 `body_ref/pose`。本轮没有强制全部逻辑/物理模型都填写几何。
+
+`spec` 完整保存在分类源记录中，参与 `_component_design` 来源哈希；标准定义生成 `_description` 功能标记，不复制全部规格，编辑/读取规格应保留源文件。名义尺寸不自动改几何，步数/反馈不自动建立闭环，灯带协议不自动生成逐灯数据，显示刷新和音频参数也不启用渲染器。
+
+基础器件编译保留 `circuit.analysis_unavailable`，camera/microphone 保留 `sensor.stream_unavailable`，均为 `outcome="unsupported"`。当前可预览几何/端子和检查外部网络，但不跨器件两脚传播模拟电流，也不生成图像或音频样本。运行 `completed` 仍须检查覆盖诊断；应用独立评审拒绝未支持覆盖。SPI/I2S/PDM/USB/CAN/CSI 协议名称也仅为描述契约。
+
+新合成模板位于 `examples/components/described_*.json`，应用 `engine_library` 可搜索读取。可运行 `python -m engine.examples.described_components` 检查，显式添加 `--write` 再生成文件；它们不是厂商资料或物理验证。更详细的字段、示例和边界见[元件分类与结构化描述](../../agent/代码框架/元件分类与结构化描述.md)。

@@ -12,11 +12,13 @@ from engine.interface.electrical import ElectricalSpec
 from engine.interface.effects import MotionEffect, BehaviorOutputRef
 from engine.schema.scenario import JointCommand
 from engine.components.base import ComponentDesign
+from engine.components.specs import MechanicalDescription, ActuatorDescription, require_positive
 
 
 class Structure(ComponentDesign):
     category: Literal["structure"] = "structure"
     structural_role: Literal["housing", "bracket", "blade", "pointer", "diffuser", "other"] = "other"
+    spec: MechanicalDescription | None = None
 
     @classmethod
     def from_shape(cls, *, id: str, name: str, shape: Shape, **kwargs):
@@ -57,10 +59,11 @@ class Structure(ComponentDesign):
 
 class Actuator(ComponentDesign):
     category: Literal["actuator"] = "actuator"
-    technology: Literal["servo", "dc_motor", "stepper", "linear", "other"]
+    technology: Literal["servo", "dc_motor", "stepper", "linear", "solenoid", "vibration", "other"]
     joint: Joint
     wiring: ElectricalSpec = Field(default_factory=ElectricalSpec)
     control: BehaviorSpec | None = None
+    spec: ActuatorDescription | None = None
 
     @classmethod
     def position_servo(cls, *, id: str, name: str, travel: Range, max_speed: Quantity,
@@ -83,6 +86,14 @@ class Actuator(ComponentDesign):
 
     @model_validator(mode="after")
     def active_joint(self):
+        if self.spec:
+            if self.spec.steps_per_revolution is not None and self.technology != "stepper":
+                raise ValueError("steps_per_revolution applies only to stepper actuators")
+            if any(name not in self.wiring.terminals for name in self.spec.limit_terminals):
+                raise ValueError("Limit terminals must exist in actuator wiring")
+            if len(set(self.spec.limit_terminals)) != len(self.spec.limit_terminals):
+                raise ValueError("Limit terminal references must be unique")
+            require_positive(self.spec.rated_effort, "force" if self.joint.dimension == "length" else "torque")
         if self.joint.kind == "fixed" or self.joint.drive_mode == "passive":
             raise ValueError("Actuators require a position or velocity driven moving joint")
         if self.joint.initial_position is None:
@@ -130,6 +141,7 @@ class TransmissionComponent(ComponentDesign):
     category: Literal["transmission"] = "transmission"
     mechanism: Literal["shaft", "gear", "belt", "screw", "linkage", "bearing"]
     motion: MotionSpec
+    spec: MechanicalDescription | None = None
 
     def joint_ref(self, name: str, *, instance_path=()):
         if name not in self.motion.joints:

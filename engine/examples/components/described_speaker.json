@@ -1,0 +1,51 @@
+{
+  "id": "described.speaker",
+  "name": "Passive buzzer tone command",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "transducer": "speaker",
+  "frequency": {
+    "kind": "constant",
+    "value": 440.0
+  },
+  "spec": {
+    "impedance": {
+      "value": 8.0,
+      "unit": "ohm"
+    },
+    "rated_power": {
+      "value": 1.0,
+      "unit": "W"
+    },
+    "sound_port": {
+      "body_ref": "body"
+    }
+  },
+  "category": "sound",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

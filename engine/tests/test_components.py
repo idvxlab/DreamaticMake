@@ -34,7 +34,7 @@ class ComponentTests(unittest.TestCase):
     def setUpClass(cls):
         cls.examples = examples()
 
-    def test_every_category_roundtrips_and_runs_committed_scenario(self):
+    def test_legacy_categories_roundtrip_and_run_committed_scenarios(self):
         self.assertEqual(len({c.category for c in self.examples.values()}), 13)
         for name, design in self.examples.items():
             with self.subTest(name=name):
@@ -179,7 +179,7 @@ class ComponentTests(unittest.TestCase):
     def test_formats_and_schema(self):
         toml = load(EXAMPLES / "indicator.toml")
         self.assertEqual(toml.channels["brightness"].value, 0.5)
-        self.assertEqual(len(export_schema("component_design")["oneOf"]), 13)
+        self.assertEqual(len(export_schema("component_design")["oneOf"]), 14)
         self.assertEqual(loads(self.examples["servo"].model_dump_json()), self.examples["servo"])
         legacy = self.examples["servo"].to_bundle().model_dump(mode="json")
         legacy.pop("record_kind")

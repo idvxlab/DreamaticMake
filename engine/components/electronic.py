@@ -12,6 +12,9 @@ from engine.interface.sensing import SensorInput
 from engine.interface.effects import ObservableEffect, BehaviorOutputRef
 from engine.interface.function import FunctionSpec
 from engine.components.base import ComponentDesign
+from engine.components.specs import (LightDescription, DisplayDescription, SoundDescription,
+    SensorDescription, InertialDescription, CameraDescription, MicrophoneDescription)
+from engine.base.quantity import UNITS
 
 
 class ElectricalDesign(ComponentDesign):
@@ -30,9 +33,12 @@ class Light(ElectricalDesign):
     category: Literal["light"] = "light"
     channels: dict[Id, InputBinding] = Field(min_length=1)
     supply_terminals: tuple[Id, ...] = ()
+    spec: LightDescription | None = None
 
     @model_validator(mode="after")
     def normalized_constants(self):
+        if self.spec and self.spec.data_terminal and self.spec.data_terminal not in self.wiring.terminals:
+            raise ValueError("Light data_terminal must reference an existing wiring terminal")
         for binding in self.channels.values():
             if binding.kind == "constant" and (isinstance(binding.value, (bool, str)) or
                     not isinstance(binding.value, (float, int)) or not 0 <= binding.value <= 1):
@@ -54,6 +60,7 @@ class Display(ElectricalDesign):
     height_px: int = Field(gt=0)
     text: InputBinding
     supply_terminals: tuple[Id, ...] = ()
+    spec: DisplayDescription | None = None
 
     @model_validator(mode="after")
     def text_constant(self):
@@ -74,6 +81,7 @@ class Sound(ElectricalDesign):
     transducer: Literal["buzzer", "speaker"]
     frequency: InputBinding
     supply_terminals: tuple[Id, ...] = ()
+    spec: SoundDescription | None = None
 
     @model_validator(mode="after")
     def nonnegative_tone(self):
@@ -95,8 +103,23 @@ class Sound(ElectricalDesign):
 
 class Sensor(ElectricalDesign):
     category: Literal["sensor"] = "sensor"
-    measurements: dict[Id, SensorInput] = Field(min_length=1)
+    measurements: dict[Id, SensorInput] = Field(default_factory=dict)
     calibration_notes: tuple[str, ...] = ()
+    spec: SensorDescription | None = None
+
+    @model_validator(mode="after")
+    def measurement_contract(self):
+        if not self.measurements and not isinstance(self.spec, (CameraDescription, MicrophoneDescription)):
+            raise ValueError("Sensors require measurements or an explicit camera/microphone stream description")
+        if isinstance(self.spec, InertialDescription):
+            if len(set(self.spec.axes.values())) != len(self.spec.axes):
+                raise ValueError("IMU axes must reference distinct measurements")
+            for axis, name in self.spec.axes.items():
+                reading = self.measurements.get(name)
+                dimension = {"a": "acceleration", "g": "angular_speed", "m": "magnetic_flux_density"}[axis[0]]
+                if reading is None or reading.signal_type.kind != "scalar" or UNITS[reading.signal_type.unit][0] != dimension:
+                    raise ValueError(f"IMU axis {axis} requires a {dimension} measurement")
+        return self
 
     def read(self, name: str, *, instance_path=()):
         if name not in self.measurements:

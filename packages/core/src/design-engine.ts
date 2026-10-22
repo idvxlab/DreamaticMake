@@ -34,6 +34,15 @@ export type EngineSample = {
   origin: string;
   time_s: number;
 };
+export type EngineTerminal = {
+  entity_ref: string;
+  net_ref: string | null;
+  body_ref?: string | null;
+  pose?: EnginePose | null;
+  physical_pin_number?: string;
+  label?: string;
+  electrical_role?: string;
+};
 export type EngineFrame = {
   time_s: number;
   body_poses: Record<string, EnginePose>;
@@ -88,7 +97,7 @@ export type EnginePayload = {
   scene?: EngineScene;
   circuit?: {
     snapshot_id: string;
-    terminals: { entity_ref: string; net_ref: string | null }[];
+    terminals: EngineTerminal[];
     nets: {
       entity_ref: string;
       members: string[];

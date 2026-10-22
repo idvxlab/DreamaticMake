@@ -1,0 +1,64 @@
+{
+  "id": "described.strip",
+  "name": "RGB indicator, normalized commands",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "wiring": {
+    "terminals": {
+      "din": {
+        "body_ref": "body",
+        "pose": {},
+        "physical_pin_number": "1",
+        "electrical_role": "input"
+      }
+    }
+  },
+  "channels": {
+    "red": {
+      "kind": "constant",
+      "value": 0.8
+    },
+    "green": {
+      "kind": "constant",
+      "value": 0.2
+    },
+    "blue": {
+      "kind": "constant",
+      "value": 0.0
+    }
+  },
+  "spec": {
+    "kind": "addressable",
+    "count": 8,
+    "color_order": "GRB",
+    "protocol": "WS2812",
+    "data_terminal": "din"
+  },
+  "category": "light",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

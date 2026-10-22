@@ -26,6 +26,16 @@ def compile_model(bundle: ModelBundle | ComponentDesign) -> SimulationIR:
                 "Category metadata is a design contract. Only lowered geometry, joints, signals and topology execute; "
                 "no firmware, pixel/audio rendering, energy release or physical performance is verified.",
                 "/".join(scope) or component.id))
+        category = component.functions.get("_category")
+        description = component.functions.get("_description")
+        if category and category.capability == "component.circuit_element":
+            diagnostics.append(warning("circuit.analysis_unavailable",
+                "Circuit element geometry, pins and ratings are described; no analog circuit solver or continuity through the element was executed.",
+                "/".join(scope) or component.id, outcome="unsupported"))
+        if description and description.capability in ("description.sensor.camera", "description.sensor.microphone"):
+            diagnostics.append(warning("sensor.stream_unavailable",
+                "Camera/audio stream specifications are descriptive; no image or audio stream was sampled.",
+                "/".join(scope) or component.id, outcome="unsupported"))
     if any(d.severity == "error" for d in diagnostics):
         raise ModelError(diagnostics)
     joints = {}

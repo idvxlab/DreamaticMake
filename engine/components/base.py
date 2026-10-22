@@ -7,7 +7,8 @@ from engine.interface.mechanical import MechanicalSpec
 from engine.interface.function import FunctionSpec
 from engine.schema.component import Definition, ComponentDefinition, PhysicalSpec, ElectronicSpec
 from engine.schema.assembly import ModelBundle
-from pydantic import Field
+from pydantic import BaseModel, Field, model_serializer, model_validator
+from engine.base.frame import LocalFrame
 from typing import Literal
 
 
@@ -17,6 +18,32 @@ class ComponentDesign(Definition):
     roles: tuple[Id, ...] = ()
     geometry: GeometrySpec = Field(default_factory=GeometrySpec)
     mounts: MechanicalSpec = Field(default_factory=MechanicalSpec)
+
+    @model_serializer(mode="wrap")
+    def omit_absent_extensions(self, handler):
+        # Optional additions must not change legacy design provenance or snapshots.
+        record = handler(self)
+        for name in ("spec", "wiring"):
+            if getattr(self, name, None) is None:
+                record.pop(name, None)
+        return record
+
+    @model_validator(mode="after")
+    def description_frames(self):
+        def visit(value):
+            if isinstance(value, LocalFrame) and value.body_ref not in self.geometry.bodies:
+                raise ValueError("Description frame must reference an existing local body")
+            if isinstance(value, BaseModel):
+                for name in type(value).model_fields:
+                    visit(getattr(value, name))
+            elif isinstance(value, dict):
+                for child in value.values():
+                    visit(child)
+            elif isinstance(value, (tuple, list)):
+                for child in value:
+                    visit(child)
+        visit(getattr(self, "spec", None))
+        return self
 
     def replace(self, **changes):
         """Validated immutable edit, unlike unchecked model_copy(update=...)."""
@@ -44,6 +71,13 @@ class ComponentDesign(Definition):
             source_revision=content_hash(self), locator=f"category={self.category}")}
         capabilities = {**self.functions, "_category": FunctionSpec(
             capability=f"component.{self.category}", operating_conditions=self.roles)}
+        spec = getattr(self, "spec", None)
+        if spec is not None:
+            if "_description" in self.functions:
+                raise ValueError("_description is reserved for typed authoring descriptions")
+            capabilities["_description"] = FunctionSpec(
+                capability=f"description.{self.category}.{getattr(spec, 'kind', self.category)}",
+                operating_conditions=("Typed source description; no additional physical solver executed",))
         for key, value in (functions or {}).items():
             if key in capabilities:
                 raise ValueError(f"Duplicate function ID: {key}")

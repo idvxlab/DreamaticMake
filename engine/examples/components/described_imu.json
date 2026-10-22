@@ -1,0 +1,122 @@
+{
+  "id": "described.imu",
+  "name": "Assumed six-axis IMU",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "measurements": {
+    "ax": {
+      "quantity": "acceleration",
+      "signal_type": {
+        "kind": "scalar",
+        "unit": "m/s2"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "ax"
+      },
+      "sample_period_s": 0.01
+    },
+    "ay": {
+      "quantity": "acceleration",
+      "signal_type": {
+        "kind": "scalar",
+        "unit": "m/s2"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "ay"
+      },
+      "sample_period_s": 0.01
+    },
+    "az": {
+      "quantity": "acceleration",
+      "signal_type": {
+        "kind": "scalar",
+        "unit": "m/s2"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "az"
+      },
+      "sample_period_s": 0.01
+    },
+    "gx": {
+      "quantity": "angular_speed",
+      "signal_type": {
+        "kind": "scalar",
+        "unit": "rad/s"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "gx"
+      },
+      "sample_period_s": 0.01
+    },
+    "gy": {
+      "quantity": "angular_speed",
+      "signal_type": {
+        "kind": "scalar",
+        "unit": "rad/s"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "gy"
+      },
+      "sample_period_s": 0.01
+    },
+    "gz": {
+      "quantity": "angular_speed",
+      "signal_type": {
+        "kind": "scalar",
+        "unit": "rad/s"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "gz"
+      },
+      "sample_period_s": 0.01
+    }
+  },
+  "spec": {
+    "axes": {
+      "ax": "ax",
+      "ay": "ay",
+      "az": "az",
+      "gx": "gx",
+      "gy": "gy",
+      "gz": "gz"
+    },
+    "frame": {
+      "body_ref": "body"
+    },
+    "bus": "i2c",
+    "kind": "imu"
+  },
+  "category": "sensor",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

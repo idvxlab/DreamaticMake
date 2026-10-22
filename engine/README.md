@@ -1,4 +1,4 @@
-# Product Design Engine — 0.2.0
+# Product Design Engine — 0.3.0
 
 This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
 
@@ -63,6 +63,26 @@ are typed, named declarative behaviors, while firmware source references remain 
 Design metadata (e.g. display resolution and energy capacity) is hash-pinned but does not add a
 pixel renderer, energy solver or firmware execution. Save the original `component_design` for
 editing: the lowered definition retains its provenance hash, not the complete source record.
+
+Version 0.3.0 provides 14 authoring categories. Structure/transmission, actuators, light,
+display, sound, sensors and power accept one optional typed `spec` description. These describe
+mechanical standards, feedback/limits, addressable lights, display technology, speaker ratings,
+IMU axes, camera/audio streams and battery ratings. Power additionally accepts optional wiring
+with physical positive/ground pin poses. Absent extension fields are omitted on serialization,
+preserving all existing example snapshot hashes. Source descriptions remain editable records;
+lowered definitions retain their provenance and a `_description` capability marker.
+
+The new `circuit_element` category describes resistors, capacitors, inductors, diodes,
+transistors and phototransistor-output optocouplers through typed `spec` and `wiring` fields.
+Semantic terminal names are checked separately from physical pin numbers. Circuit elements
+emit `circuit.analysis_unavailable`; camera/audio stream descriptions emit
+`sensor.stream_unavailable`, both with unsupported coverage. Geometry previews and terminal
+projections remain available, but no analog conduction, image/audio samples or product acceptance
+are inferred. The application reviewer rejects unsupported coverage. Existing scalar IMU fixtures
+can execute with the new acceleration/magnetic units. Added protocol names are descriptive only.
+
+See [typed descriptions and circuit parts](components/README.md#7-紧凑描述接口与基础电路器件)
+and run `python -m engine.examples.described_components` to compile the synthetic templates.
 
 ```python
 from engine.io.load import load
