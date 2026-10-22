@@ -38,6 +38,8 @@ import { runProcess } from "../../../packages/core/src/worker";
 import { Runtime } from "../../../packages/agent-runtime/src/runtime";
 import { roleIds, loadRole } from "../../../packages/agent-runtime/src/roles";
 import { Engineering } from "./engineering";
+import { DesignEngine } from "./design-engine";
+import { AgentEngine } from "./agent-engine";
 export const root = resolve(
   fileURLToPath(new URL("../../../", import.meta.url)),
 );
@@ -69,6 +71,7 @@ const partSchema = z.object({
   interfaces: z.array(z.string()).max(30),
   notes: z.string().max(5000),
   checkedAt: z.string(),
+  engineComponent: z.record(z.string(), z.unknown()).optional(),
 });
 async function body(req: IncomingMessage) {
   let n = 0;
@@ -115,9 +118,12 @@ export async function createApp(
   }
   const store = new Store(workspace, catalog);
   await store.initialize();
+  const designEngine = new DesignEngine(root, store, settings);
   const workflow = new Workflow(store, catalog),
     engineering = new Engineering(root, store, settings, catalog),
-    runtime = new Runtime(root, store, workflow, settings, engineering);
+    runtime = new Runtime(root, store, workflow, settings, engineering, {
+      agentEngine: new AgentEngine(root, store, designEngine),
+    });
   await store.recover();
   const server = createServer(async (req, res) => {
     try {
@@ -294,6 +300,70 @@ export async function createApp(
       if (match) {
         const [, id, action = ""] = match;
         let p = await store.get(id);
+        if (action === "engine/meshes" && method === "GET") {
+          json(res, await designEngine.meshes.list(id));
+          return;
+        }
+        const meshFile = action.match(/^engine\/meshes\/([a-f0-9-]{36})$/);
+        if (meshFile && method === "GET") {
+          const { bytes } = await designEngine.meshes.get(id, meshFile[1]);
+          res.writeHead(200, {
+            "Content-Type": "model/stl",
+            "Cache-Control": "no-store",
+          });
+          res.end(bytes);
+          return;
+        }
+        if (
+          ["engine/meshes", "engine/mesh-model"].includes(action) &&
+          method === "POST"
+        ) {
+          const input = await body(req),
+            controller = new AbortController();
+          const cancel = () => controller.abort();
+          res.once("close", cancel);
+          try {
+            json(
+              res,
+              action === "engine/meshes"
+                ? await designEngine.uploadMesh(id, input, controller.signal)
+                : await designEngine.meshModel(id, input, controller.signal),
+            );
+          } finally {
+            res.off("close", cancel);
+          }
+          return;
+        }
+        if (action === "engine" && method === "GET") {
+          json(res, await designEngine.state(id));
+          return;
+        }
+        if (action.startsWith("engine/examples/") && method === "GET") {
+          json(
+            res,
+            await designEngine.example(action.slice("engine/examples/".length)),
+          );
+          return;
+        }
+        if (action === "engine/cancel" && method === "POST") {
+          designEngine.abort(id);
+          json(res, { ok: true });
+          return;
+        }
+        if (action === "engine" && method === "POST") {
+          if (engineering.isBusy(id))
+            throw new HttpError(409, "请等待项目任务结束");
+          const input = await body(req);
+          const controller = new AbortController();
+          const cancel = () => controller.abort();
+          res.once("close", cancel);
+          try {
+            json(res, await designEngine.request(id, input, controller.signal));
+          } finally {
+            res.off("close", cancel);
+          }
+          return;
+        }
         if (action === "catalog" && method === "GET") {
           json(res, await workflow.catalogFor(id));
           return;
@@ -385,7 +455,7 @@ export async function createApp(
             .object({ confirmName: z.string().min(1).max(100) })
             .strict()
             .parse(await body(req));
-          if (p.running || engineering.isBusy(id))
+          if (p.running || engineering.isBusy(id) || designEngine.isBusy(id))
             throw new HttpError(409, "请先停止项目任务");
           await store.delete(id, data.confirmName);
           json(res, { ok: true });
@@ -743,7 +813,15 @@ export async function createApp(
       json(res, { error: e instanceof Error ? e.message : "服务异常" }, status);
     }
   });
-  return { server, store, workflow, runtime, engineering, settings };
+  return {
+    server,
+    store,
+    workflow,
+    runtime,
+    engineering,
+    designEngine,
+    settings,
+  };
 }
 if (
   process.argv[1] &&
@@ -760,6 +838,7 @@ if (
       stopping = true;
       const deadline = setTimeout(() => process.exit(1), 5000);
       for (const project of await app.store.list()) {
+        app.designEngine.abort(project.id);
         await app.engineering.abort(project.id);
         await app.runtime.abort(project.id);
       }

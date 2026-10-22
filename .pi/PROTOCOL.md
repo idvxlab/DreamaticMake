@@ -1,5 +1,13 @@
 # DreamaticMake 智能体合作协议 v1
 
+## 设计闭环与职责
+
+保持既有角色和阶段。hardware-engineer 按需求优先检索库内型号，库中缺失/不适用才取网络证据，提交 hardwareFeatures 的关键物理/空间特征。mechanical-engineer 用 engine_layout 组织已有元件、连接、位姿、场景、目标检查，并提交约束给 CAD。cad-engineer 消费布局与约束，生成定制外壳/打印构件，将真实 CAD 网格回传引擎。firmware-engineer 实现软件逻辑，并保持源码接口与引擎声明式行为对应。reviewer 通过 engine_verify 验证当前设计。
+
+engineDesign v1 保存完整 authoring source、编译后 bundle、固定快照的 scenario、硬件实例 bindings、CAD constraints 和可执行 checks。定义哈希由 Python 引擎计算；下游不能移走已有硬件、改变连接/约束、删除目标检查。结构之后的独立审阅必须有当前设计与版本的真实引擎执行证据；缺少模型、验证失败、未知样本或不支持的检查不能用自然语言通过。修复通过当前阶段修改或重开负责的上游阶段进行，保留用户审批边界。
+
+现有执行器仍限于参数化外壳、Pico C++ 与引擎已实现的求解能力。模型行为验证不等于软件源码执行或实物验证。模板示例不是已核验的商品硬件。
+
 ## 身份与阶段
 
 协调者面向用户，通过 agent_dispatch 调用当前阶段的唯一责任人。运行时绑定角色、项目和阶段，工具只按 MD 白名单注册。调度期间不得嵌套调度；同一项目只允许一个执行链。需求/意图归 analyst；硬件归 hardware-engineer；外观归 industrial-designer；结构归 mechanical-engineer；CAD 归 cad-engineer；固件归 firmware-engineer；交付归 reviewer。

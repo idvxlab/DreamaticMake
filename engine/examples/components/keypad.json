@@ -1,0 +1,39 @@
+{
+  "id": "example.keypad",
+  "name": "Two-key input, pre-debounced fixtures",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "input_kind": "keypad",
+  "controls": {
+    "left": {
+      "quantity": "pressed",
+      "signal_type": {
+        "kind": "digital"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "left"
+      },
+      "sample_period_s": 0.01
+    },
+    "right": {
+      "quantity": "pressed",
+      "signal_type": {
+        "kind": "digital"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "right"
+      },
+      "sample_period_s": 0.01
+    }
+  },
+  "category": "human_input",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

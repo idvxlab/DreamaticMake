@@ -1,0 +1,41 @@
+{
+  "channels": {},
+  "dsl_version": "0.2.0-proposal",
+  "duration_s": 0.5,
+  "id": "example.housing.demo",
+  "joint_commands": [],
+  "random_seed": 0,
+  "record_kind": "scenario",
+  "roots": [
+    {
+      "anchored": true,
+      "body_ref": {
+        "collection": "bodies",
+        "instance_path": [],
+        "object_id": "body"
+      },
+      "world_pose": {
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "snapshot_id": "ea66b6295197fa4047240c604de6c9b75956b0e1f49e8cb369e7bf79c959d61a",
+  "solver_options": {
+    "collision": true,
+    "conservative_shapes": false,
+    "logic_iterations": 32,
+    "max_steps": 10000,
+    "step_s": 0.01
+  },
+  "stimuli": []
+}

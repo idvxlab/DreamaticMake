@@ -1,0 +1,660 @@
+{
+  "assemblies": [
+    {
+      "connections": {
+        "electrical_nets": {
+          "ground": {
+            "evidence_refs": [],
+            "kind": "ground",
+            "members": [
+              {
+                "collection": "terminals",
+                "instance_path": [
+                  "supply"
+                ],
+                "object_id": "ground"
+              },
+              {
+                "collection": "terminals",
+                "instance_path": [
+                  "servo"
+                ],
+                "object_id": "ground"
+              }
+            ],
+            "reference_net": null
+          },
+          "power": {
+            "evidence_refs": [],
+            "kind": "power",
+            "members": [
+              {
+                "collection": "terminals",
+                "instance_path": [
+                  "supply"
+                ],
+                "object_id": "positive"
+              },
+              {
+                "collection": "terminals",
+                "instance_path": [
+                  "servo"
+                ],
+                "object_id": "vcc"
+              }
+            ],
+            "reference_net": "ground"
+          }
+        },
+        "material": {},
+        "mechanical": {
+          "arm_mount": {
+            "a": {
+              "collection": "mechanical_ports",
+              "instance_path": [
+                "servo"
+              ],
+              "object_id": "output"
+            },
+            "alignment": {
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            "assumptions": [
+              "Ideal fixed attachment without fit or torque validation."
+            ],
+            "b": {
+              "collection": "mechanical_ports",
+              "instance_path": [
+                "arm"
+              ],
+              "object_id": "mount"
+            },
+            "constraint_mode": "fixed",
+            "joint_ref": null,
+            "method": "fastener"
+          }
+        }
+      },
+      "dsl_version": "0.2.0-proposal",
+      "evidence": {
+        "assumption": {
+          "conditions": "Offline synthetic demonstration only",
+          "kind": "assumed",
+          "locator": null,
+          "note": "Not manufacturer data or evidence of physical validation.",
+          "source_ref": null
+        }
+      },
+      "exported_ports": {},
+      "functions": {},
+      "id": "example.servo_assembly",
+      "instances": {
+        "arm": {
+          "definition_ref": {
+            "content_hash": "1ecebf2bcec85dd8d27d5a7c8b93d65956a96673fc2387ccf69d03e497275c46",
+            "id": "example.link",
+            "revision": 1
+          },
+          "parameter_bindings": {}
+        },
+        "servo": {
+          "definition_ref": {
+            "content_hash": "489d8dc8befcef019f3fbc4ee2ece9342d6937d1d7054620d96fff1890786319",
+            "id": "example.position_actuator",
+            "revision": 1
+          },
+          "parameter_bindings": {}
+        },
+        "supply": {
+          "definition_ref": {
+            "content_hash": "ed55f4385ca127c261a31b7b2de7c28a71ec5d82d92c222993e503c4765ee269",
+            "id": "example.ideal_supply",
+            "revision": 1
+          },
+          "parameter_bindings": {}
+        }
+      },
+      "joints": {},
+      "name": "Synthetic servo assembly",
+      "parameters": {},
+      "principles": {},
+      "realizations": {},
+      "record_kind": "assembly_definition",
+      "revision": 1,
+      "sources": {},
+      "transmissions": {}
+    }
+  ],
+  "components": [
+    {
+      "behaviors": {
+        "controller": {
+          "assumptions": [
+            "Abstract pulse-width fixture; no wire-level PWM timing, torque, backlash, or internal control loop."
+          ],
+          "initial_state": null,
+          "inputs": {
+            "pulse": {
+              "channel": "pulse",
+              "kind": "fixture",
+              "output": "value",
+              "ref": null,
+              "value": null
+            }
+          },
+          "kind": "builtin",
+          "model_id": "pulse_position_command",
+          "model_version": "1",
+          "output_terminals": [],
+          "output_type": {
+            "kind": "scalar",
+            "protocol": null,
+            "unit": "rad"
+          },
+          "parameters": {
+            "angle_max": {
+              "unit": "rad",
+              "value": 1.0
+            },
+            "angle_min": {
+              "unit": "rad",
+              "value": -1.0
+            },
+            "pulse_max": {
+              "unit": "ms",
+              "value": 2.0
+            },
+            "pulse_min": {
+              "unit": "ms",
+              "value": 1.0
+            }
+          },
+          "states": {},
+          "supply_terminals": [
+            "vcc"
+          ],
+          "transitions": []
+        }
+      },
+      "dsl_version": "0.2.0-proposal",
+      "electronic": {
+        "effects": {
+          "rotation": {
+            "behavior_output_ref": {
+              "behavior_id": "controller",
+              "output": "value"
+            },
+            "kind": "motion",
+            "mode": "position",
+            "target_joint": {
+              "collection": "joints",
+              "instance_path": [],
+              "object_id": "axis"
+            },
+            "value_type": {
+              "kind": "scalar",
+              "protocol": null,
+              "unit": "rad"
+            }
+          }
+        },
+        "electrical": {
+          "connectors": {},
+          "terminals": {
+            "ground": {
+              "body_ref": null,
+              "current_limits": null,
+              "drive": "none",
+              "electrical_role": "ground",
+              "evidence_refs": [],
+              "label": "",
+              "nominal_voltage": null,
+              "physical_pin_number": "2",
+              "pose": null,
+              "pull": "none",
+              "reference_terminal": null,
+              "voltage_limits": null
+            },
+            "vcc": {
+              "body_ref": null,
+              "current_limits": null,
+              "drive": "none",
+              "electrical_role": "power_in",
+              "evidence_refs": [],
+              "label": "",
+              "nominal_voltage": null,
+              "physical_pin_number": "1",
+              "pose": null,
+              "pull": "none",
+              "reference_terminal": "ground",
+              "voltage_limits": {
+                "max": {
+                  "unit": "V",
+                  "value": 6.0
+                },
+                "min": {
+                  "unit": "V",
+                  "value": 4.0
+                }
+              }
+            }
+          }
+        },
+        "interfaces": {},
+        "sensors": {}
+      },
+      "evidence": {
+        "assumption": {
+          "conditions": "Offline synthetic demonstration only",
+          "kind": "assumed",
+          "locator": null,
+          "note": "Not manufacturer data or evidence of physical validation.",
+          "source_ref": null
+        }
+      },
+      "functions": {
+        "position": {
+          "acceptance_refs": [],
+          "capability": "motion.bounded_position",
+          "inputs": {},
+          "operating_conditions": [],
+          "outputs": {}
+        }
+      },
+      "id": "example.position_actuator",
+      "name": "Synthetic position actuator",
+      "parameters": {},
+      "physical": {
+        "geometry": {
+          "bodies": {
+            "case": {
+              "description": "",
+              "inertia_ref": null,
+              "mass": null
+            },
+            "shaft": {
+              "description": "",
+              "inertia_ref": null,
+              "mass": null
+            }
+          },
+          "envelopes": {
+            "case": {
+              "approximation": "unknown",
+              "body_ref": "case",
+              "evidence_refs": [
+                "assumption"
+              ],
+              "margin_m": 0.0,
+              "pose": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "purpose": "solid",
+              "shape": {
+                "kind": "box",
+                "size_m": [
+                  0.04,
+                  0.02,
+                  0.03
+                ]
+              }
+            }
+          },
+          "root_body": "case",
+          "visual_assets": {}
+        },
+        "material": {
+          "paths": {},
+          "ports": {}
+        },
+        "mechanical": {
+          "ports": {
+            "output": {
+              "allowed_mates": [
+                "plane"
+              ],
+              "body_ref": "shaft",
+              "dimensions": {},
+              "evidence_refs": [],
+              "kind": "plane",
+              "pose": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "thread": null
+            }
+          }
+        },
+        "motion": {
+          "joints": {
+            "axis": {
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "child_anchor": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "child_body": {
+                "collection": "bodies",
+                "instance_path": [],
+                "object_id": "shaft"
+              },
+              "drive_mode": "position",
+              "effort_limit": null,
+              "evidence_refs": [],
+              "initial_position": {
+                "unit": "rad",
+                "value": 0.0
+              },
+              "kind": "revolute",
+              "parent_anchor": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.04
+                ]
+              },
+              "parent_body": {
+                "collection": "bodies",
+                "instance_path": [],
+                "object_id": "case"
+              },
+              "position_limit": {
+                "max": {
+                  "unit": "rad",
+                  "value": 1.0
+                },
+                "min": {
+                  "unit": "rad",
+                  "value": -1.0
+                }
+              },
+              "velocity_limit": {
+                "unit": "rad/s",
+                "value": 2.0
+              }
+            }
+          },
+          "transmissions": {}
+        }
+      },
+      "principles": {
+        "servo": {
+          "assumptions": [],
+          "behavior_refs": [
+            "controller"
+          ],
+          "input_domains": [],
+          "mechanism": "Ideal rate-limited positioning",
+          "output_domains": []
+        }
+      },
+      "realizations": {
+        "positioning": {
+          "function_ref": "position",
+          "object_refs": [
+            {
+              "collection": "joints",
+              "instance_path": [],
+              "object_id": "axis"
+            }
+          ],
+          "principle_refs": [
+            "servo"
+          ]
+        }
+      },
+      "record_kind": "component_definition",
+      "revision": 1,
+      "sources": {}
+    },
+    {
+      "behaviors": {},
+      "dsl_version": "0.2.0-proposal",
+      "electronic": {
+        "effects": {},
+        "electrical": {
+          "connectors": {},
+          "terminals": {}
+        },
+        "interfaces": {},
+        "sensors": {}
+      },
+      "evidence": {
+        "assumption": {
+          "conditions": "Offline synthetic demonstration only",
+          "kind": "assumed",
+          "locator": null,
+          "note": "Not manufacturer data or evidence of physical validation.",
+          "source_ref": null
+        }
+      },
+      "functions": {},
+      "id": "example.link",
+      "name": "Synthetic rigid link",
+      "parameters": {},
+      "physical": {
+        "geometry": {
+          "bodies": {
+            "link": {
+              "description": "",
+              "inertia_ref": null,
+              "mass": null
+            }
+          },
+          "envelopes": {
+            "link": {
+              "approximation": "unknown",
+              "body_ref": "link",
+              "evidence_refs": [],
+              "margin_m": 0.0,
+              "pose": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.08,
+                  0.0,
+                  0.0
+                ]
+              },
+              "purpose": "solid",
+              "shape": {
+                "kind": "box",
+                "size_m": [
+                  0.16,
+                  0.01,
+                  0.01
+                ]
+              }
+            }
+          },
+          "root_body": "link",
+          "visual_assets": {}
+        },
+        "material": {
+          "paths": {},
+          "ports": {}
+        },
+        "mechanical": {
+          "ports": {
+            "mount": {
+              "allowed_mates": [
+                "plane"
+              ],
+              "body_ref": "link",
+              "dimensions": {},
+              "evidence_refs": [],
+              "kind": "plane",
+              "pose": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "thread": null
+            }
+          }
+        },
+        "motion": {
+          "joints": {},
+          "transmissions": {}
+        }
+      },
+      "principles": {},
+      "realizations": {},
+      "record_kind": "component_definition",
+      "revision": 1,
+      "sources": {}
+    },
+    {
+      "behaviors": {},
+      "dsl_version": "0.2.0-proposal",
+      "electronic": {
+        "effects": {},
+        "electrical": {
+          "connectors": {},
+          "terminals": {
+            "ground": {
+              "body_ref": null,
+              "current_limits": null,
+              "drive": "none",
+              "electrical_role": "ground",
+              "evidence_refs": [],
+              "label": "",
+              "nominal_voltage": null,
+              "physical_pin_number": "-",
+              "pose": null,
+              "pull": "none",
+              "reference_terminal": null,
+              "voltage_limits": null
+            },
+            "positive": {
+              "body_ref": null,
+              "current_limits": null,
+              "drive": "none",
+              "electrical_role": "power_out",
+              "evidence_refs": [],
+              "label": "",
+              "nominal_voltage": {
+                "unit": "V",
+                "value": 5.0
+              },
+              "physical_pin_number": "+",
+              "pose": null,
+              "pull": "none",
+              "reference_terminal": "ground",
+              "voltage_limits": null
+            }
+          }
+        },
+        "interfaces": {},
+        "sensors": {}
+      },
+      "evidence": {
+        "assumption": {
+          "conditions": "Offline synthetic demonstration only",
+          "kind": "assumed",
+          "locator": null,
+          "note": "Not manufacturer data or evidence of physical validation.",
+          "source_ref": null
+        }
+      },
+      "functions": {},
+      "id": "example.ideal_supply",
+      "name": "Assumed ideal 5 V supply",
+      "parameters": {},
+      "physical": {
+        "geometry": {
+          "bodies": {},
+          "envelopes": {},
+          "root_body": null,
+          "visual_assets": {}
+        },
+        "material": {
+          "paths": {},
+          "ports": {}
+        },
+        "mechanical": {
+          "ports": {}
+        },
+        "motion": {
+          "joints": {},
+          "transmissions": {}
+        }
+      },
+      "principles": {},
+      "realizations": {},
+      "record_kind": "component_definition",
+      "revision": 1,
+      "sources": {}
+    }
+  ],
+  "dsl_version": "0.2.0-proposal",
+  "input_revisions": {
+    "synthetic-fixture": 1
+  },
+  "record_kind": "model_bundle",
+  "root": {
+    "content_hash": "cf2e092857c1eddeb2d000e628253c3046c5f9910406140982c0246fa8c99db6",
+    "id": "example.servo_assembly",
+    "revision": 1
+  }
+}

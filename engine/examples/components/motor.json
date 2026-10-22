@@ -1,0 +1,60 @@
+{
+  "id": "example.motor",
+  "name": "DC motor, ideal speed command",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "case",
+    "bodies": {
+      "case": {},
+      "shaft": {}
+    },
+    "envelopes": {
+      "case": {
+        "body_ref": "case",
+        "shape": {
+          "size_m": [
+            0.04,
+            0.02,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "technology": "dc_motor",
+  "joint": {
+    "kind": "continuous",
+    "parent_body": {
+      "collection": "bodies",
+      "object_id": "case"
+    },
+    "child_body": {
+      "collection": "bodies",
+      "object_id": "shaft"
+    },
+    "axis": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "velocity_limit": {
+      "value": 120.0,
+      "unit": "rpm"
+    },
+    "initial_position": {
+      "value": 0.0,
+      "unit": "rad"
+    },
+    "drive_mode": "velocity"
+  },
+  "category": "actuator",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

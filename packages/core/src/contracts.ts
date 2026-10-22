@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  hardwareFeatureSchema,
+  engineDesignSchema,
+  type EngineVerification,
+} from "./agent-design";
 export const stages = [
   "requirements",
   "intent",
@@ -167,6 +172,8 @@ export const stageDraftSchema = z
       .default([]),
     selectedChoice: z.string().optional(),
     partIds: z.array(z.string()).max(20).default([]),
+    hardwareFeatures: z.array(hardwareFeatureSchema).max(20).optional(),
+    engineDesign: engineDesignSchema.optional(),
     parameters: enclosureSchema.optional(),
   })
   .strict();
@@ -219,6 +226,7 @@ export type Stage = {
     verdict: "pass" | "changes_requested";
     summary: string;
     inputHash: string;
+    engineVerification?: EngineVerification;
   };
   error?: string;
   failureSummary?: {
@@ -309,4 +317,6 @@ export type Part = {
   interfaces: string[];
   notes: string;
   checkedAt: string;
+  /** Optional complete engine authoring contract for this exact hardware revision. */
+  engineComponent?: Record<string, unknown>;
 };

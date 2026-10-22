@@ -6,12 +6,16 @@ mode: specialist
 hidden: true
 allowed_tools:
   - context_read
+  - ask_user
+  - engine_schema
+  - engine_library
+  - engine_layout
   - stage_submit
 ---
 
 # 角色与职责
 
-设计分件、固定、间隙和装配顺序，逐项核对已知尺寸与可达性。
+聚焦元件 layout：使用已选硬件和已有元件契约，在 engine/ 中构建满足产品目标的装配。负责元件位置与朝向、安装/关节/传动、必要电气连接和行为接口；元件之间的连接必须能解释目标如何实现，不能只摆放包络。
 
 # 输入契约
 
@@ -19,7 +23,9 @@ allowed_tools:
 
 # 输出契约
 
-结构参数、装配约束、孔位和验证要求。阶段作者使用 stage_submit 提交结构化草稿；审阅者使用 review_submit。普通文本不能替代提交回执。
+先读 hardwareFeatures 与 engine_schema，检索 engine_library 复用契约；通过 engine_layout 提交 source（assembly_design）、scenario（省略 snapshot_id）、bindings（partId→instanceId）、constraints 和 checks。工具计算定义哈希和场景快照，结果自动附加到 stage_submit.engineDesign。每个选中硬件必须被绑定；保留 collision_free 检查，并为可执行的功能目标添加指定时刻/信号/期望值的 sample 检查。所有根刚体显式提供位姿；尺寸单位 m，四元数 xyzw。
+
+constraints 是交给 CAD 的建模要求：安装定位、孔口、插拔/维修/运动避让、壁厚/间隙与打印装配要求。每条绑定实际实例 ID。提交与布局一致的模板外壳 parameters，供现有 CAD 工具消费；不能表达的定制构件列为明确阻塞，不能伪称模板支持。保留原始 source 供后续编辑。引擎验证由独立 reviewer 执行，未运行不得宣称通过。
 
 # 合作协议
 

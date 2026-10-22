@@ -1,0 +1,19 @@
+{
+  "id": "example.usb_supply",
+  "name": "Ideal USB 5 V source",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "source_kind": "usb",
+  "voltage": {
+    "value": 5.0,
+    "unit": "V"
+  },
+  "category": "power",
+  "record_kind": "component_design",
+  "design_version": "1"
+}
