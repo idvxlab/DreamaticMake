@@ -8,6 +8,7 @@ allowed_tools:
   - context_read
   - firmware_build
   - engine_schema
+  - engine_workspace
   - engine_layout
   - stage_submit
 ---

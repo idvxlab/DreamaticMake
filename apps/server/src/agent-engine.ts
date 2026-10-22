@@ -16,6 +16,7 @@ import {
   type EngineDesign,
 } from "../../../packages/core/src/agent-design";
 import { stages, type StageId } from "../../../packages/core/src/contracts";
+import { DesignWorkspace } from "./design-workspace";
 
 export const layoutInputSchema = engineDesignSchema
   .omit({ version: true, bundle: true })
@@ -26,6 +27,9 @@ export const layoutInputSchema = engineDesignSchema
 
 /** Runtime-bound tools only. This service cannot make approval decisions. */
 export class AgentEngine {
+  get workspace() {
+    return new DesignWorkspace(this.store, this.engine);
+  }
   constructor(
     readonly root: string,
     readonly store: Store,
@@ -216,6 +220,31 @@ export class AgentEngine {
     );
     if (inputHash(await this.store.get(id), stage) !== before)
       throw new HttpError(409, "布局输入已变化，请重新编排");
+    if (p.stages[stage].designWorkspace?.pending) {
+      const imported = await this.engine.layout(
+        id,
+        "layout_import",
+        { source: documents.bundle, scenario: documents.scenario },
+        signal,
+      );
+      const proposed = await this.engine.layout(
+        id,
+        "layout_project",
+        { draft: imported.draft },
+        signal,
+      );
+      const pending = await this.engine.layout(
+        id,
+        "layout_project",
+        { draft: p.stages[stage].designWorkspace!.draft },
+        signal,
+      );
+      if (proposed.snapshot_id !== pending.snapshot_id)
+        throw new HttpError(
+          409,
+          "正式设计尚未包含工作台布局；请读取 engine_workspace 并保留用户的布局和连接",
+        );
+    }
     return engineDesignSchema.parse({
       ...data,
       version: 1,
@@ -238,6 +267,34 @@ export class AgentEngine {
       p.stages[stage].revision !== revision
     )
       throw new HttpError(409, "缺少当前版本待审阅设计");
+    if (p.stages[stage].designWorkspace?.pending) {
+      // Only reconcile the submitted design, never a candidate returned by compose.
+      const imported = await this.engine.layout(
+        id,
+        "layout_import",
+        { source: design.bundle, scenario: design.scenario },
+        signal,
+      );
+      const actual = await this.engine.layout(
+        id,
+        "layout_project",
+        { draft: imported.draft },
+        signal,
+      );
+      const expected = await this.engine.layout(
+        id,
+        "layout_project",
+        { draft: p.stages[stage].designWorkspace!.draft },
+        signal,
+      );
+      if (actual.snapshot_id !== expected.snapshot_id)
+        throw new HttpError(409, "待审阅设计尚未包含工作台布局");
+      await this.store.update(id, (current) => {
+        if (inputHash(current, stage) !== inputHash(p, stage))
+          throw new HttpError(409, "工作台布局已变化");
+        current.stages[stage].designWorkspace!.pending = false;
+      });
+    }
     const state = await this.engine.requestForAgent(
       id,
       {

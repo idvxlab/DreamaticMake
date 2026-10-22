@@ -7,6 +7,7 @@ hidden: true
 allowed_tools:
   - context_read
   - engine_schema
+  - engine_workspace
   - engine_verify
   - review_submit
   - stage_submit

@@ -3699,3 +3699,310 @@ pre {
 .review-report .markdown-content strong {
   color: #353e2f;
 }
+
+/* Shared design views: spatial layout, topology and Python experiments. */
+.layout-workbench {
+  min-width: 0;
+}
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 155px minmax(260px, 1fr) 245px;
+  gap: 14px;
+  align-items: start;
+  margin: 18px 0;
+}
+.workspace-tree,
+.workspace-inspector {
+  border: 1px solid #dcded1;
+  border-radius: 12px;
+  background: #f7f8f2;
+  padding: 12px;
+  min-width: 0;
+  max-height: 650px;
+  overflow: auto;
+}
+.workspace-tree h3,
+.workspace-inspector h3 {
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+.workspace-tree button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+}
+.workspace-tree button.active {
+  background: #dfe9c5;
+}
+.workspace-inspector code,
+.workspace-inspector p {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+.workspace-inspector label {
+  display: block;
+  font-size: 11px;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.workspace-inspector input {
+  width: 100%;
+  min-width: 0;
+}
+.workspace-inspector input[type="range"] {
+  padding: 0;
+}
+.workspace-canvas {
+  min-width: 0;
+}
+.workspace-canvas .viewer {
+  height: 480px;
+  min-height: 380px;
+}
+.workspace-mini-scene .viewer {
+  height: 240px;
+  min-height: 200px;
+}
+.workspace-mini-scene .model-stage {
+  min-height: 240px;
+  height: 240px;
+}
+.workspace-grid.diagram {
+  grid-template-columns: minmax(260px, 1fr) 220px;
+}
+.workspace-grid.diagram .workspace-tree {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  max-height: 140px;
+}
+.workspace-grid.diagram .workspace-tree button {
+  width: auto;
+}
+.workspace-mini-scene .viewer-label {
+  font-size: 9px;
+}
+.workspace-mini-scene .viewer-controls {
+  gap: 3px;
+  flex-wrap: wrap;
+}
+.workspace-mini-scene .viewer-controls button {
+  padding: 4px;
+  font-size: 10px;
+}
+.layout-workbench details {
+  border: 1px solid #dadfce;
+  border-radius: 10px;
+  margin-top: 12px;
+  padding: 12px;
+}
+.layout-workbench summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.layout-workbench textarea {
+  width: 100%;
+  min-height: 160px;
+  margin: 10px 0;
+  font:
+    12px/1.65 Consolas,
+    monospace;
+  tab-size: 4;
+}
+.layout-workbench .layout-json {
+  min-height: 320px;
+}
+.workspace-diagnostics button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin: 8px 0;
+}
+.workspace-diagnostics small {
+  overflow-wrap: anywhere;
+}
+.topology-panel {
+  border: 1px solid #d6ddcc;
+  border-radius: 12px;
+  background: #fafbf7;
+  padding: 10px;
+}
+.topology-scroll {
+  overflow: auto;
+  max-height: 570px;
+  min-height: 400px;
+  background-image: radial-gradient(#d6dccb 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.topology-scroll svg {
+  width: 100%;
+  min-width: 300px;
+  touch-action: none;
+}
+.topology-scroll text {
+  font:
+    12px system-ui,
+    sans-serif;
+  fill: #3d4835;
+  pointer-events: none;
+}
+.topology-scroll .graph-port-label {
+  font-size: 10px;
+}
+.graph-node {
+  cursor: grab;
+  outline: none;
+}
+.graph-node rect {
+  fill: #fff;
+  stroke: #bfcbae;
+  stroke-width: 1.5;
+}
+.graph-node.selected rect,
+.graph-node:focus rect,
+.graph-node:hover rect {
+  stroke: #6d8d37;
+  stroke-width: 3;
+  fill: #f5f9ed;
+}
+.graph-node.missing rect {
+  stroke: #bc765d;
+  stroke-dasharray: 5 3;
+  fill: #fff4ec;
+}
+.topology-panel small {
+  font-size: 10px;
+  color: #6d7565;
+}
+.logic-notebook {
+  padding: 12px;
+  border: 1px solid #d4ddc7;
+  border-radius: 12px;
+  background: #fafbf7;
+}
+.logic-notebook p {
+  font-size: 12px;
+  color: #6d7565;
+}
+.notebook-input {
+  display: grid;
+  grid-template-columns: 110px 1fr 75px;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  font:
+    12px Consolas,
+    monospace;
+}
+.notebook-input input {
+  min-width: 0;
+  width: 100%;
+}
+.notebook-cell {
+  margin: 12px 0;
+}
+.notebook-cell header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font:
+    12px Consolas,
+    monospace;
+}
+.notebook-cell textarea {
+  background: #202a27;
+  color: #e0eacb;
+  border-radius: 9px;
+  padding: 14px;
+  min-height: 190px;
+}
+.notebook-output {
+  padding: 12px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    12px/1.6 Consolas,
+    monospace;
+  background: #edf2e6;
+  border-radius: 9px;
+}
+.notebook-output svg {
+  width: 100%;
+  max-height: 180px;
+}
+.logic-notebook output {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 240px;
+  overflow: auto;
+  font-size: 12px;
+}
+.relation-editors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.relation-editors fieldset {
+  min-width: 0;
+  border: 1px solid #d4ddc7;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.relation-editors select,
+.relation-editors input {
+  max-width: 100%;
+  min-width: 0;
+}
+.relation-editors label {
+  width: 100%;
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.workspace-cad .cad-panels {
+  margin-top: 16px;
+}
+@media (max-width: 1250px) {
+  .workspace-grid {
+    grid-template-columns: 120px minmax(240px, 1fr);
+  }
+  .workspace-inspector {
+    grid-column: 1 / -1;
+    max-height: none;
+  }
+  .workspace-grid.diagram {
+    grid-template-columns: minmax(200px, 1fr) 200px;
+  }
+  .workspace-grid.diagram .workspace-inspector {
+    grid-column: auto;
+  }
+  .workspace-mini-scene {
+    max-width: 480px;
+  }
+}
+@media (max-width: 700px) {
+  .workspace-grid,
+  .workspace-grid.diagram,
+  .relation-editors {
+    grid-template-columns: 1fr;
+  }
+  .workspace-tree {
+    max-height: 160px;
+  }
+  .workspace-canvas .viewer {
+    height: 360px;
+    min-height: 280px;
+  }
+}

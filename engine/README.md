@@ -1,4 +1,4 @@
-# Product Design Engine — 0.3.0
+# Product Design Engine — 0.4.0
 
 This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
 
@@ -31,6 +31,38 @@ The examples cover:
 | Temperature-triggered indicator | Celsius input converts to Kelvin, sampling and latency precede a threshold and digital light effect | No thermal solver, physical sensor noise, or illuminance calculation |
 
 ## Python API
+
+### Editable design views (0.4.0)
+
+`engine.layout` adds the versioned `layout_draft` contract, independent of full
+executable-model validation. Syntactically valid but overlapping, disconnected or
+unfinished layouts can be projected and saved. Checks are explicit operations:
+
+```python
+from engine.layout import dispatch_layout
+
+draft = {"record_kind": "layout_draft", "layout_version": 1,
+         "entities": {"controller": {"name": "Controller"}}}
+scene = dispatch_layout("layout_project", {"draft": draft})
+report = dispatch_layout("layout_collision", {"draft": draft})
+assert report["check"]["status"] == "partial"  # No physical geometry yet.
+```
+
+The request protocol accepts `layout_project`, `layout_motion`,
+`layout_collision`, `layout_connectivity`, and `layout_import`; use
+`python -m engine schema layout_draft` for the contract. Projections share stable
+object bindings across 3D, circuit/energy and combined material/information graphs.
+Motion handles independent tree mechanisms, rotary ratios and screws; collision
+checks report missing geometry and optional mesh support explicitly. Connectivity
+does not solve currents, energy, flow or protocols.
+
+The integrated workbench also provides local browser Python code cells with input
+widgets and temporary preview bindings. Python execution belongs to the application
+worker, not the DSL interpreter. See [design workspace](../docs/design-workspace.md)
+for APIs, CAD mapping, persistence and current limitations. Legacy executable
+contracts, immutable snapshots and verification remain available.
+
+### Executable component API
 
 For category-specific authoring, start with [the component design API](components/README.md)
 and [16 common component examples](examples/components/README.md). `engine.components` provides

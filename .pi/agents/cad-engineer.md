@@ -9,6 +9,7 @@ allowed_tools:
   - text_to_cad
   - image_to_cad
   - engine_schema
+  - engine_workspace
   - engine_library
   - engine_layout
   - engine_cad_import

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls.js";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import type {
   EngineFrame,
@@ -20,12 +21,18 @@ export function EngineScene({
   selected,
   onSelect,
   projectId,
+  highlighted = [],
+  anchors = [],
+  onPoseChange,
 }: {
   scene: SceneData;
   frame?: EngineFrame;
   selected: string;
   onSelect: (id: string) => void;
   projectId: string;
+  highlighted?: string[];
+  anchors?: { body: string; pose: EnginePose }[];
+  onPoseChange?: (body: string, pose: EnginePose) => void;
 }) {
   useLanguage();
   const host = useRef<HTMLDivElement>(null);
@@ -34,8 +41,35 @@ export function EngineScene({
   const [error, setError] = useState("");
   const [meshProgress, setMeshProgress] = useState({ loaded: 0, total: 0 });
   const [fit, setFit] = useState(0);
-  const live = useRef({ frame, selected, onSelect, wire, spaces });
-  live.current = { frame, selected, onSelect, wire, spaces };
+  const [transformMode, setTransformMode] = useState<"translate" | "rotate">(
+    "translate",
+  );
+  const live = useRef({
+    frame,
+    selected,
+    onSelect,
+    wire,
+    spaces,
+    highlighted,
+    anchors,
+    onPoseChange,
+    transformMode,
+  });
+  live.current = {
+    frame,
+    selected,
+    onSelect,
+    wire,
+    spaces,
+    highlighted,
+    anchors,
+    onPoseChange,
+    transformMode,
+  };
+  const cameraState = useRef<{
+    position: THREE.Vector3;
+    target: THREE.Vector3;
+  } | null>(null);
   const refit = useRef<() => void>(() => {});
   useEffect(() => {
     refit.current();
@@ -63,6 +97,19 @@ export function EngineScene({
     camera.up.set(0, 0, 1);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+    const transform = new TransformControls(camera, renderer.domElement);
+    world.add(transform.getHelper());
+    transform.addEventListener("dragging-changed", (e) => {
+      controls.enabled = !e.value;
+    });
+    transform.addEventListener("mouseUp", () => {
+      const object = transform.object;
+      if (object)
+        live.current.onPoseChange?.(live.current.selected, {
+          translation_m: object.position.toArray(),
+          rotation_xyzw: object.quaternion.toArray(),
+        });
+    });
     world.add(new THREE.HemisphereLight(0xffffff, 0x68735e, 2.7));
     const light = new THREE.DirectionalLight(0xffffff, 3);
     light.position.set(1, -2, 3);
@@ -167,6 +214,17 @@ export function EngineScene({
     }
     const axes = new THREE.AxesHelper(0.035);
     world.add(axes);
+    const anchorMarkers: THREE.Mesh[] = [];
+    for (let i = 0; i < 16; i++) {
+      const marker = new THREE.Mesh(
+        new THREE.SphereGeometry(0.0015, 12, 8),
+        new THREE.MeshBasicMaterial({ color: 0xffd700, depthTest: false }),
+      );
+      marker.renderOrder = 100;
+      marker.visible = false;
+      world.add(marker);
+      anchorMarkers.push(marker);
+    }
     refit.current = () => {
       world.updateMatrixWorld(true);
       const box = new THREE.Box3();
@@ -188,6 +246,11 @@ export function EngineScene({
       controls.update();
     };
     refit.current();
+    if (cameraState.current) {
+      camera.position.copy(cameraState.current.position);
+      controls.target.copy(cameraState.current.target);
+      controls.update();
+    }
     void Promise.all(pending).then(() => {
       if (!disposed && pending.length) refit.current();
     });
@@ -197,6 +260,7 @@ export function EngineScene({
       down = [e.clientX, e.clientY];
     };
     const pick = (e: PointerEvent) => {
+      if (transform.axis) return;
       if (Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
       const rect = renderer.domElement.getBoundingClientRect();
       raycaster.setFromCamera(
@@ -228,6 +292,12 @@ export function EngineScene({
     const animate = () => {
       animation = requestAnimationFrame(animate);
       const state = live.current;
+      const target = state.onPoseChange
+        ? bodies.get(state.selected)
+        : undefined;
+      if (target && transform.object !== target) transform.attach(target);
+      else if (!target && transform.object) transform.detach();
+      transform.setMode(state.transformMode);
       const collisions = new Set(
         (state.frame?.collisions ?? scene.collisions).flat(),
       );
@@ -237,7 +307,8 @@ export function EngineScene({
           ? state.frame.body_poses[body.entity_ref]
           : body.world_pose;
         group.visible = !!placement;
-        if (placement) pose(group, placement);
+        if (placement && !(transform.dragging && transform.object === group))
+          pose(group, placement);
       }
       for (const mesh of meshes) {
         const { id, body, purpose } = mesh.userData;
@@ -246,7 +317,7 @@ export function EngineScene({
         mesh.material.color.set(
           collisions.has(id)
             ? 0xd46651
-            : body === state.selected
+            : body === state.selected || state.highlighted.includes(body)
               ? 0xc0d981
               : purpose === "keepout"
                 ? 0xd9a461
@@ -257,7 +328,21 @@ export function EngineScene({
         mesh.material.wireframe = state.wire || auxiliary;
         mesh.material.transparent = auxiliary;
         mesh.material.opacity = auxiliary ? 0.5 : 1;
+        mesh.material.emissive.set(
+          state.highlighted.includes(body) ? 0x685213 : 0x000000,
+        );
+        mesh.material.depthTest = !state.highlighted.includes(body);
       }
+      anchorMarkers.forEach((marker, index) => {
+        const anchor = state.anchors[index],
+          group = anchor && bodies.get(anchor.body);
+        marker.visible = !!group;
+        if (group && anchor) {
+          group.updateMatrixWorld(true);
+          marker.position.fromArray(anchor.pose.translation_m);
+          group.localToWorld(marker.position);
+        }
+      });
       controls.update();
       renderer.render(world, camera);
     };
@@ -267,6 +352,11 @@ export function EngineScene({
       abort.abort();
       cancelAnimationFrame(animation);
       observer.disconnect();
+      cameraState.current = {
+        position: camera.position.clone(),
+        target: controls.target.clone(),
+      };
+      transform.dispose();
       controls.dispose();
       renderer.domElement.removeEventListener("pointerdown", pointerDown);
       renderer.domElement.removeEventListener("pointerup", pick);
@@ -276,6 +366,10 @@ export function EngineScene({
       });
       axes.geometry.dispose();
       (axes.material as THREE.Material).dispose();
+      anchorMarkers.forEach((marker) => {
+        marker.geometry.dispose();
+        (marker.material as THREE.Material).dispose();
+      });
       renderer.dispose();
       renderer.domElement.remove();
       refit.current = () => {};
@@ -288,6 +382,7 @@ export function EngineScene({
     <div
       className="model-stage engine-scene"
       data-loaded-meshes={meshProgress.loaded}
+      data-highlighted-bodies={highlighted.join(",")}
     >
       <div className="viewer" ref={host} aria-label={t("引擎三维场景")} />
       <div className="viewer-label">
@@ -307,6 +402,17 @@ export function EngineScene({
       )}
       <div className="viewer-controls">
         <button onClick={() => setFit((n) => n + 1)}>{t("适应视图")}</button>
+        {onPoseChange && (
+          <button
+            onClick={() =>
+              setTransformMode(
+                transformMode === "translate" ? "rotate" : "translate",
+              )
+            }
+          >
+            {t(transformMode === "translate" ? "移动实体" : "旋转实体")}
+          </button>
+        )}
         <button
           aria-pressed={wire}
           className={wire ? "active" : ""}

@@ -1,21 +1,21 @@
 # Design engine web adapter v1
 
-The product design workbench is under the project's CAD tab. `DesignWorkbench` manages input snapshots and recorded results; `EngineScene` renders declared envelopes in meters, with Z up and `[x,y,z,w]` quaternions. The existing `ModelViewer` remains the enclosure CAD view in millimeters. The Python engine is invoked through its existing `request` protocol; no Pi internals are copied and no agent approval tools are introduced.
+The product design workbench is under the project's CAD tab. The current UI uses the [design workspace API](design-workspace.md) for editable layouts, five coordinated views and Python experiments. This document describes the retained executable engine adapter and its immutable verification records. `EngineScene` renders declared envelopes in meters, with Z up and `[x,y,z,w]` quaternions. The existing `ModelViewer` remains embedded in the structure view for enclosure CAD in millimeters. The Python engine is invoked through its existing `request` protocol; no Pi internals are copied and no agent approval tools are introduced.
 
 ## Routes
 
 These routes inherit the local application's host/origin checks and require an existing project. The adapter never makes or modifies approval decisions.
 
-| Method | Project-relative route                    | Result                                                               |
-| ------ | ----------------------------------------- | -------------------------------------------------------------------- |
-| GET    | `/api/projects/:id/engine`                | Current Context fingerprint, latest saved record, and stale flag     |
-| GET    | `/api/projects/:id/engine/examples/:name` | Committed bundle/scenario pair; name is `actuator`, `fan`, or `lamp` |
-| POST   | `/api/projects/:id/engine`                | Execute `validate`, `preview`, or `workspace`                        |
-| POST   | `/api/projects/:id/engine/cancel`         | Abort that project's active engine process                           |
-| GET    | `/api/projects/:id/engine/meshes`         | Project STL asset metadata |
-| GET    | `/api/projects/:id/engine/meshes/:assetId` | Verified original STL bytes |
-| POST   | `/api/projects/:id/engine/meshes`         | Inspect and save `{name, unit, data}` (base64 STL) |
-| POST   | `/api/projects/:id/engine/mesh-model`     | Build pinned bundle/scenario from explicit asset placements |
+| Method | Project-relative route                     | Result                                                               |
+| ------ | ------------------------------------------ | -------------------------------------------------------------------- |
+| GET    | `/api/projects/:id/engine`                 | Current Context fingerprint, latest saved record, and stale flag     |
+| GET    | `/api/projects/:id/engine/examples/:name`  | Committed bundle/scenario pair; name is `actuator`, `fan`, or `lamp` |
+| POST   | `/api/projects/:id/engine`                 | Execute `validate`, `preview`, or `workspace`                        |
+| POST   | `/api/projects/:id/engine/cancel`          | Abort that project's active engine process                           |
+| GET    | `/api/projects/:id/engine/meshes`          | Project STL asset metadata                                           |
+| GET    | `/api/projects/:id/engine/meshes/:assetId` | Verified original STL bytes                                          |
+| POST   | `/api/projects/:id/engine/meshes`          | Inspect and save `{name, unit, data}` (base64 STL)                   |
+| POST   | `/api/projects/:id/engine/mesh-model`      | Build pinned bundle/scenario from explicit asset placements          |
 
 POST takes `{method, bundle, scenario?, contextKey}`. Fetch `contextKey` from GET first. All inputs are inline records; the client cannot supply commands, filesystem paths, or asset resolver instructions. `preview` and `workspace` require a scenario pinned to the model snapshot. `preview` returns initial placement and projections with `result: null`; `workspace` returns projections and the actual simulation result, including failed/unsupported states and partial frames.
 
@@ -41,7 +41,7 @@ Before execution and again under the project's update queue before publication, 
 
 ## STL workflow and collision backend
 
-Install `engine/requirements-mesh.txt` in the configured engine Python environment. In the STL panel, upload one or more files, declare their source units, choose surface or closed-solid collision, set positions in mm and XYZ Euler rotations in degrees, then create the assembly and run. Creating an assembly replaces the editable bundle/scenario; placement edits are applied when that button is pressed. The initial scenario is static (`duration_s: 0`); moving mechanisms can reference these same shapes from existing body/joint definitions in JSON.
+Install `engine/requirements-mesh.txt` in the configured engine Python environment. In the STL panel, upload one or more files, declare their source units, choose surface or closed-solid collision, set positions in mm and XYZ Euler rotations in degrees, then create the assembly. The endpoint returns a standalone bundle/scenario; the current workbench imports it as additional entities, preserving the existing layout. Placement edits are applied when that button is pressed. The initial scenario is static (`duration_s: 0`); moving mechanisms can reference these same shapes from body/joint definitions.
 
 The `mesh-model` request is `{contextKey, meshes: [{assetId, unit, collisionMode, position, rotation}]}`. API positions are **meters**, rotations are XYZ Euler degrees, and the host converts them to xyzw quaternions. It accepts 1–32 instances, verifies each asset and checks Context before/after building documents. Asset metadata version 1 records raw-byte SHA-256, declared units, counts, bounds and topology findings. Original bytes live under `workspace/<project>/uploads/engine-meshes/<uuid>.stl`; metadata is published after the bytes. Files are not BOM parts or CAD-stage approval artifacts.
 

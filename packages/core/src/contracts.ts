@@ -211,6 +211,7 @@ export type Artifact = {
   revision: number;
 };
 export type Stage = {
+  designWorkspace?: import("./design-workspace").WorkspaceRecord;
   id: StageId;
   status:
     | "not_started"

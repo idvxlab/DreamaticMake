@@ -864,23 +864,23 @@ export function App() {
                   </p>
                 </>
               )}
-              {tab === "cad" && parameters && (
+              {tab === "cad" && (
                 <>
                   <div className="section-heading">
                     <div>
                       <div className="eyebrow">PRODUCT DESIGN</div>
-                      <h1>{t("产品设计与工程验证")}</h1>
+                      <h1>{t("产品设计工作台")}</h1>
                       <p>
-                        {t("查看装配与信号，运行模型仿真，继续生成工程 CAD。")}
+                        {t("布局元件、预览运动、检查连接，并关联 CAD 几何。")}
                       </p>
                     </div>
-                    <span className="badge">3D · {t("仿真")} · CAD</span>
+                    <span className="badge">3D · Graph · Python</span>
                   </div>
                   <Suspense fallback={<p>{t("加载 3D 预览…")}</p>}>
                     <DesignWorkbench
                       key={project.id}
                       projectVersion={project.version}
-                      parameters={parameters}
+                      parameters={parameters ?? project.parameters}
                       artifacts={
                         JSON.stringify(parameters) ===
                         JSON.stringify(project.parameters)
@@ -888,191 +888,200 @@ export function App() {
                           : []
                       }
                       projectId={project.id}
-                    />
-                  </Suspense>
-                  <div className="cad-panels">
-                    <div className="tool-card">
-                      <div className="card-kicker">
-                        <FileCode2 size={14} />
-                        {t("参数化外壳")}{" "}
-                      </div>
-                      <ParameterEditor
-                        value={parameters}
-                        onChange={setParameters}
-                        disabled={!!isRunning}
-                      />
-                      <StructuralEditor
-                        value={parameters}
-                        onChange={setParameters}
-                        disabled={!!isRunning}
-                        parts={catalog}
-                      />
-                      <p className="muted">
-                        {t(
-                          "通用上下壳模板。参数修改会使结构及后续确认失效。开孔、支柱和部件包络可展开编辑；实际装配仍需验证。",
-                        )}{" "}
-                      </p>
-                      <div className="button-row">
-                        <button
-                          disabled={!!isRunning || project.archived}
-                          onClick={() =>
-                            void action(() =>
-                              api(
-                                `/projects/${project.id}/parameters`,
-                                "PUT",
-                                parameters,
-                              ),
-                            )
-                          }
-                        >
-                          {t("保存参数")}{" "}
-                        </button>
-                        <button
-                          className="primary"
-                          disabled={!!isRunning || project.archived}
-                          onClick={() =>
-                            void action(async () => {
-                              if (
-                                JSON.stringify(parameters) !==
-                                JSON.stringify(project.parameters)
-                              )
-                                await api(
-                                  `/projects/${project.id}/parameters`,
-                                  "PUT",
-                                  parameters,
-                                );
-                              await api(
-                                `/projects/${project.id}/cad`,
-                                "POST",
-                                {},
-                              );
-                            })
-                          }
-                        >
-                          {busy ? (
-                            <LoaderCircle size={14} className="spin" />
-                          ) : (
-                            <Box size={14} />
+                    >
+                      {parameters && (
+                        <>
+                          <div className="cad-panels">
+                            <div className="tool-card">
+                              <div className="card-kicker">
+                                <FileCode2 size={14} />
+                                {t("参数化外壳")}{" "}
+                              </div>
+                              <ParameterEditor
+                                value={parameters}
+                                onChange={setParameters}
+                                disabled={!!isRunning}
+                              />
+                              <StructuralEditor
+                                value={parameters}
+                                onChange={setParameters}
+                                disabled={!!isRunning}
+                                parts={catalog}
+                              />
+                              <p className="muted">
+                                {t(
+                                  "通用上下壳模板。参数修改会使结构及后续确认失效。开孔、支柱和部件包络可展开编辑；实际装配仍需验证。",
+                                )}{" "}
+                              </p>
+                              <div className="button-row">
+                                <button
+                                  disabled={!!isRunning || project.archived}
+                                  onClick={() =>
+                                    void action(() =>
+                                      api(
+                                        `/projects/${project.id}/parameters`,
+                                        "PUT",
+                                        parameters,
+                                      ),
+                                    )
+                                  }
+                                >
+                                  {t("保存参数")}{" "}
+                                </button>
+                                <button
+                                  className="primary"
+                                  disabled={!!isRunning || project.archived}
+                                  onClick={() =>
+                                    void action(async () => {
+                                      if (
+                                        JSON.stringify(parameters) !==
+                                        JSON.stringify(project.parameters)
+                                      )
+                                        await api(
+                                          `/projects/${project.id}/parameters`,
+                                          "PUT",
+                                          parameters,
+                                        );
+                                      await api(
+                                        `/projects/${project.id}/cad`,
+                                        "POST",
+                                        {},
+                                      );
+                                    })
+                                  }
+                                >
+                                  {busy ? (
+                                    <LoaderCircle size={14} className="spin" />
+                                  ) : (
+                                    <Box size={14} />
+                                  )}
+                                  {t("生成 CAD")}{" "}
+                                </button>
+                              </div>
+                            </div>
+                            <div className="tool-card">
+                              <div className="card-kicker">
+                                <Sparkles size={14} />
+                                {t("文生 CAD · 图生 CAD")}{" "}
+                              </div>
+                              <textarea
+                                aria-label={t("CAD 设计描述")}
+                                placeholder={t(
+                                  "例如：宽 90mm，深 65mm，高 35mm 的桌面外壳，壁厚 2mm",
+                                )}
+                                value={cadText}
+                                onChange={(e) => setCadText(e.target.value)}
+                              />
+                              <button
+                                disabled={!!isRunning || !cadText.trim()}
+                                onClick={() =>
+                                  void action(async () =>
+                                    setCandidate(
+                                      await api(
+                                        `/projects/${project.id}/text-parameters`,
+                                        "POST",
+                                        { instruction: cadText },
+                                      ),
+                                    ),
+                                  )
+                                }
+                              >
+                                {t("从描述提取参数")} <ArrowRight size={14} />
+                              </button>
+                              <div className="image-divider">
+                                {t("或从参考图开始")}
+                              </div>
+                              <select
+                                aria-label={t("参考图片")}
+                                value={imageId}
+                                onChange={(e) => setImageId(e.target.value)}
+                              >
+                                <option value="">
+                                  {t("选择已上传参考图")}
+                                </option>
+                                {uploads
+                                  .filter((u) => u.mime.startsWith("image/"))
+                                  .map((u) => (
+                                    <option key={u.id} value={u.id}>
+                                      {u.name}
+                                    </option>
+                                  ))}
+                              </select>
+                              <label className="inline-field">
+                                {t("参考外廓宽度")}{" "}
+                                <input
+                                  aria-label={t("参考宽度")}
+                                  type="number"
+                                  min="20"
+                                  max="300"
+                                  value={width}
+                                  onChange={(e) => setWidth(+e.target.value)}
+                                />
+                                mm
+                              </label>
+                              <button
+                                disabled={!!isRunning || !imageId}
+                                onClick={() =>
+                                  void action(async () =>
+                                    setCandidate(
+                                      await api(
+                                        `/projects/${project.id}/image-parameters`,
+                                        "POST",
+                                        {
+                                          attachmentId: imageId,
+                                          referenceWidthMm: width,
+                                          instruction: cadText,
+                                        },
+                                      ),
+                                    ),
+                                  )
+                                }
+                              >
+                                <Image size={14} />
+                                {t("理解参考图")}{" "}
+                              </button>
+                              <p className="muted">
+                                {t(
+                                  "图像用于推断候选外形。单图不能确定内部结构或精确尺寸，必须确认参数后再生成。",
+                                )}{" "}
+                              </p>
+                            </div>
+                          </div>
+                          {candidate && (
+                            <div className="candidate-card">
+                              <h3>{t("候选参数 · 等待你确认")}</h3>
+                              <ParameterEditor
+                                value={candidate.parameters}
+                                onChange={(p) =>
+                                  setCandidate({ ...candidate, parameters: p })
+                                }
+                              />
+                              {[
+                                ...candidate.observations,
+                                ...candidate.uncertainties,
+                              ].map((t: string, i: number) => (
+                                <MarkdownMessage key={i} text={t} card />
+                              ))}
+                              <button
+                                className="primary"
+                                disabled={!!isRunning}
+                                onClick={() => {
+                                  setParameters(candidate.parameters);
+                                  setCandidate(undefined);
+                                }}
+                              >
+                                {t("采用为待编辑参数")} <Check size={14} />
+                              </button>
+                            </div>
                           )}
-                          {t("生成 CAD")}{" "}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="tool-card">
-                      <div className="card-kicker">
-                        <Sparkles size={14} />
-                        {t("文生 CAD · 图生 CAD")}{" "}
-                      </div>
-                      <textarea
-                        aria-label={t("CAD 设计描述")}
-                        placeholder={t(
-                          "例如：宽 90mm，深 65mm，高 35mm 的桌面外壳，壁厚 2mm",
-                        )}
-                        value={cadText}
-                        onChange={(e) => setCadText(e.target.value)}
-                      />
-                      <button
-                        disabled={!!isRunning || !cadText.trim()}
-                        onClick={() =>
-                          void action(async () =>
-                            setCandidate(
-                              await api(
-                                `/projects/${project.id}/text-parameters`,
-                                "POST",
-                                { instruction: cadText },
-                              ),
-                            ),
-                          )
-                        }
-                      >
-                        {t("从描述提取参数")} <ArrowRight size={14} />
-                      </button>
-                      <div className="image-divider">{t("或从参考图开始")}</div>
-                      <select
-                        aria-label={t("参考图片")}
-                        value={imageId}
-                        onChange={(e) => setImageId(e.target.value)}
-                      >
-                        <option value="">{t("选择已上传参考图")}</option>
-                        {uploads
-                          .filter((u) => u.mime.startsWith("image/"))
-                          .map((u) => (
-                            <option key={u.id} value={u.id}>
-                              {u.name}
-                            </option>
-                          ))}
-                      </select>
-                      <label className="inline-field">
-                        {t("参考外廓宽度")}{" "}
-                        <input
-                          aria-label={t("参考宽度")}
-                          type="number"
-                          min="20"
-                          max="300"
-                          value={width}
-                          onChange={(e) => setWidth(+e.target.value)}
-                        />
-                        mm
-                      </label>
-                      <button
-                        disabled={!!isRunning || !imageId}
-                        onClick={() =>
-                          void action(async () =>
-                            setCandidate(
-                              await api(
-                                `/projects/${project.id}/image-parameters`,
-                                "POST",
-                                {
-                                  attachmentId: imageId,
-                                  referenceWidthMm: width,
-                                  instruction: cadText,
-                                },
-                              ),
-                            ),
-                          )
-                        }
-                      >
-                        <Image size={14} />
-                        {t("理解参考图")}{" "}
-                      </button>
-                      <p className="muted">
-                        {t(
-                          "图像用于推断候选外形。单图不能确定内部结构或精确尺寸，必须确认参数后再生成。",
-                        )}{" "}
-                      </p>
-                    </div>
-                  </div>
-                  {candidate && (
-                    <div className="candidate-card">
-                      <h3>{t("候选参数 · 等待你确认")}</h3>
-                      <ParameterEditor
-                        value={candidate.parameters}
-                        onChange={(p) =>
-                          setCandidate({ ...candidate, parameters: p })
-                        }
-                      />
-                      {[
-                        ...candidate.observations,
-                        ...candidate.uncertainties,
-                      ].map((t: string, i: number) => (
-                        <MarkdownMessage key={i} text={t} card />
-                      ))}
-                      <button
-                        className="primary"
-                        disabled={!!isRunning}
-                        onClick={() => {
-                          setParameters(candidate.parameters);
-                          setCandidate(undefined);
-                        }}
-                      >
-                        {t("采用为待编辑参数")} <Check size={14} />
-                      </button>
-                    </div>
-                  )}
-                  <ArtifactList
-                    projectId={project.id}
-                    artifacts={project.stages.cad.artifacts}
-                  />
+                          <ArtifactList
+                            projectId={project.id}
+                            artifacts={project.stages.cad.artifacts}
+                          />
+                        </>
+                      )}
+                    </DesignWorkbench>
+                  </Suspense>
                 </>
               )}
               {tab === "files" && (

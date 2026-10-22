@@ -67,7 +67,7 @@ export class DesignEngine {
   }
 
   private async meshCommand(
-    method: "inspect_stl" | "mesh_bundle" | "compose" | "schema",
+    method: string,
     input: Record<string, unknown>,
     signal: AbortSignal,
   ) {
@@ -97,17 +97,17 @@ export class DesignEngine {
     } catch {
       throw new HttpError(
         503,
-        "STL 处理失败或已取消，请安装 engine/requirements-mesh.txt 并检查引擎 Python 设置",
+        "引擎处理失败或已取消，请检查 Python 设置；网格检查需要 engine/requirements-mesh.txt",
       );
     }
     let reply;
     try {
       reply = JSON.parse(result.stdout);
     } catch {
-      throw new HttpError(503, "STL 处理进程返回异常");
+      throw new HttpError(503, "引擎处理进程返回异常");
     }
     if (reply.request_id !== requestId || ![0, 2].includes(result.code))
-      throw new HttpError(503, "STL 处理进程返回异常");
+      throw new HttpError(503, "引擎处理进程返回异常");
     if (reply.type === "error")
       throw new HttpError(
         422,
@@ -117,13 +117,13 @@ export class DesignEngine {
           .slice(0, 2000),
       );
     if (reply.type !== "result" || !reply.payload)
-      throw new HttpError(503, "STL 处理进程返回异常");
+      throw new HttpError(503, "引擎处理进程返回异常");
     return reply.payload;
   }
 
   async authoring(
     id: string,
-    method: "compose" | "schema",
+    method: "compose" | "schema" | "layout_import",
     input: Record<string, unknown>,
     signal?: AbortSignal,
   ) {
@@ -132,6 +132,63 @@ export class DesignEngine {
       async (controller) => {
         await this.store.get(id);
         return this.meshCommand(method, input, controller.signal);
+      },
+      signal,
+    );
+  }
+
+  async layout(
+    id: string,
+    method: string,
+    input: Record<string, unknown>,
+    signal?: AbortSignal,
+  ) {
+    if (
+      ![
+        "layout_project",
+        "layout_collision",
+        "layout_motion",
+        "layout_connectivity",
+        "layout_import",
+      ].includes(method)
+    )
+      throw new HttpError(400, "未知布局操作");
+    return this.meshTask(
+      id,
+      async (controller) => {
+        await this.store.get(id);
+        const assets: Record<string, string> = {};
+        if (method === "layout_collision") {
+          let total = 0;
+          for (const envelope of Object.values(
+            (input.draft as any)?.envelopes ?? {},
+          ) as any[]) {
+            if (envelope.shape?.kind !== "triangle_mesh") continue;
+            const ref = envelope.shape.asset_ref;
+            if (!ref?.artifact_id || ref.relative_path) continue;
+            try {
+              const { metadata, bytes } = await this.meshes.get(
+                id,
+                ref.artifact_id,
+              );
+              if (metadata.sha256 !== ref.sha256 || assets[ref.sha256])
+                continue;
+              total += bytes.length;
+              if (total > 8_000_000 || Object.keys(assets).length >= 32)
+                throw new HttpError(413, "网格总大小超限");
+              assets[ref.sha256] = bytes.toString("base64");
+            } catch (error) {
+              if (error instanceof HttpError && error.status === 413)
+                throw error;
+              // Missing/foreign assets remain explicit partial coverage in Python.
+            }
+          }
+        }
+        return this.meshCommand(
+          method,
+          { ...input, assets },
+          controller.signal,
+        );
       },
       signal,
     );

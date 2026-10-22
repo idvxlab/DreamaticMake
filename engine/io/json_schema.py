@@ -2,6 +2,9 @@ from engine.io.load import RECORDS
 
 
 def export_schema(record_kind: str) -> dict:
+    if record_kind == "layout_draft":
+        from engine.layout import LayoutDraft
+        return {"$schema": "https://json-schema.org/draft/2020-12/schema", **LayoutDraft.model_json_schema()}
     if record_kind == "assembly_design":
         from engine.io.design import AssemblyDesign
         return {"$schema": "https://json-schema.org/draft/2020-12/schema", **AssemblyDesign.model_json_schema()}

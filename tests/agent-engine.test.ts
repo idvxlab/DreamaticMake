@@ -176,6 +176,102 @@ async function fixture() {
 }
 const real = { skip: !process.env.MAKE_ENGINE_TEST_PYTHON };
 test(
+  "pending workspace is reconciled only against the submitted design",
+  real,
+  async () => {
+    const f = await fixture();
+    try {
+      const design = await f.agent.compose(f.p.id, "structure", 1, layout());
+      await f.workflow.submit(f.p.id, "structure", 1, "mechanical-engineer", {
+        title: "Layout",
+        summary: "Layout",
+        facts: [],
+        engineDesign: design,
+      });
+      const state = await f.agent.workspace.state(f.p.id);
+      const changed = structuredClone(state.record.draft);
+      changed.bodies["led/bodies/body"].pose.translation_m[0] = 0.02;
+      const saved = await f.agent.workspace.save(
+        f.p.id,
+        {
+          contextKey: state.contextKey,
+          baseRevision: 0,
+          draft: changed,
+          notebook: state.record.notebook,
+        },
+        undefined,
+        true,
+      );
+      await assert.rejects(
+        f.agent.verify(f.p.id, "structure", 1),
+        /尚未包含工作台布局/,
+      );
+      const next = layout();
+      Object.assign(next.scenario.roots[0], {
+        world_pose: { translation_m: [0.02, 0, 0] },
+      });
+      const candidate = await f.agent.compose(f.p.id, "structure", 1, next);
+      assert.equal(
+        (await f.store.get(f.p.id)).stages.structure.designWorkspace?.pending,
+        true,
+      );
+      await f.workflow.submit(f.p.id, "structure", 1, "mechanical-engineer", {
+        title: "Updated layout",
+        summary: "Moved LED",
+        facts: [],
+        engineDesign: candidate,
+      });
+      const verified = await f.agent.verify(f.p.id, "structure", 1);
+      assert.equal(verified.passed, true);
+      assert.equal(
+        (await f.store.get(f.p.id)).stages.structure.designWorkspace?.pending,
+        false,
+      );
+      assert.equal(saved.state.record.pending, true);
+      await f.store.update(f.p.id, (current) => {
+        current.stages.structure.status = "approved";
+      });
+      const cad = await f.agent.workspace.state(f.p.id);
+      const extended = structuredClone(cad.record.draft);
+      extended.entities.case = { name: "CAD case" };
+      extended.bodies["case/bodies/body"] = {
+        entity: "case",
+        pose: { translation_m: [0, 0, 0], rotation_xyzw: [0, 0, 0, 1] },
+      };
+      const cadSaved = await f.agent.workspace.save(
+        f.p.id,
+        {
+          contextKey: cad.contextKey,
+          baseRevision: 0,
+          draft: extended,
+          notebook: cad.record.notebook,
+        },
+        undefined,
+        true,
+      );
+      assert.equal(cadSaved.state.record.pending, true);
+      const invalid = structuredClone(cadSaved.state.record.draft);
+      invalid.bodies["led/bodies/body"].pose.translation_m[0] += 0.01;
+      await assert.rejects(
+        f.agent.workspace.save(
+          f.p.id,
+          {
+            contextKey: cadSaved.state.contextKey,
+            baseRevision: 1,
+            draft: invalid,
+            notebook: cad.record.notebook,
+          },
+          undefined,
+          true,
+        ),
+        /修改已确认布局/,
+      );
+    } finally {
+      await rm(f.folder, { recursive: true, force: true });
+    }
+  },
+);
+test(
   "real circuit layouts keep pin positions and cannot pass review without analog coverage",
   real,
   async () => {

@@ -483,6 +483,7 @@ export class Runtime {
             Type.Literal("assembly_design"),
             Type.Literal("component_design"),
             Type.Literal("scenario"),
+            Type.Literal("layout_draft"),
           ]),
         }),
         async ({ kind }) =>
@@ -492,6 +493,29 @@ export class Runtime {
             { record_kind: kind },
             signal,
           ),
+      );
+      add(
+        "engine_workspace",
+        "读取或保存与浏览器共享的布局草稿。允许未接线和不完整机构；保存不是仿真或批准。正式提交仍需 engine_layout 合并该布局。",
+        Type.Object({
+          action: Type.Union([Type.Literal("read"), Type.Literal("save")]),
+          input: Type.Optional(Type.Any()),
+        }),
+        async ({ action, input }) => {
+          if (action === "read") return this.agentEngine.workspace.state(id);
+          if (
+            roleId === "reviewer" ||
+            !["structure", "cad", "firmware"].includes(stage)
+          )
+            throw new Error("当前角色不可编辑布局");
+          const p = await this.store.get(id);
+          if (
+            p.stages[stage].revision !== revision ||
+            currentStage(p) !== stage
+          )
+            throw new Error("阶段已变化");
+          return this.agentEngine.workspace.save(id, input, signal, true);
+        },
       );
       add(
         "engine_library",

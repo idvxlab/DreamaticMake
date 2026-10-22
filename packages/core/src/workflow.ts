@@ -43,6 +43,13 @@ export function inputHash(p: Project, id: StageId) {
     parameters: p.parameters,
     selectedParts: p.selectedParts,
     draft: p.stages[id].draft,
+    designWorkspace: p.stages[id].designWorkspace
+      ? {
+          revision: p.stages[id].designWorkspace!.revision,
+          draft: p.stages[id].designWorkspace!.draft,
+          notebook: p.stages[id].designWorkspace!.notebook,
+        }
+      : undefined,
     // Verification is an output of this input snapshot, never an input to itself.
     artifacts: p.stages[id].artifacts
       .filter((a) => a.name !== "engine-verification.json")
@@ -218,6 +225,11 @@ export class Workflow {
     stage: StageId,
     verification: EngineVerification,
   ) {
+    if (p.stages[stage].designWorkspace?.pending)
+      throw new HttpError(
+        409,
+        "工作台布局草稿尚未合并到正式引擎设计，不能使用旧验证证据",
+      );
     const design = designForStage(p, stage);
     const artifact = p.stages[stage].artifacts.find(
       (a) =>

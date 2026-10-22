@@ -39,6 +39,7 @@ import { roleIds, loadRole } from "../../../packages/agent-runtime/src/roles";
 import { Engineering } from "./engineering";
 import { DesignEngine } from "./design-engine";
 import { AgentEngine } from "./agent-engine";
+import { DesignWorkspace } from "./design-workspace";
 export const root = resolve(
   fileURLToPath(new URL("../../../", import.meta.url)),
 );
@@ -118,6 +119,7 @@ export async function createApp(
   const store = new Store(workspace, catalog);
   await store.initialize();
   const designEngine = new DesignEngine(root, store, settings);
+  const designWorkspace = new DesignWorkspace(store, designEngine);
   const workflow = new Workflow(store, catalog),
     engineering = new Engineering(root, store, settings, catalog),
     runtime = new Runtime(root, store, workflow, settings, engineering, {
@@ -149,6 +151,48 @@ export async function createApp(
       const url = new URL(req.url ?? "/", "http://" + host),
         path = url.pathname;
       const method = req.method ?? "GET";
+      if (path.startsWith("/api/notebook/")) {
+        if (method !== "GET") throw new HttpError(405, "不支持此方法");
+        const asset = path.slice("/api/notebook/".length);
+        const allowed = [
+          "pyodide.js",
+          "pyodide.asm.js",
+          "pyodide.asm.wasm",
+          "python_stdlib.zip",
+          "pyodide-lock.json",
+        ];
+        if (
+          asset !== "worker" &&
+          !(asset.startsWith("runtime/") && allowed.includes(asset.slice(8)))
+        )
+          throw new HttpError(404, "运行时资源不存在");
+        const runtimeSources = [
+          `http://${host}/api/notebook/runtime/`,
+          "http://127.0.0.1:4321/api/notebook/runtime/",
+          "http://localhost:4321/api/notebook/runtime/",
+        ].join(" ");
+        res.setHeader(
+          "Content-Security-Policy",
+          `default-src 'none'; script-src ${runtimeSources} 'wasm-unsafe-eval'; connect-src ${runtimeSources}; worker-src 'none'; object-src 'none'`,
+        );
+        res.setHeader("Cache-Control", "no-store");
+        const file =
+          asset === "worker"
+            ? join(root, "workers/notebook/browser.js")
+            : join(root, "node_modules/pyodide", asset.slice(8));
+        res.setHeader(
+          "Content-Type",
+          asset.endsWith(".wasm")
+            ? "application/wasm"
+            : asset.endsWith(".zip")
+              ? "application/octet-stream"
+              : asset.endsWith(".json")
+                ? "application/json"
+                : "text/javascript",
+        );
+        res.end(await readFile(file));
+        return;
+      }
       if (path === "/api/health") {
         json(res, { ok: true, pi: "1.3.0", version: "0.1.0" });
         return;
@@ -287,6 +331,38 @@ export async function createApp(
       if (match) {
         const [, id, action = ""] = match;
         let p = await store.get(id);
+        if (action === "design" && method === "GET") {
+          json(res, await designWorkspace.state(id));
+          return;
+        }
+        if (action === "design/cad-assets" && method === "POST") {
+          if (p.running || engineering.isBusy(id))
+            throw new HttpError(409, "请等待项目任务结束");
+          json(res, await designWorkspace.cadAssets(id));
+          return;
+        }
+        if (
+          ["design", "design/operate"].includes(action) &&
+          method === "POST"
+        ) {
+          if (p.running || engineering.isBusy(id))
+            throw new HttpError(409, "请等待项目任务结束");
+          const input = await body(req),
+            controller = new AbortController();
+          const cancel = () => controller.abort();
+          res.once("close", cancel);
+          try {
+            json(
+              res,
+              action === "design"
+                ? await designWorkspace.save(id, input, controller.signal)
+                : await designWorkspace.operate(id, input, controller.signal),
+            );
+          } finally {
+            res.off("close", cancel);
+          }
+          return;
+        }
         if (action === "engine/meshes" && method === "GET") {
           json(res, await designEngine.meshes.list(id));
           return;

@@ -25,7 +25,10 @@ export function MeshImporter({
   contextKey?: string;
   busy: boolean;
   onBusy: (value: boolean) => void;
-  onDocuments: (bundle: EngineDocument, scenario: EngineDocument) => void;
+  onDocuments: (
+    bundle: EngineDocument,
+    scenario: EngineDocument,
+  ) => void | Promise<void>;
 }) {
   const [assets, setAssets] = useState<EngineMeshAsset[]>([]);
   const [placements, setPlacements] = useState<Placement[]>([]);
@@ -110,7 +113,7 @@ export function MeshImporter({
             position: p.position.map((v) => v / 1000),
           })),
       });
-      onDocuments(docs.bundle, docs.scenario);
+      await onDocuments(docs.bundle, docs.scenario);
     } catch (e) {
       setError(String(e));
     } finally {

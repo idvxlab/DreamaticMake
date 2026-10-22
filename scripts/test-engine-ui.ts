@@ -7,11 +7,8 @@ import { join } from "node:path";
 import { once } from "node:events";
 import assert from "node:assert/strict";
 import { cubeStl } from "../tests/fixtures/stl";
-
 if (!process.env.MAKE_ENGINE_TEST_PYTHON || !process.env.MAKE_TEST_BROWSER)
-  throw new Error(
-    "Set MAKE_ENGINE_TEST_PYTHON and MAKE_TEST_BROWSER to local executable paths",
-  );
+  throw new Error("Set MAKE_ENGINE_TEST_PYTHON and MAKE_TEST_BROWSER");
 class TestSettings extends Settings {
   override async snapshot() {
     return {
@@ -22,7 +19,7 @@ class TestSettings extends Settings {
     };
   }
 }
-const workspace = await mkdtemp(join(tmpdir(), "make-engine-ui-"));
+const workspace = await mkdtemp(join(tmpdir(), "make-design-ui-"));
 const app = await createApp(workspace, new TestSettings(workspace));
 app.server.listen(0, "127.0.0.1");
 await once(app.server, "listening");
@@ -30,9 +27,14 @@ const url = `http://127.0.0.1:${(app.server.address() as { port: number }).port}
 const browser = await chromium.launch({
   executablePath: process.env.MAKE_TEST_BROWSER,
   headless: true,
+  args: [
+    "--enable-webgl",
+    "--use-angle=swiftshader",
+    "--enable-unsafe-swiftshader",
+  ],
 });
-const page = await browser.newPage({ viewport: { width: 1512, height: 1100 } });
-page.setDefaultTimeout(15000);
+const page = await browser.newPage({ viewport: { width: 1600, height: 1100 } });
+page.setDefaultTimeout(30000);
 const errors: string[] = [];
 page.on("pageerror", (e) => errors.push(e.message));
 await mkdir("test-results", { recursive: true });
@@ -42,159 +44,196 @@ try {
     .getByRole("button", { name: /新建项目/ })
     .first()
     .click();
-  await page.getByLabel("项目名称").fill("引擎集成验证");
+  await page.getByLabel("项目名称").fill("布局工作台验证");
   await page
     .getByLabel("你想做什么？")
-    .fill("验证执行器、风扇和温度指示灯的模型仿真");
+    .fill("验证布局、运动、连通和 Python 逻辑实验");
   await page.getByRole("button", { name: "创建项目", exact: true }).click();
   await page.getByRole("button", { name: "CAD 工作台", exact: true }).click();
-  const bench = page.getByRole("region", { name: "产品设计引擎" });
+  const bench = page.getByRole("region", { name: "产品设计工作台" });
   await bench.getByRole("button", { name: "舵机连杆", exact: true }).click();
-  await bench
-    .getByRole("button", { name: "加载初始场景", exact: true })
-    .click();
-  await bench
-    .locator(".engine-run-status")
-    .filter({ hasText: "completed" })
-    .waitFor();
+  await bench.locator(".workspace-tree button").first().waitFor();
+  await page.waitForFunction(
+    () =>
+      !document
+        .querySelector(".layout-workbench")
+        ?.textContent?.includes("更新视图…"),
+  );
   await bench.locator(".engine-scene canvas").waitFor();
-  assert.equal(await bench.getByRole("slider").count(), 0);
-  await bench.getByRole("button", { name: "运行仿真", exact: true }).click();
-  const slider = bench.getByRole("slider", { name: "仿真时间轴" });
-  await slider.waitFor();
-  const maximum = await slider.getAttribute("max");
-  assert(Number(maximum) > 1);
-  await slider.fill(maximum!);
-  await bench
-    .getByRole("button", { name: "servo/bodies/shaft", exact: true })
-    .click();
-  await bench.getByText("1.000 / 1.000 s", { exact: true }).waitFor();
-  assert.equal(await bench.locator(".viewer-error").count(), 0);
-  await bench.screenshot({ path: "test-results/design-engine-scene.png" });
-  await bench.getByRole("button", { name: "电路与信号", exact: true }).click();
-  await bench.getByRole("heading", { name: "网络连接与采样" }).waitFor();
-  await bench.screenshot({ path: "test-results/design-engine-circuit.png" });
-  await bench.getByRole("button", { name: "连续风扇", exact: true }).click();
-  await bench.getByRole("button", { name: "运行仿真", exact: true }).click();
-  await slider.waitFor();
-  await bench.getByRole("button", { name: "物料流", exact: true }).click();
-  await bench.getByText("fan/material_paths/air", { exact: true }).waitFor();
-  await bench.screenshot({ path: "test-results/design-engine-flow.png" });
-  await bench.getByRole("button", { name: "温控指示灯", exact: true }).click();
-  await bench.getByRole("button", { name: "运行仿真", exact: true }).click();
-  await slider.waitFor();
-  await slider.fill((await slider.getAttribute("max"))!);
-  await bench.getByRole("button", { name: "电路与信号", exact: true }).click();
-  await bench.getByText("effects/indicator", { exact: true }).waitFor();
-  assert.match(await bench.innerText(), /1 · valid · simulated/);
-  await bench.getByRole("button", { name: "外壳 CAD", exact: true }).click();
-  await bench.locator(".model-stage canvas").waitFor();
-  await bench.locator("summary").filter({ hasText: "模型与场景 JSON" }).click();
-  await bench
-    .getByRole("textbox", { name: "模型快照", exact: true })
-    .fill("{}");
-  assert.equal(await slider.count(), 0);
-  await bench.getByRole("button", { name: "校验模型", exact: true }).click();
-  await bench.locator(".engine-diagnostic.error").first().waitFor();
-  await bench.getByRole("button", { name: "舵机连杆", exact: true }).click();
-  await bench.getByRole("button", { name: "运行仿真", exact: true }).click();
-  await slider.waitFor();
-  await page.reload();
-  await page
-    .getByRole("button", { name: "引擎集成验证", exact: false })
-    .first()
-    .click();
-  await page.getByRole("button", { name: "CAD 工作台", exact: true }).click();
-  await slider.waitFor();
-  if (process.env.MAKE_ENGINE_TEST_MESH) {
-    await bench.locator("summary").filter({ hasText: "导入 STL" }).click();
-    await bench.getByLabel("上传 STL", { exact: true }).setInputFiles([
-      { name: "housing.stl", mimeType: "model/stl", buffer: cubeStl() },
-      { name: "part.stl", mimeType: "model/stl", buffer: cubeStl() },
-    ]);
-    await bench.getByLabel("part.stl 碰撞模式", { exact: true }).waitFor();
-    await bench
-      .getByLabel("housing.stl 碰撞模式", { exact: true })
-      .selectOption("solid");
-    await bench
-      .getByLabel("part.stl 碰撞模式", { exact: true })
-      .selectOption("solid");
-    await bench.getByLabel("part.stl position X", { exact: true }).fill("15");
-    await bench
-      .getByRole("button", { name: "用所选 STL 创建装配", exact: true })
-      .click();
-    await bench.getByRole("button", { name: "运行仿真", exact: true }).click();
-    await bench
-      .locator(".engine-run-status")
-      .filter({ hasText: "completed" })
-      .waitFor();
-    await bench.getByRole("button", { name: /诊断与覆盖/ }).click();
-    await bench.getByText(/FCL triangle-BVH/).waitFor();
-    await bench
-      .getByText(/Envelope overlap at t=0s/)
-      .first()
-      .waitFor();
-    await bench.getByRole("button", { name: "三维场景", exact: true }).click();
-    await bench.locator(".engine-scene canvas").waitFor();
-    // Wait for both asynchronous asset loads, not merely for the WebGL canvas.
-    await bench.locator('.engine-scene[data-loaded-meshes="2"]').waitFor();
-    await bench
-      .locator(".mesh-importer")
-      .screenshot({ path: "test-results/design-engine-stl-import.png" });
-    await bench.locator("summary").filter({ hasText: "导入 STL" }).click();
-    await bench.locator(".engine-scene-layout").scrollIntoViewIfNeeded();
-    await bench.locator(".engine-scene-layout").screenshot({
-      path: "test-results/design-engine-stl-overlap.png",
-    });
-    assert.equal(await bench.locator(".viewer-error").count(), 0);
-    await bench.locator("summary").filter({ hasText: "导入 STL" }).click();
-    await bench.getByLabel("part.stl position X", { exact: true }).fill("40");
-    await bench.getByLabel("part.stl rotation Z", { exact: true }).fill("45");
-    await bench
-      .getByRole("button", { name: "用所选 STL 创建装配", exact: true })
-      .click();
-    await bench.getByRole("button", { name: "运行仿真", exact: true }).click();
-    await bench
-      .locator(".engine-run-status")
-      .filter({ hasText: "completed" })
-      .waitFor();
-    assert.equal(await bench.locator(".engine-collision").count(), 0);
-    await bench.locator('.engine-scene[data-loaded-meshes="2"]').waitFor();
-    await bench.locator("summary").filter({ hasText: "导入 STL" }).click();
-    await bench.locator(".engine-scene-layout").scrollIntoViewIfNeeded();
-    await bench.locator(".engine-scene-layout").screenshot({
-      path: "test-results/design-engine-stl-separated.png",
-    });
-    await page.reload();
-    await page
-      .getByRole("button", { name: "引擎集成验证", exact: false })
-      .first()
-      .click();
-    await page.getByRole("button", { name: "CAD 工作台", exact: true }).click();
-    await bench.locator('.engine-scene[data-loaded-meshes="2"]').waitFor();
-    assert.equal(await bench.locator(".viewer-error").count(), 0);
-  }
-  const project = (await app.store.list())[0];
-  await app.store.update(project.id, (p) => {
-    p.parameters.width++;
+  await bench.getByRole("button", { name: "运动", exact: true }).click();
+  const slider = bench.getByRole("slider", {
+    name: "servo/joints/axis",
+    exact: true,
   });
-  await bench.getByText(/项目输入已变化，保存的引擎结果已过期/).waitFor();
-  await page.setViewportSize({ width: 768, height: 1024 });
-  await page.getByRole("button", { name: "收起对话", exact: true }).click();
-  await bench.screenshot({ path: "test-results/design-engine-narrow.png" });
+  await slider.fill("30");
+  await page.waitForTimeout(1000);
+  assert.equal(
+    await bench
+      .getByLabel("servo/joints/axis value", { exact: true })
+      .inputValue(),
+    "30",
+  );
+  await bench
+    .getByRole("button", { name: "检查当前姿态碰撞", exact: true })
+    .click();
+  await bench.getByText(/collision ·/).waitFor();
+  await bench.screenshot({ path: "test-results/design-workspace-motion.png" });
+  await bench.getByRole("button", { name: "电路与能源", exact: true }).click();
+  const node = bench.locator('[data-entity-ref="servo"]');
+  await node.hover();
+  await page.waitForFunction(() =>
+    (
+      document
+        .querySelector(".engine-scene")
+        ?.getAttribute("data-highlighted-bodies") ?? ""
+    ).includes("servo/bodies"),
+  );
+  await bench.screenshot({ path: "test-results/design-workspace-circuit.png" });
+  await bench
+    .getByRole("button", { name: "物料与信息流动", exact: true })
+    .click();
+  assert.equal(await bench.getByRole("img", { name: "实体关系图" }).count(), 1);
+  await bench.getByRole("button", { name: "代码与逻辑", exact: true }).click();
+  await bench
+    .locator("summary")
+    .filter({ hasText: "输入控件与输出绑定" })
+    .click();
+  await bench.getByLabel("Notebook 控件 JSON").fill(
+    JSON.stringify({
+      inputs: [{ name: "angle_deg", value: 0, min: -90, max: 90, step: 1 }],
+      bindings: [{ output: "angle", target: "servo/joints/axis", unit: "deg" }],
+    }),
+  );
+  await bench.getByRole("button", { name: "应用控件", exact: true }).click();
+  await bench
+    .getByRole("slider", { name: "angle_deg", exact: true })
+    .fill("35");
+  await bench.getByRole("button", { name: "从头运行", exact: true }).click();
+  await bench.getByTestId("notebook-result").waitFor({ timeout: 60000 });
+  assert.match(await bench.getByTestId("notebook-result").innerText(), /35/);
+  await bench.screenshot({
+    path: "test-results/design-workspace-notebook.png",
+  });
+  await bench.getByRole("button", { name: "运动", exact: true }).click();
+  await page.waitForFunction(
+    () =>
+      (
+        document.querySelector(
+          'input[aria-label="servo/joints/axis value"]',
+        ) as HTMLInputElement
+      )?.value === "35",
+  );
+  await bench.getByRole("button", { name: "代码与逻辑", exact: true }).click();
+  // Real Python attempting app API access must be blocked by the worker's CSP.
+  await bench
+    .getByLabel("Python control")
+    .fill('import js\nawait js.fetch("/api/projects")\noutputs["bad"] = True');
+  await bench.getByRole("button", { name: "从头运行", exact: true }).click();
+  await bench
+    .locator('output[role="status"]')
+    .filter({ hasText: /Failed to fetch|Content Security|NetworkError/ })
+    .waitFor({ timeout: 60000 });
+  assert.equal(await bench.getByTestId("notebook-result").count(), 0);
+  await bench.getByLabel("Python control").fill("while True:\n    pass");
+  await bench.getByRole("button", { name: "从头运行", exact: true }).click();
+  await bench.getByRole("button", { name: "取消", exact: true }).click();
+  await bench
+    .locator('output[role="status"]')
+    .filter({ hasText: "已取消" })
+    .waitFor();
+  await bench
+    .getByLabel("Python control")
+    .fill('outputs["angle"] = inputs["angle_deg"]');
+  await bench
+    .getByRole("button", { name: "保存设计草稿", exact: true })
+    .click();
+  await bench.getByText(/草稿版本 1/).waitFor();
+  await bench
+    .getByRole("button", { name: "重新加载项目设计", exact: true })
+    .click();
+  assert.equal(
+    await bench.getByLabel("Python control").inputValue(),
+    'outputs["angle"] = inputs["angle_deg"]',
+  );
+  await bench.getByRole("button", { name: "结构", exact: true }).click();
+  await bench.getByRole("button", { name: "添加元件", exact: true }).click();
+  await bench.getByLabel("X mm", { exact: true }).fill("0");
+  await page.waitForTimeout(500);
+  await bench
+    .getByRole("button", { name: "检查当前姿态碰撞", exact: true })
+    .click();
+  await bench.getByText(/collision ·/).waitFor();
+  if (process.env.MAKE_ENGINE_TEST_MESH === "1") {
+    const count = await bench.locator(".workspace-tree button").count();
+    await bench
+      .locator("summary")
+      .filter({ hasText: "CAD 几何与构件映射" })
+      .click();
+    await bench
+      .locator("summary")
+      .filter({ hasText: "导入 STL / 组装网格" })
+      .click();
+    await bench
+      .getByLabel("上传 STL", { exact: true })
+      .setInputFiles({
+        name: "cube.stl",
+        mimeType: "model/stl",
+        buffer: cubeStl(),
+      });
+    await bench
+      .getByRole("button", { name: "用所选 STL 创建装配", exact: true })
+      .click();
+    await page.waitForFunction(
+      (count) =>
+        document.querySelectorAll(".workspace-tree button").length ===
+        count + 1,
+      count,
+    );
+    await bench
+      .getByRole("button", { name: "检查当前姿态碰撞", exact: true })
+      .click();
+    await bench.getByText(/collision ·/).waitFor();
+    await bench.screenshot({ path: "test-results/design-workspace-stl.png" });
+  }
+  await bench
+    .locator("summary")
+    .filter({ hasText: "布局 JSON 与导入" })
+    .click();
+  const source = JSON.parse(
+    await bench.getByLabel("布局源 JSON", { exact: true }).inputValue(),
+  );
+  source.entities.virtual = { name: "无几何控制器" };
+  await bench
+    .getByLabel("布局源 JSON", { exact: true })
+    .fill(JSON.stringify(source));
+  await bench.getByRole("button", { name: "应用布局", exact: true }).click();
+  await bench
+    .locator(".workspace-tree button")
+    .filter({ hasText: "无几何控制器" })
+    .click();
+  await bench
+    .getByRole("button", { name: "检查当前姿态碰撞", exact: true })
+    .click();
+  await bench.getByText(/未检查对象.*virtual/).waitFor();
+  assert.equal(
+    await bench.getByRole("button", { name: "外壳 CAD", exact: true }).count(),
+    0,
+  );
+  assert.equal(await bench.locator(".viewer-error").count(), 0);
   assert.deepEqual(errors, []);
   console.log(
-    "Engine UI: preview, 3D, replay, circuit signals, material flow, CAD, invalid input, persistence, stale Context and optional STL upload/render/collision passed",
+    "PASS: real Python, layout, motion, graph/3D highlight, persistence, CSP and cancellation",
   );
 } catch (error) {
   await page.screenshot({
-    path: "test-results/design-engine-failure.png",
+    path: "test-results/design-workspace-failure.png",
     fullPage: true,
   });
+  console.log((await page.locator("body").innerText()).slice(-14000));
   throw error;
 } finally {
   await browser.close();
-  app.server.closeAllConnections();
-  await new Promise<void>((r) => app.server.close(() => r()));
+  app.server.close();
+  await once(app.server, "close");
   await rm(workspace, { recursive: true, force: true });
 }

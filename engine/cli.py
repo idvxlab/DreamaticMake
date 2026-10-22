@@ -76,12 +76,22 @@ def main(argv=None):
             if len(text) > MAX_BYTES:
                 raise ValueError("Request exceeds size limit")
             request = json.loads(text, object_pairs_hook=_unique, parse_constant=_nonfinite)
-            if not isinstance(request, dict) or set(request) - {"request_id", "method", "bundle", "scenario", "assets", "data", "unit", "meshes", "design", "record_kind"}:
+            if not isinstance(request, dict) or set(request) - {"request_id", "method", "bundle", "scenario", "assets", "data", "unit", "meshes", "design", "record_kind", "draft", "source", "joint_inputs"}:
                 raise ValueError("Unexpected request fields")
             request_id = request.get("request_id")
             if not isinstance(request_id, str) or len(request_id) > 128:
                 raise ValueError("request_id must be a short string")
-            if request["method"] == "schema":
+            if request["method"].startswith("layout_"):
+                from engine.layout import dispatch_layout
+                assets = request.get("assets", {})
+                if not isinstance(assets, dict) or len(assets) > 32:
+                    raise ValueError("Invalid inline assets")
+                def layout_resolver(ref):
+                    if ref.relative_path or ref.sha256 not in assets:
+                        raise ValueError("Project mesh is unavailable")
+                    return base64.b64decode(assets[ref.sha256], validate=True)
+                payload = dispatch_layout(request["method"], request, layout_resolver)
+            elif request["method"] == "schema":
                 payload = export_schema(request["record_kind"])
             elif request["method"] == "compose":
                 from engine.io.design import compose_design

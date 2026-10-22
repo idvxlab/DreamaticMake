@@ -8,6 +8,7 @@ allowed_tools:
   - context_read
   - ask_user
   - engine_schema
+  - engine_workspace
   - engine_library
   - engine_layout
   - stage_submit
