@@ -5,7 +5,7 @@ from element.base.quantity import Quantity
 from element.base.reference import ObjectRef
 from element.categories import Structure
 from engine.adapters.assembly import assemble_components
-from engine.examples.build_components import examples, ASSUMED
+from examples.engine.build_components import examples, ASSUMED
 from element.interfaces.geometry import Box
 from element.interfaces.mechanical import MechanicalSpec, MechanicalPort
 from engine.schema.connections import MechanicalConnection

@@ -1,3 +1,21 @@
+import type {
+  EngineDiagnostic,
+  EnginePose,
+  EngineSample,
+  EngineTerminal,
+  EngineFrame,
+  EngineShape,
+  EngineScene,
+} from "../../../engine/interface/contracts";
+export type {
+  EngineDiagnostic,
+  EnginePose,
+  EngineSample,
+  EngineTerminal,
+  EngineFrame,
+  EngineShape,
+  EngineScene,
+} from "../../../engine/interface/contracts";
 /** Web adapter v1. Engine records remain immutable DSL 0.2.0-proposal snapshots. */
 export type EngineMethod = "validate" | "preview" | "workspace";
 export type EngineDocument = Record<string, unknown>;
@@ -15,76 +33,6 @@ export type EngineMeshAsset = {
   unit: "mm" | "cm" | "m";
   warnings: string[];
   createdAt: string;
-};
-export type EngineDiagnostic = {
-  message: string;
-  code?: string;
-  severity?: string;
-  outcome?: string;
-  object_refs?: string[];
-  location?: (string | number)[];
-};
-export type EnginePose = {
-  translation_m: [number, number, number];
-  rotation_xyzw: [number, number, number, number];
-};
-export type EngineSample = {
-  value: string | number | boolean | null;
-  quality: string;
-  origin: string;
-  time_s: number;
-};
-export type EngineTerminal = {
-  entity_ref: string;
-  net_ref: string | null;
-  body_ref?: string | null;
-  pose?: EnginePose | null;
-  physical_pin_number?: string;
-  label?: string;
-  electrical_role?: string;
-};
-export type EngineFrame = {
-  time_s: number;
-  body_poses: Record<string, EnginePose>;
-  joint_positions: Record<string, number>;
-  network_samples: Record<string, EngineSample>;
-  behavior_outputs: Record<string, EngineSample>;
-  sensor_samples: Record<string, EngineSample>;
-  effects: Record<string, EngineSample>;
-  collisions: [string, string][];
-};
-export type EngineShape =
-  | { kind: "box"; size_m: [number, number, number] }
-  | { kind: "sphere"; radius_m: number }
-  | { kind: "cylinder"; radius_m: number; length_m: number }
-  | { kind: "capsule"; radius_m: number; segment_length_m: number }
-  | { kind: "convex_asset" }
-  | {
-      kind: "triangle_mesh";
-      unit: "m" | "cm" | "mm";
-      collision_mode: "surface" | "solid";
-      asset_ref: {
-        artifact_id?: string | null;
-        relative_path?: string | null;
-        sha256: string;
-        media_type: string;
-      };
-    };
-export type EngineScene = {
-  snapshot_id: string;
-  bodies: { entity_ref: string; world_pose: EnginePose | null }[];
-  envelopes: {
-    entity_ref: string;
-    body_ref: string;
-    pose: EnginePose;
-    shape: EngineShape;
-    purpose: "solid" | "keepout" | "service";
-    approximation: string;
-    margin_m: number;
-  }[];
-  joints: { entity_ref: string; kind: string; parent: string; child: string }[];
-  visual_assets: { entity_ref: string }[];
-  collisions: [string, string][];
 };
 export type EnginePayload = {
   snapshot_id: string;

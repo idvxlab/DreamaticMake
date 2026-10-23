@@ -3827,59 +3827,6 @@ pre {
 .workspace-diagnostics small {
   overflow-wrap: anywhere;
 }
-.topology-panel {
-  border: 1px solid #d6ddcc;
-  border-radius: 12px;
-  background: #fafbf7;
-  padding: 10px;
-}
-.topology-scroll {
-  overflow: auto;
-  max-height: 570px;
-  min-height: 400px;
-  background-image: radial-gradient(#d6dccb 1px, transparent 1px);
-  background-size: 18px 18px;
-}
-.topology-scroll svg {
-  width: 100%;
-  min-width: 300px;
-  touch-action: none;
-}
-.topology-scroll text {
-  font:
-    12px system-ui,
-    sans-serif;
-  fill: #3d4835;
-  pointer-events: none;
-}
-.topology-scroll .graph-port-label {
-  font-size: 10px;
-}
-.graph-node {
-  cursor: grab;
-  outline: none;
-}
-.graph-node rect {
-  fill: #fff;
-  stroke: #bfcbae;
-  stroke-width: 1.5;
-}
-.graph-node.selected rect,
-.graph-node:focus rect,
-.graph-node:hover rect {
-  stroke: #6d8d37;
-  stroke-width: 3;
-  fill: #f5f9ed;
-}
-.graph-node.missing rect {
-  stroke: #bc765d;
-  stroke-dasharray: 5 3;
-  fill: #fff4ec;
-}
-.topology-panel small {
-  font-size: 10px;
-  color: #6d7565;
-}
 .logic-notebook {
   padding: 12px;
   border: 1px solid #d4ddc7;

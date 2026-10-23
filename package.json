@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --import tsx scripts/dev.ts",
     "server": "node --import tsx apps/server/src/index.ts",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && vite build --config engine/interface/vite.config.ts",
     "check": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:ui": "node --import tsx scripts/test-ui.ts",
@@ -16,7 +16,11 @@
     "test:engineering": "node --import tsx scripts/test-engineering.ts",
     "test:pipeline": "node --import tsx scripts/test-pipeline.ts",
     "format": "prettier --write \"apps/**/*.{ts,tsx,css,html}\" \"packages/**/*.ts\" \"scripts/**/*.ts\" \"tests/**/*.ts\" \"*.json\" \"*.md\" \"docs/*.md\" \".pi/**/*.md\"",
-    "test:ui:language": "node --import tsx scripts/test-navigation-i18n.ts"
+    "test:ui:language": "node --import tsx scripts/test-navigation-i18n.ts",
+    "engine:dev": "vite --config engine/interface/vite.config.ts",
+    "engine:build": "vite build --config engine/interface/vite.config.ts",
+    "engine:preview": "vite preview --config engine/interface/vite.config.ts",
+    "test:ui:standalone-engine": "node --import tsx scripts/test-standalone-engine-ui.ts"
   },
   "dependencies": {
     "@earendil-works/pi-ai": "1.3.0",

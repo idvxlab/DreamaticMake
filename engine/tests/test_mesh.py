@@ -13,7 +13,7 @@ import unittest
 from unittest.mock import patch
 from element.base.frame import Pose
 from engine.compiler.lower import compile_model
-from engine.examples.build_examples import parse, quantity, ref
+from examples.engine.build_examples import parse, quantity, ref
 from element.interfaces.geometry import TriangleMesh
 from element.io.mesh import inspect_stl, load_stl, resolve_stl
 from engine.io.mesh_bundle import mesh_bundle

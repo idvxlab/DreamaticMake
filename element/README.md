@@ -55,10 +55,10 @@ python -m element publish path/to/element.json --root workspace/element-library
 python -m element search path/to/query.json --root workspace/element-library
 python -m element get path/to/reference.json --root workspace/element-library
 python -m element rebuild-index --root workspace/element-library
-python -m element seed engine/examples/components --root workspace/element-library
+python -m element seed examples/element --root workspace/element-library
 ```
 
-`seed` explicitly imports the existing synthetic fixtures as `origin=template` records. The legacy files remain in `engine/examples` for compatibility and hash regression testing. `import_catalog_part(part, model)` in `element.io.catalog` imports procurement metadata only with an explicit typed model; it preserves unknown dimensions and does not promote descriptions to measured geometry.
+`seed` explicitly imports the existing synthetic fixtures as `origin=template` records. Authoring examples live in `examples/element`; engine bundles and generators live in `examples/engine`. `import_catalog_part(part, model)` in `element.io.catalog` imports procurement metadata only with an explicit typed model; it preserves unknown dimensions and does not promote descriptions to measured geometry.
 
 ## Engine execution boundary
 
@@ -90,3 +90,36 @@ An `ElementDefinition` is the authoritative reusable engineering unit. Its categ
 Terminal properties and electrical validation, material-port properties, and declarative behavior programs are defined once in `element.interfaces`. Scheme views reuse those contracts while binding references in the scheme namespace. Power sources expose their effective electrical terminals in `PowerSource.electrical`, so library occurrences and simulation inputs agree even when wiring is implicit.
 
 Normalized execution containers (`ComponentDefinition`, `PhysicalSpec`, `ElectronicSpec`) belong to `engine.schema.component`. They are compiler inputs rather than an alternate reusable element schema. The old `element.schema.model` import path and identity-only migration wrappers have been removed.
+
+## Common procurement fields and search
+
+All 14 component categories inherit an optional `procurement` record:
+
+```json
+{
+  "metadata_version": "1",
+  "manufacturer": null,
+  "model": null,
+  "supplier": null,
+  "sku": null,
+  "purchase_url": null,
+  "price": null,
+  "currency": "CNY",
+  "price_observed_at": null,
+  "availability": null,
+  "description": "",
+  "tags": []
+}
+```
+
+Purchase URLs must use HTTP(S), prices must be finite and nonnegative, and currency uses three uppercase letters. Null means unknown, never zero/free. No live supplier prices are supplied by the examples. Omitted procurement data preserves existing serialized records and content hashes. Once populated, it participates in the element revision/hash; bump revisions when publishing changed definitions. Time-varying supplier quotations can instead use versioned `CatalogEntry.offers` without changing geometry references.
+
+Library identity is `(library_id, element_id, revision, content_hash)`. JSON definitions are the source of truth; SQLite stores the composite identity, category/status index, normalized search text and token table. Search supports category, capability, protocol, numeric ranges, version policy and cursor pagination. Text uses NFKC/case normalization, Chinese bigrams, and substring matching across ID, name, aliases, category, tags, roles, description, manufacturer, model and SKU. Substring matching scans the filtered candidates; the token table remains available for future large-library optimization. Index rebuilds preserve source definitions and invalidate old cursors explicitly.
+
+```sh
+python -m element seed examples/element --root workspace/element-library
+python -m element search query.json --root workspace/element-library
+python -m element rebuild-index --root workspace/element-library
+```
+
+Example `query.json`: `{"text":"servo","categories":["actuator"],"limit":20}`. The standalone engine interface exposes name/text search and category filters, while the CLI retains the richer filters above.

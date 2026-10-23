@@ -113,9 +113,9 @@ controller = controller.define_function("too_hot", ControlFunction(
 
 ```bash
 python -m engine schema component_design
-python -m engine compile engine/examples/components/indicator.toml
-python -m engine simulate engine/examples/components/servo.json --scenario engine/examples/components/servo.scenario.json
-python -m engine.examples.component_assembly
+python -m engine compile examples/element/indicator.toml
+python -m engine simulate examples/element/servo.json --scenario examples/element/servo.scenario.json
+python -m examples.engine.component_assembly
 ```
 
 CLI 的 JSON `request.bundle` 也可接收单个分类设计。已有 Web 应用协议仍传标准 bundle；集成时先用 `engine.adapters.elements.to_bundle(design)` / `engine.adapters.assembly.assemble_components(...)`。本次没有新增 Web 表单或改变其请求类型。
@@ -193,4 +193,4 @@ resistor = CircuitElement(id="r1", name="假设电阻",
 
 基础器件编译保留 `circuit.analysis_unavailable`，camera/microphone 保留 `sensor.stream_unavailable`，均为 `outcome="unsupported"`。当前可预览几何/端子和检查外部网络，但不跨器件两脚传播模拟电流，也不生成图像或音频样本。运行 `completed` 仍须检查覆盖诊断；应用独立评审拒绝未支持覆盖。SPI/I2S/PDM/USB/CAN/CSI 协议名称也仅为描述契约。
 
-新合成模板位于 `engine/examples/components/described_*.json`，应用 `engine_library` 可搜索读取。可运行 `python -m engine.examples.described_components` 检查，显式添加 `--write` 再生成文件；它们不是厂商资料或物理验证。更详细的字段、示例和边界见[元件分类与结构化描述](../../agent/代码框架/元件分类与结构化描述.md)。
+新合成模板位于 `examples/element/described_*.json`，应用 `engine_library` 可搜索读取。可运行 `python -m examples.engine.described_components` 检查，显式添加 `--write` 再生成文件；它们不是厂商资料或物理验证。更详细的字段、示例和边界见[元件分类与结构化描述](../../agent/代码框架/元件分类与结构化描述.md)。

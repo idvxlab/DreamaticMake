@@ -2,7 +2,7 @@ import math
 import unittest
 from element.base.frame import Pose, rotate
 from engine.compiler.lower import compile_model
-from engine.examples.build_examples import actuator_example, fan_example, lamp_example, ref, quantity, parse
+from examples.engine.build_examples import actuator_example, fan_example, lamp_example, ref, quantity, parse
 from engine.schema.scenario import Scenario
 from engine.simulator.engine import simulate
 from engine.simulator.collision import Collider, BASIS, intersects
@@ -187,7 +187,7 @@ class SimulationTests(unittest.TestCase):
     def test_two_instances_have_separate_inputs_and_state(self):
         from engine.schema.component import ComponentDefinition
         from engine.schema.assembly import AssemblyDefinition, ModelBundle
-        from engine.examples.build_examples import definition_ref
+        from examples.engine.build_examples import definition_ref
         component = parse(ComponentDefinition, {"id": "counter", "name": "Timer", "behaviors": {"timer": {
             "model_id": "timer", "output_type": {"kind": "digital"}, "inputs": {"value": {"kind": "fixture", "channel": "enable"}},
             "parameters": {"delay": quantity(0.02, "s")}}}})
@@ -205,7 +205,7 @@ class SimulationTests(unittest.TestCase):
 
     def test_absent_ground_disables_physical_output(self):
         from engine.schema.assembly import ModelBundle, AssemblyDefinition
-        from engine.examples.build_examples import definition_ref
+        from examples.engine.build_examples import definition_ref
         bundle, scenario = actuator_example()
         data = bundle.model_dump(mode="json")
         del data["assemblies"][0]["connections"]["electrical_nets"]["ground"]
@@ -221,7 +221,7 @@ class SimulationTests(unittest.TestCase):
     def test_electrical_network_propagates_to_behavior(self):
         from engine.schema.component import ComponentDefinition
         from engine.schema.assembly import AssemblyDefinition, ModelBundle
-        from engine.examples.build_examples import definition_ref
+        from examples.engine.build_examples import definition_ref
         source = parse(ComponentDefinition, {"id": "source", "name": "Driver", "electronic": {"electrical": {"terminals": {
             "out": {"physical_pin_number": "1", "electrical_role": "output", "drive": "push_pull"}}}}, "behaviors": {"drive": {
             "model_id": "pass", "inputs": {"value": {"kind": "fixture", "channel": "input"}},

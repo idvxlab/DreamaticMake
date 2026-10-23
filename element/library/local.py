@@ -144,7 +144,11 @@ class ElementLibrary:
         d = definition
         ref = element_ref(d)
         exact = [normalize(x) for x in (d.name, *d.aliases, d.product.model or '') if x]
-        text = normalize(' '.join([d.name, *d.aliases, d.product.model or '', d.description_markdown]))
+        procurement = d.model.procurement
+        text = normalize(' '.join([d.library_id, d.element_id, d.name, d.category, *d.aliases,
+            *d.tags, *d.roles, d.product.manufacturer or '', d.product.model or '', d.description_markdown,
+            *([procurement.manufacturer or '', procurement.model or '', procurement.sku or '',
+               procurement.description, *procurement.tags] if procurement else [])]))
         protocols = sorted({i.protocol for i in getattr(d.model, 'interfaces', {}).values()})
         parameters = {}
         for name, p in d.parameters.items():
@@ -216,7 +220,7 @@ class ElementLibrary:
             if query.version_policy == 'latest_active':
                 sql += " AND v.revision=(SELECT MAX(w.revision) FROM versions w WHERE w.library_id=v.library_id AND w.element_id=v.element_id AND w.status='active')"
             for term in tokens(query.text):
-                sql += ' AND EXISTS(SELECT 1 FROM terms t WHERE t.term=? AND t.library_id=v.library_id AND t.element_id=v.element_id AND t.revision=v.revision)'
+                sql += ' AND instr(v.search_text, ?) > 0'
                 args.append(term)
             rows = db.execute(sql, args).fetchall()
         hits = []

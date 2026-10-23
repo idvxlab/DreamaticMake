@@ -6,6 +6,7 @@ from element.schema.definition import Definition
 from pydantic import BaseModel, Field, model_serializer, model_validator
 from element.base.frame import LocalFrame
 from typing import Literal
+from element.schema.commerce import Procurement
 
 
 class ComponentDesign(Definition):
@@ -14,12 +15,13 @@ class ComponentDesign(Definition):
     roles: tuple[Id, ...] = ()
     geometry: GeometrySpec = Field(default_factory=GeometrySpec)
     mounts: MechanicalSpec = Field(default_factory=MechanicalSpec)
+    procurement: Procurement | None = None
 
     @model_serializer(mode="wrap")
     def omit_absent_extensions(self, handler):
         # Optional additions must not change legacy design provenance or snapshots.
         record = handler(self)
-        for name in ("spec", "wiring"):
+        for name in ("spec", "wiring", "procurement"):
             if getattr(self, name, None) is None:
                 record.pop(name, None)
         return record

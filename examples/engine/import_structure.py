@@ -3,13 +3,13 @@ import json
 from pathlib import Path
 from element.categories import Structure
 from engine.compiler.lower import compile_model
-from engine.examples.build_components import ASSUMED, scenario_for
+from examples.engine.build_components import ASSUMED, scenario_for
 from element.io.load import read_asset
 from engine.simulator.engine import simulate
 
 
 def example():
-    root = Path(__file__).parent / "components" / "assets"
+    root = Path(__file__).parent.parent / "element" / "assets"
     component = Structure.from_stl(id="example.imported_wedge", name="Synthetic imported wedge",
         path=root / "wedge.stl", asset_root=root, unit="mm", collision_mode="solid", evidence=ASSUMED)
     return component, scenario_for(component), root

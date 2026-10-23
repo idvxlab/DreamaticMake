@@ -1,3 +1,15 @@
+import type {
+  LayoutDraft,
+  GraphProjection,
+  LayoutReport,
+  LayoutProjection,
+} from "../../../engine/interface/contracts";
+export type {
+  LayoutDraft,
+  GraphProjection,
+  LayoutReport,
+  LayoutProjection,
+} from "../../../engine/interface/contracts";
 import { z } from "zod";
 import type {
   EngineDiagnostic,
@@ -6,76 +18,6 @@ import type {
   EngineShape,
 } from "./design-engine";
 
-export type LayoutDraft = {
-  record_kind: "layout_draft";
-  layout_version: 1;
-  entities: Record<string, { name: string; part_id?: string | null }>;
-  bodies: Record<string, { entity: string; pose: EnginePose }>;
-  envelopes: Record<
-    string,
-    {
-      body: string;
-      pose: EnginePose;
-      shape: EngineShape;
-      purpose: "solid" | "keepout" | "service";
-      approximation: "outer" | "inner" | "unknown";
-      margin_m: number;
-    }
-  >;
-  ports: Record<
-    string,
-    {
-      entity: string;
-      name: string;
-      domain: "electrical" | "material" | "information";
-      direction: "in" | "out" | "bidirectional";
-      role: string;
-      medium?: string | null;
-      data_type?: string | null;
-      required: boolean;
-      body?: string | null;
-      pose?: EnginePose | null;
-    }
-  >;
-  edges: Record<
-    string,
-    {
-      domain: "electrical" | "material" | "information";
-      kind: string;
-      members: string[];
-      directed: boolean;
-    }
-  >;
-  joints: Record<
-    string,
-    {
-      parent: string;
-      child: string;
-      kind: "fixed" | "revolute" | "continuous" | "prismatic";
-      axis: number[] | null;
-      parent_anchor: EnginePose;
-      child_anchor: EnginePose;
-      lower: number | null;
-      upper: number | null;
-      initial: number | null;
-    }
-  >;
-  transmissions: Record<
-    string,
-    {
-      driver: string;
-      follower: string;
-      kind: "rotary_ratio" | "screw";
-      factor: number | null;
-      offset: number;
-    }
-  >;
-  paths: {
-    domain: "electrical" | "material" | "information";
-    source: string;
-    target: string;
-  }[];
-};
 export const identityPose = (): EnginePose => ({
   translation_m: [0, 0, 0],
   rotation_xyzw: [0, 0, 0, 1],
@@ -211,36 +153,4 @@ export type WorkspaceState = {
   record: WorkspaceRecord;
   origin: string;
   editable: boolean;
-};
-export type GraphProjection = {
-  nodes: { id: string; label: string; refs: string[]; missing: boolean }[];
-  edges: (LayoutDraft["edges"][string] & {
-    id: string;
-    endpoints: { node: string; port: string }[];
-  })[];
-  ports: LayoutDraft["ports"];
-};
-export type LayoutReport = {
-  kind: string;
-  status: string;
-  diagnostics: EngineDiagnostic[];
-  pairs?: [string, string][];
-  checked?: string[];
-  skipped?: string[];
-  missing_bodies?: string[];
-  coverage?: string[];
-  joint_positions?: Record<string, number>;
-  accepted?: string[];
-};
-export type LayoutProjection = {
-  draft: LayoutDraft;
-  snapshot_id: string;
-  pose_id?: string;
-  diagnostics: EngineDiagnostic[];
-  bindings: Record<string, string[]>;
-  scene: EngineScene;
-  circuit: GraphProjection;
-  flow: GraphProjection;
-  check?: LayoutReport;
-  motion?: LayoutReport;
 };

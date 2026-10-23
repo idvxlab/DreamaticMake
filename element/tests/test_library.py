@@ -30,7 +30,7 @@ class LibraryTests(unittest.TestCase):
     def test_all_existing_templates_can_be_library_records(self):
         from element.io.components import load_component
         count = 0
-        for path in Path('engine/examples/components').glob('*.json'):
+        for path in Path('examples/element').glob('*.json'):
             if path.name.endswith('.scenario.json'): continue
             model = load_component(path)
             definition = ElementDefinition(library_id='templates', element_id=model.id, revision=model.revision,

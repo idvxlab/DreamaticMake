@@ -14,8 +14,8 @@ from element.categories import Sensor, Driver
 from engine.adapters.assembly import assemble_components
 from element.categories.specs import InertialDescription, PowerDescription, DisplayDescription
 from element.categories.circuit import ResistorSpec
-from engine.examples.build_components import examples as legacy_examples, scenario_for
-from engine.examples.described_components import examples
+from examples.engine.build_components import examples as legacy_examples, scenario_for
+from examples.engine.described_components import examples
 from element.interfaces.behavior import BehaviorSpec, InputBinding
 from element.interfaces.electrical import ElectricalSpec, Terminal
 from element.io.components import parse_component, load_component
@@ -37,7 +37,7 @@ class DescriptionTests(unittest.TestCase):
         cls.examples = examples()
 
     def test_legacy_records_keep_their_pinned_scenarios(self):
-        directory = Path(__file__).resolve().parents[1] / "examples" / "components"
+        directory = Path(__file__).resolve().parents[2] / "examples" / "element"
         for name, design in legacy_examples().items():
             with self.subTest(name=name):
                 self.assertNotIn("spec", design.model_dump(mode="json"))
@@ -53,7 +53,7 @@ class DescriptionTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertEqual(parse_component(design.model_dump(mode="json")), design)
                 self.assertEqual(loads_model(design.model_dump_json()), design)
-                path = Path(__file__).resolve().parents[1] / "examples" / "components" / f"described_{name}.json"
+                path = Path(__file__).resolve().parents[2] / "examples" / "element" / f"described_{name}.json"
                 self.assertEqual(load_component(path), design)
                 compile_model(design)
         data = self.examples["screen"].model_dump(mode="json")

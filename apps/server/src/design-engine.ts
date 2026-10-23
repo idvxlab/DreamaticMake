@@ -294,7 +294,7 @@ export class DesignEngine {
   async example(name: string) {
     if (!["actuator", "fan", "lamp"].includes(name))
       throw new HttpError(404, "引擎示例不存在");
-    const folder = join(this.root, "engine", "examples");
+    const folder = join(this.root, "examples", "engine");
     return {
       bundle: JSON.parse(
         await readFile(join(folder, name + ".bundle.json"), "utf8"),

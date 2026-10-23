@@ -1,0 +1,47 @@
+{
+  "record_kind": "component_design",
+  "design_version": "1",
+  "id": "demo.forearm",
+  "name": "前臂连杆",
+  "category": "structure",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "工作台概念案例",
+      "note": "尺寸、接口和功能用于设计演示，非厂家数据或制造验证。"
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "bar": {
+        "body_ref": "body",
+        "shape": {
+          "kind": "box",
+          "size_m": [
+            0.065,
+            0.012,
+            0.012
+          ]
+        },
+        "pose": {
+          "translation_m": [
+            0.0425,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "approximation": "outer"
+      }
+    }
+  }
+}

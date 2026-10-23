@@ -131,7 +131,7 @@ def compact_record(component):
 
 
 if __name__ == "__main__":
-    folder = Path(__file__).parent / "components"
+    folder = Path(__file__).parent.parent / "element"
     folder.mkdir(exist_ok=True)
     for name, component in examples().items():
         # Compact authoring records expose only relevant fields. Full defaults remain hash-covered.

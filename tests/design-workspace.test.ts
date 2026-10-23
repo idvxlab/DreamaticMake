@@ -217,7 +217,7 @@ test(
   { skip: !process.env.MAKE_ENGINE_TEST_PYTHON },
   async () => {
     const source = await readFile(
-      "engine/examples/actuator.bundle.json",
+      "examples/engine/actuator.bundle.json",
       "utf8",
     );
     const { runProcess } = await import("../packages/core/src/worker");
@@ -236,7 +236,7 @@ test(
     assert.equal(result.code, 0, result.stdout);
     assert.equal(JSON.parse(result.stdout).payload.draft.layout_version, 1);
     assert.equal(
-      await readFile("engine/examples/actuator.bundle.json", "utf8"),
+      await readFile("examples/engine/actuator.bundle.json", "utf8"),
       source,
     );
   },

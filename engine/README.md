@@ -22,10 +22,10 @@ python -m venv .venv
 python -m pip install "pydantic>=2,<3"
 python -B -m unittest discover -s engine/tests -v
 
-python -m engine validate engine/examples/actuator.bundle.json
-python -m engine simulate engine/examples/actuator.bundle.json --scenario engine/examples/actuator.scenario.json
-python -m engine simulate engine/examples/fan.bundle.json --scenario engine/examples/fan.scenario.json
-python -m engine simulate engine/examples/lamp.bundle.json --scenario engine/examples/lamp.scenario.json
+python -m engine validate examples/engine/actuator.bundle.json
+python -m engine simulate examples/engine/actuator.bundle.json --scenario examples/engine/actuator.scenario.json
+python -m engine simulate examples/engine/fan.bundle.json --scenario examples/engine/fan.scenario.json
+python -m engine simulate examples/engine/lamp.bundle.json --scenario examples/engine/lamp.scenario.json
 ```
 
 The CLI entry point is `python -m engine`; this repository does not currently define an installed console command. All test cases are offline and use `unittest`; no paid models or network calls are involved. Installation may fetch the declared Python dependencies.
@@ -93,10 +93,10 @@ bundle = to_bundle(led)  # Use in the existing application/assembly contract.
 
 ```bash
 python -m engine schema component_design
-python -m engine compile engine/examples/components/indicator.toml
-python -m engine simulate engine/examples/components/servo.json --scenario engine/examples/components/servo.scenario.json
-python -m engine.examples.component_assembly
-python -m engine.examples.import_structure
+python -m engine compile examples/element/indicator.toml
+python -m engine simulate examples/element/servo.json --scenario examples/element/servo.scenario.json
+python -m examples.engine.component_assembly
+python -m examples.engine.import_structure
 ```
 
 TOML requires Python 3.11+; the STL example requires the optional mesh stack. Control functions
@@ -123,7 +123,7 @@ are inferred. The application reviewer rejects unsupported coverage. Existing sc
 can execute with the new acceleration/magnetic units. Added protocol names are descriptive only.
 
 See [typed descriptions and circuit parts](../element/categories/README.md#7-紧凑描述接口与基础电路器件)
-and run `python -m engine.examples.described_components` to compile the synthetic templates.
+and run `python -m examples.engine.described_components` to compile the synthetic templates.
 
 ```python
 from engine.io.load import load
@@ -132,8 +132,8 @@ from engine.simulator.engine import simulate
 from engine.projection.scene import project_scene
 from engine.projection.circuit import project_circuit
 
-bundle = load("engine/examples/actuator.bundle.json")
-scenario = load("engine/examples/actuator.scenario.json")
+bundle = load("examples/engine/actuator.bundle.json")
+scenario = load("examples/engine/actuator.scenario.json")
 ir = compile_model(bundle)
 result = simulate(ir, scenario)
 scene = project_scene(ir, result)
@@ -244,10 +244,10 @@ This integration performs **discrete collision detection**, not bouncing, fricti
 
 ```bash
 python -m engine schema model_bundle
-python -m engine compile engine/examples/actuator.bundle.json
-python -m engine scene engine/examples/actuator.bundle.json
-python -m engine circuit engine/examples/actuator.bundle.json
-python -m engine flow engine/examples/fan.bundle.json
+python -m engine compile examples/engine/actuator.bundle.json
+python -m engine scene examples/engine/actuator.bundle.json
+python -m engine circuit examples/engine/actuator.bundle.json
+python -m engine flow examples/engine/fan.bundle.json
 python -m engine request
 ```
 
@@ -271,7 +271,7 @@ The Node.js adapter in `apps/server/src/design-engine.ts` passes bounded inline 
 To regenerate the committed synthetic fixtures after an intentional contract change:
 
 ```bash
-python -m engine.examples.build_examples
+python -m examples.engine.build_examples
 python -B -m unittest discover -s engine/tests -v
 ```
 

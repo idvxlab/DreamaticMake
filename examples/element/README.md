@@ -26,11 +26,11 @@
 | `assets/wedge.stl` | 用于文件导入演示的合成封闭四面体，声明单位 mm |
 
 ```bash
-python -m engine.examples.build_components
-python -m engine compile engine/examples/components/indicator.toml
-python -m engine simulate engine/examples/components/servo.json --scenario engine/examples/components/servo.scenario.json
-python -m engine.examples.component_assembly
-python -m engine.examples.import_structure
+python -m examples.engine.build_components
+python -m engine compile examples/element/indicator.toml
+python -m engine simulate examples/element/servo.json --scenario examples/element/servo.scenario.json
+python -m examples.engine.component_assembly
+python -m examples.engine.import_structure
 ```
 
 最后一条需要可选网格依赖。`build_components` 显式再生成这里的 16 组 JSON；不会执行来自数据文件的 Python。
@@ -52,9 +52,9 @@ Python 写法见 [build_components.py](../build_components.py)，跨类别装配
 | `described_diode.json` / `described_transistor.json` / `described_optocoupler.json` | 半导体规格及语义端子到物理脚号的对应 |
 
 ```bash
-python -m engine.examples.described_components
-python -m engine.examples.described_components --write
-python -m engine compile engine/examples/components/described_resistor.json
+python -m examples.engine.described_components
+python -m examples.engine.described_components --write
+python -m engine compile examples/element/described_resistor.json
 ```
 
 第一条检查 16 份新设计，第二条显式重建这些源文件。所有示例数值和几何仍是合成假设；新接口不增加模拟电路、媒体流、电池续航或逐灯渲染求解器。实际场景和验收须另行定义，并检查 `unsupported` 诊断。

@@ -1,0 +1,194 @@
+{
+  "record_kind": "layout_project",
+  "project_version": 1,
+  "components": {
+    "gripper": {
+      "record_kind": "component_design",
+      "design_version": "1",
+      "id": "demo.gripper",
+      "name": "双指夹爪",
+      "category": "structure",
+      "evidence": {
+        "demo": {
+          "kind": "assumed",
+          "conditions": "工作台概念案例",
+          "note": "尺寸、接口和功能用于设计演示，非厂家数据或制造验证。"
+        }
+      },
+      "geometry": {
+        "root_body": "palm",
+        "bodies": {
+          "palm": {},
+          "left": {},
+          "right": {}
+        },
+        "envelopes": {
+          "palm": {
+            "body_ref": "palm",
+            "shape": {
+              "kind": "box",
+              "size_m": [
+                0.014,
+                0.055,
+                0.012
+              ]
+            },
+            "pose": {
+              "translation_m": [
+                0,
+                0,
+                0
+              ],
+              "rotation_xyzw": [
+                0,
+                0,
+                0,
+                1
+              ]
+            },
+            "approximation": "outer"
+          },
+          "left": {
+            "body_ref": "left",
+            "shape": {
+              "kind": "box",
+              "size_m": [
+                0.032,
+                0.006,
+                0.012
+              ]
+            },
+            "pose": {
+              "translation_m": [
+                0.025,
+                0,
+                0
+              ],
+              "rotation_xyzw": [
+                0,
+                0,
+                0,
+                1
+              ]
+            },
+            "approximation": "outer"
+          },
+          "right": {
+            "body_ref": "right",
+            "shape": {
+              "kind": "box",
+              "size_m": [
+                0.032,
+                0.006,
+                0.012
+              ]
+            },
+            "pose": {
+              "translation_m": [
+                0.025,
+                0,
+                0
+              ],
+              "rotation_xyzw": [
+                0,
+                0,
+                0,
+                1
+              ]
+            },
+            "approximation": "outer"
+          }
+        }
+      }
+    }
+  },
+  "structure": {
+    "instances": {
+      "gripper": {
+        "definition": "gripper"
+      }
+    }
+  },
+  "motion": {
+    "joints": {
+      "gripper/joints/left": {
+        "kind": "prismatic",
+        "parent": "gripper/bodies/palm",
+        "child": "gripper/bodies/left",
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "initial": 0.02,
+        "lower": 0.008,
+        "upper": 0.035,
+        "parent_anchor": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "child_anchor": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "gripper/joints/right": {
+        "kind": "prismatic",
+        "parent": "gripper/bodies/palm",
+        "child": "gripper/bodies/right",
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "initial": -0.02,
+        "lower": -0.035,
+        "upper": -0.008,
+        "parent_anchor": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "child_anchor": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      }
+    }
+  }
+}

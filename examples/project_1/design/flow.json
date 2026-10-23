@@ -1,0 +1,182 @@
+{
+  "ports": {
+    "controller/info/yaw": {
+      "entity": "controller",
+      "name": "yaw 角度",
+      "domain": "information",
+      "direction": "out",
+      "data_type": "number",
+      "body": "controller/bodies/body",
+      "pose": {
+        "translation_m": [
+          0,
+          0,
+          0
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "required": true
+    },
+    "yaw/info/target": {
+      "entity": "yaw",
+      "name": "目标角度",
+      "domain": "information",
+      "direction": "in",
+      "data_type": "number",
+      "body": "yaw/bodies/case",
+      "pose": {
+        "translation_m": [
+          0,
+          0,
+          0
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "required": true
+    },
+    "controller/info/shoulder": {
+      "entity": "controller",
+      "name": "shoulder 角度",
+      "domain": "information",
+      "direction": "out",
+      "data_type": "number",
+      "body": "controller/bodies/body",
+      "pose": {
+        "translation_m": [
+          0,
+          0,
+          0
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "required": true
+    },
+    "shoulder/info/target": {
+      "entity": "shoulder",
+      "name": "目标角度",
+      "domain": "information",
+      "direction": "in",
+      "data_type": "number",
+      "body": "shoulder/bodies/case",
+      "pose": {
+        "translation_m": [
+          0,
+          0,
+          0
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "required": true
+    },
+    "controller/info/elbow": {
+      "entity": "controller",
+      "name": "elbow 角度",
+      "domain": "information",
+      "direction": "out",
+      "data_type": "number",
+      "body": "controller/bodies/body",
+      "pose": {
+        "translation_m": [
+          0,
+          0,
+          0
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "required": true
+    },
+    "elbow/info/target": {
+      "entity": "elbow",
+      "name": "目标角度",
+      "domain": "information",
+      "direction": "in",
+      "data_type": "number",
+      "body": "elbow/bodies/case",
+      "pose": {
+        "translation_m": [
+          0,
+          0,
+          0
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "required": true
+    }
+  },
+  "edges": {
+    "flow/yaw": {
+      "domain": "information",
+      "members": [
+        "controller/info/yaw",
+        "yaw/info/target"
+      ],
+      "kind": "command",
+      "directed": true
+    },
+    "flow/shoulder": {
+      "domain": "information",
+      "members": [
+        "controller/info/shoulder",
+        "shoulder/info/target"
+      ],
+      "kind": "command",
+      "directed": true
+    },
+    "flow/elbow": {
+      "domain": "information",
+      "members": [
+        "controller/info/elbow",
+        "elbow/info/target"
+      ],
+      "kind": "command",
+      "directed": true
+    }
+  },
+  "paths": [
+    {
+      "domain": "information",
+      "source": "controller/info/yaw",
+      "target": "yaw/info/target"
+    },
+    {
+      "domain": "information",
+      "source": "controller/info/shoulder",
+      "target": "shoulder/info/target"
+    },
+    {
+      "domain": "information",
+      "source": "controller/info/elbow",
+      "target": "elbow/info/target"
+    }
+  ]
+}

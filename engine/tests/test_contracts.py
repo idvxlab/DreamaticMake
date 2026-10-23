@@ -11,7 +11,7 @@ from element.io.save import dumps, save, content_hash
 from engine.io.json_schema import export_schema
 from engine.schema.component import ComponentDefinition
 from engine.schema.scenario import SolverOptions
-from engine.examples.build_examples import actuator_example
+from examples.engine.build_examples import actuator_example
 
 
 class ContractTests(unittest.TestCase):

@@ -15,7 +15,7 @@ from element.base.signal import SignalType
 from element.categories import Structure, ControlFunction
 from engine.adapters.assembly import assemble_components
 from engine.compiler.lower import compile_model
-from engine.examples.build_components import examples, scenario_for
+from examples.engine.build_components import examples, scenario_for
 from element.interfaces.behavior import BehaviorSpec, InputBinding
 from element.interfaces.mechanical import MechanicalSpec, MechanicalPort
 from engine.schema.connections import MechanicalConnection
@@ -29,7 +29,7 @@ from engine.schema.scenario import Scenario, RootPlacement, FixtureChannel, Stim
 from engine.simulator.engine import simulate
 from engine.projection.flow import project_flow
 
-EXAMPLES = Path(__file__).resolve().parents[1] / "examples" / "components"
+EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "element"
 MESH = all(importlib.util.find_spec(name) for name in ("trimesh", "fcl", "rtree"))
 
 

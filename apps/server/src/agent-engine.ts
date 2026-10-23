@@ -43,12 +43,12 @@ export class AgentEngine {
       .filter(Boolean);
     const templates = [];
     for (const file of await readdir(
-      join(this.root, "engine/examples/components"),
+      join(this.root, "examples/element"),
     )) {
       if (!file.endsWith(".json") || file.endsWith(".scenario.json")) continue;
       const component = JSON.parse(
         await readFile(
-          join(this.root, "engine/examples/components", file),
+          join(this.root, "examples/element", file),
           "utf8",
         ),
       );

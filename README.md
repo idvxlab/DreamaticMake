@@ -71,7 +71,7 @@ Models remain independent immutable snapshots; this integration does not synthes
 With Python 3.11+ and Pydantic 2.x installed, run from the repository root:
 
 ```bash
-python -m engine validate engine/examples/actuator.bundle.json
+python -m engine validate examples/engine/actuator.bundle.json
 python -B -m unittest discover -s engine/tests -v
 python -B -m unittest discover -s element/tests -v
 ```
@@ -96,3 +96,7 @@ Optional integration checks:
 - `npm run test:ui:engine` — real browser + Python engine checks. Set `MAKE_ENGINE_TEST_PYTHON` and `MAKE_TEST_BROWSER` to local Python and Chromium/Edge executable paths first. Screenshots are written to ignored `test-results/`.
 
 See [system design](docs/system-design.md), [implementation status](docs/implementation-status.md), and the [agent protocol](.pi/PROTOCOL.md) for details.
+
+## 独立引擎与元件库
+
+运行 `npm run engine:dev`，打开 http://127.0.0.1:4322 查看机械夹爪、切换设计层级及搜索元件。无需启动完整项目界面。详见 [engine/interface](engine/interface/README.md)、[示例结构](examples/README.md) 和 [元件库](element/README.md)。

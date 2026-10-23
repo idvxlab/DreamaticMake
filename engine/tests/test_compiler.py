@@ -3,7 +3,7 @@ from element.base.diagnostic import ModelError
 from engine.compiler.lower import compile_model
 from engine.schema.component import ComponentDefinition
 from engine.schema.assembly import AssemblyDefinition, ModelBundle
-from engine.examples.build_examples import parse, ref, definition_ref, actuator_example, quantity, pose
+from examples.engine.build_examples import parse, ref, definition_ref, actuator_example, quantity, pose
 from engine.tests.helpers import single
 
 

@@ -6,7 +6,7 @@ from element.base.signal import SignalType
 from element.categories import Sensor, CircuitElement, Structure
 from element.categories.specs import MechanicalDescription, ActuatorDescription, LightDescription, DisplayDescription, SoundDescription, InertialDescription, CameraDescription, MicrophoneDescription, PowerDescription
 from element.categories.circuit import ResistorSpec, CapacitorSpec, InductorSpec, DiodeSpec, TransistorSpec, OptocouplerSpec
-from engine.examples.build_components import examples as original_examples, ASSUMED
+from examples.engine.build_components import examples as original_examples, ASSUMED
 from element.interfaces.electrical import ElectricalSpec, Terminal
 from element.interfaces.sensing import SensorInput, SensorSource
 from element.interfaces.geometry import Box
@@ -78,7 +78,7 @@ def examples():
 if __name__ == "__main__":
     import argparse
     from pathlib import Path
-    from engine.examples.build_components import compact_record
+    from examples.engine.build_components import compact_record
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true", help="Regenerate explicit synthetic library templates")
     args = parser.parse_args()
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     for name, design in examples().items():
         ir = compile_model(design)
         if args.write:
-            path = Path(__file__).parent / "components" / f"described_{name}.json"
+            path = Path(__file__).parent.parent / "element" / f"described_{name}.json"
             path.write_text(json.dumps(compact_record(design), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(json.dumps({"name": name, "category": design.category, "snapshot_id": ir.snapshot_id,
             "diagnostics": [d.model_dump(mode="json") for d in ir.diagnostics]}))
