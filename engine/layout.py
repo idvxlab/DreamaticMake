@@ -3,12 +3,11 @@
 Executable contracts remain unchanged. Each check explicitly reports its coverage.
 """
 import json
-from math import pi
 from types import SimpleNamespace
 from typing import Literal
 from pydantic import Field, model_validator
 from element.base.contract import Contract
-from element.base.frame import Pose, Vec3, dot
+from element.base.frame import Pose, Vec3
 from element.base.quantity import Quantity
 from element.interfaces.geometry import Shape, Envelope
 from engine.compiler.ir import BoundObject

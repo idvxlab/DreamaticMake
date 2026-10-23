@@ -1,7 +1,7 @@
 from typing import Annotated, Literal
 from pydantic import Field, model_validator
 from element.base.contract import Contract, Id, Positive, NonNegative
-from element.base.frame import Pose, Vec3
+from element.base.frame import Pose
 from element.base.quantity import Parameter
 from element.base.reference import AssetRef
 

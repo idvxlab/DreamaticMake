@@ -4,13 +4,10 @@ from element.base.contract import Contract, Id
 from element.base.quantity import Quantity
 from element.base.reference import AssetRef, ObjectRef
 from element.base.signal import SignalType
-from element.base.evidence import SourceRecord
 from element.interfaces.behavior import BehaviorSpec, InputBinding
 from element.interfaces.electrical import ElectricalSpec
 from element.interfaces.electronic import ElectricalInterface
 from element.interfaces.sensing import SensorInput
-from element.interfaces.effects import ObservableEffect, BehaviorOutputRef
-from element.interfaces.function import FunctionSpec
 from element.categories.base import ComponentDesign
 from element.categories.specs import (LightDescription, DisplayDescription, SoundDescription,
     SensorDescription, InertialDescription, CameraDescription, MicrophoneDescription)

@@ -1,5 +1,5 @@
 from typing import Literal
-from element.base.contract import Contract, Id, Positive, NonNegative
+from element.base.contract import Contract, Id, NonNegative
 from element.base.frame import LocalFrame
 from element.base.reference import ObjectRef
 from element.base.signal import SignalType

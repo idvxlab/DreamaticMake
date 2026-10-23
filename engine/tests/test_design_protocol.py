@@ -7,7 +7,7 @@ import unittest
 from engine.design import *
 from engine.design.contracts import KINDS
 from engine.design.io import export_schema
-from engine.design.migrate import migrate_layout, instantiate_element
+from engine.design.selection import instantiate_element
 from engine.design.bom import derive_bom
 from element.tests.test_library import fixture
 from engine.design.documents import export_documents, import_documents
@@ -34,7 +34,7 @@ class DesignProtocolTests(unittest.TestCase):
         selected = next(r for r in records if r['kind'] == 'selection')
         usage = selected['data']['usage']
         first = next(iter(usage['instances'].values()))
-        usage['instances']['second'] = {**first, 'label': 'Second housing', 'occurrence_map': {}}
+        usage['instances']['second'] = {**first, 'label': 'Second housing'}
         usage['planned_count'] = 2
         package = make_package(design_id='demo', title='Demo', records=records, elements=p.elements)
         self.assertEqual(derive_bom(package)['items'][0]['quantity']['value'], 2)
@@ -112,20 +112,8 @@ class DesignProtocolTests(unittest.TestCase):
                 records=[record('analysis', {'body': {'text': 'Overwrite'}}, revision=2)])
             with self.assertRaisesRegex(RevisionConflict, 'immutable'): store.commit(bad, expected_manifest_revision=2)
 
-    def test_layout_migration_preserves_objects_and_reports_loss(self):
-        raw = {'record_kind': 'layout_draft', 'layout_version': 1, 'entities': {'fan': {'name': 'Fan'}},
-            'bodies': {'fan/bodies/body': {'entity': 'fan', 'pose': {}}},
-            'ports': {'a': {'entity': 'fan', 'domain': 'material'}, 'b': {'entity': 'fan', 'domain': 'material'}},
-            'edges': {'tube': {'domain': 'material', 'members': ['a','b']}}}
-        migrated = migrate_layout(raw, design_id='demo')
-        self.assertEqual(migrated, migrate_layout(raw, design_id='demo'))
-        self.assertTrue(migrated['losses'])
-        view = project_design(migrated['package'])
-        self.assertEqual(len(view['draft']['bodies']), 1)
-        self.assertEqual(len(view['draft']['ports']), 2)
-
     def test_instantiation_bom_and_real_collision_check(self):
-        result = instantiate_element(fixture(), design_id='demo')
+        result = instantiate_element(fixture(), design_id='demo', pose={})
         p = result['package']
         r = resolve_design(p)
         self.assertFalse([d for d in r.diagnostics if d.severity == 'error'], r.diagnostics)

@@ -1,12 +1,10 @@
 from dataclasses import dataclass
-from types import MappingProxyType
 from typing import Mapping
 from element.base.contract import Contract
 from element.base.diagnostic import Diagnostic
 from element.interfaces.motion import Joint, Transmission
 from engine.schema.connections import ElectricalNet
-from engine.schema.assembly import ModelBundle
-from element.schema.model import ComponentDefinition
+from engine.schema.component import ComponentDefinition
 
 
 @dataclass(frozen=True)

@@ -54,16 +54,13 @@ class ResolvedDesign:
             if record.kind != kind or record_ref(record) != pin: raise ValueError('Record pin/hash mismatch')
             self.records[record.record_id] = record
             self.objects[record.record_id] = record
-            for collection in COLLECTIONS[record.kind]:
-                if collection == 'instances': values = instances(record.data)
-                elif collection in ('unit_inputs', 'unit_outputs'):
-                    values = {f'{u}:{p}': value for u, unit in record.data.units.items()
-                              for p, value in getattr(unit, collection.removeprefix('unit_')).items()}
-                else: values = getattr(record.data, collection)
-                for name, value in values.items():
-                    self.objects[f'{record.record_id}/{collection}/{name}'] = value
         if set(self.records) != set(pins): raise ValueError('Pinned record is missing')
-        if len(self.objects) > 10000: raise ValueError('Design object budget exceeded')
+        self._index()
+        for record in self.records.values():
+            if record.kind == 'selection': self._selection(record, library)
+        from engine.design.occurrence import expand_elements
+        expand_elements(self)
+        self._index()
         for record in self.records.values():
             for path, value in walk(record):
                 if isinstance(value, ObjectRef):
@@ -76,9 +73,29 @@ class ResolvedDesign:
             for evidence in record.evidence.values():
                 if set(evidence.source_ids) - record.sources.keys():
                     self.issue('evidence.source', 'Unknown evidence source', ObjectRef(record_id=record.record_id))
-            if record.kind == 'selection':
-                self._selection(record, library)
         self._semantics()
+
+    def _index(self):
+        self.objects = {}
+        for record in self.records.values():
+            self.objects[record.record_id] = record
+            for collection in COLLECTIONS[record.kind]:
+                if collection == 'instances': values = instances(record.data)
+                elif collection in ('unit_inputs', 'unit_outputs'):
+                    values = {f'{u}:{p}': value for u, unit in record.data.units.items()
+                              for p, value in getattr(unit, collection.removeprefix('unit_'), {}).items()}
+                else: values = getattr(record.data, collection)
+                for name, value in values.items():
+                    self.objects[f'{record.record_id}/{collection}/{name}'] = value
+        if len(self.objects) > 10000: raise ValueError('Design object budget exceeded')
+
+    def element_object(self, binding):
+        """Complete native object, with local references scoped to binding.instance_ref."""
+        from engine.design.occurrence import binding_key
+        return self.element_objects.get(binding_key(binding))
+
+    def occurrence_ref(self, instance_ref, collection, object_id):
+        return self.occurrence_refs[(instance_ref.key(), collection, object_id)]
 
     def issue(self, code, message, *refs, path=None, severity='error'):
         self.diagnostics.append(Diagnostic(code=code, severity=severity, message=message, refs=refs, field_path=path))
@@ -118,12 +135,6 @@ class ResolvedDesign:
         for name, instance in instances(data).items():
             key = f'{record.record_id}/instances/{name}'
             if definition: self.instance_elements[key] = definition
-            for parameter, value in instance.parameter_bindings.items():
-                p = definition.parameters.get(parameter) if definition else None
-                if not p or not p.configurable:
-                    self.issue('parameter.unavailable', 'Parameter is absent or not configurable', ObjectRef(record_id=record.record_id, collection='instances', object_id=name))
-                elif (p.value and p.value.dimension != value.dimension) or (p.limits and not p.limits.contains(value)):
-                    self.issue('parameter.range', 'Parameter binding has incompatible dimension/range', record_target)
 
     def _cycles(self, graph, name):
         done = set()
@@ -203,7 +214,8 @@ class ResolvedDesign:
                 ports = [self.get(ref, FlowPortBase) for ref in refs]
                 if all(ports):
                     if any(p.domain != value.domain for p in ports): self.issue('flow.domain', 'Flow domains differ', *refs)
-                    if ports[0].direction == 'in' or any(p.direction == 'out' for p in ports[1:]): self.issue('flow.direction', 'Flow direction mismatch', *refs)
+                    source_direction, target_direction = ('out', 'in') if value.scope == 'internal' else ('in', 'out')
+                    if ports[0].direction == source_direction or any(p.direction == target_direction for p in ports[1:]): self.issue('flow.direction', 'Flow direction mismatch', *refs)
                     if value.scope == 'internal' and len({p.instance_ref.key() for p in ports}) != 1: self.issue('flow.internal', 'Internal flow crosses instance boundaries', *refs)
                     types = {str(p.type) if isinstance(p, InformationPort) else p.medium for p in ports} - {None, 'None'}
                     if len(types) > 1: self.issue('flow.type', 'Flow medium/data types differ', *refs)
@@ -233,8 +245,8 @@ class ResolvedDesign:
                     for ref in value.supply_terminal_refs: self.get(ref, Terminal)
             elif isinstance(value, LogicRecord):
                 d = value.data
-                if len(d.execution_order) != len(set(d.execution_order)) or set(d.execution_order) != set(d.units):
-                    self.issue('logic.order', 'Execution order must list each unit exactly once', ObjectRef(record_id=owner))
+                if len(d.execution_order) != len(set(d.execution_order)) or set(d.execution_order) != {n for n, u in d.units.items() if not isinstance(u, ElementUnit)}:
+                    self.issue('logic.order', 'Execution order must list each scheme-owned unit exactly once; element behavior order belongs to the element', ObjectRef(record_id=owner))
                 targets = set()
                 for binding in d.bindings.values():
                     if binding.target.key() in targets: self.issue('logic.multiple_writers', 'Input has multiple writers', binding.target)
@@ -249,6 +261,20 @@ class ResolvedDesign:
                     target_type = getattr(target, 'type', target)
                     if isinstance(source_type, (BooleanType, ScalarType, EnumType, EventType, StreamType)) and isinstance(target_type, (BooleanType, ScalarType, EnumType, EventType, StreamType)) and source_type != target_type:
                         self.issue('logic.binding_type', 'Binding types differ; explicit conversion required', binding.source, binding.target)
+        # Selected units cannot acquire a second intrinsic definition in scheme layers.
+        for key, value in self.objects.items():
+            instance_ref = None
+            if isinstance(value, (Body, Terminal, FlowPortBase, DesignEnergyPort, LogicInterface)):
+                instance_ref = value.instance_ref
+            elif isinstance(value, (Geometry, Mount)):
+                body = self.objects.get(value.body_ref.key())
+                instance_ref = body.instance_ref if isinstance(body, Body) else None
+            elif isinstance(value, Joint):
+                a, b = self.objects.get(value.parent_body.key()), self.objects.get(value.child_body.key())
+                if isinstance(a, Body) and isinstance(b, Body) and a.instance_ref == b.instance_ref:
+                    instance_ref = a.instance_ref
+            if instance_ref and instance_ref.key() in self.instance_elements and not isinstance(getattr(value, 'source', None), ElementBinding):
+                self.issue('element.source_required', 'Intrinsic objects of a selected unit must reference element; define new parts in element', instance_ref, path=key)
         for name, graph in parents.items(): self._cycles(graph, name)
         for record in self.records.values():
             for _, value in walk(record):

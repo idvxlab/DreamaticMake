@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import TypeVar
 from pydantic import BaseModel
 from element.io.load import _record_object, read_record
-from element.schema.model import ComponentDefinition
+from engine.schema.component import ComponentDefinition
 from engine.schema.assembly import AssemblyDefinition, ModelBundle
 from engine.schema.scenario import Scenario
 from engine.schema.result import SimulationResult

@@ -10,9 +10,7 @@ from element.base.diagnostic import ModelError
 from engine.compiler.lower import compile_model
 from engine.io.load import load, loads, load_model, loads_model
 from element.io.load import MAX_BYTES
-from element.io.save import content_hash, canonical_json
 from engine.io.json_schema import export_schema
-from engine.schema.assembly import ModelBundle
 from engine.schema.scenario import Scenario
 from engine.simulator.engine import simulate
 from engine.projection.scene import project_scene

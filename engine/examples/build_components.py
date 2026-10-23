@@ -14,7 +14,7 @@ from element.interfaces.behavior import InputBinding, BehaviorSpec
 from element.interfaces.sensing import SensorInput, SensorSource
 from engine.schema.scenario import Scenario, RootPlacement, FixtureChannel
 from engine.compiler.lower import compile_model
-from engine.simulator.registry import input_signal_type
+from element.interfaces.behavior_validation import input_signal_type
 from element.io.save import save
 
 

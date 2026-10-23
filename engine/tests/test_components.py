@@ -17,7 +17,6 @@ from engine.adapters.assembly import assemble_components
 from engine.compiler.lower import compile_model
 from engine.examples.build_components import examples, scenario_for
 from element.interfaces.behavior import BehaviorSpec, InputBinding
-from element.interfaces.geometry import Box
 from element.interfaces.mechanical import MechanicalSpec, MechanicalPort
 from engine.schema.connections import MechanicalConnection
 from element.io.components import parse_component, load_component

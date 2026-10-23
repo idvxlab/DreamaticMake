@@ -8,7 +8,8 @@ from engine.schema.connections import MechanicalConnection
 from engine.schema.connections import ElectricalNet
 from engine.schema.connections import MaterialConnection
 from element.interfaces.motion import Joint, Transmission
-from element.schema.model import Definition, ComponentDefinition
+from element.schema.definition import Definition
+from engine.schema.component import ComponentDefinition
 
 
 class ComponentInstance(Contract):

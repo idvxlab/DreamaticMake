@@ -1,7 +1,7 @@
 from element.base.signal import Sample, channel_key
-from element.base.reference import ObjectRef
 from engine.simulator.electrical import resolve_logic, supply_valid
-from engine.simulator.registry import evaluate, input_signal_type
+from engine.simulator.registry import evaluate
+from element.interfaces.behavior_validation import input_signal_type
 
 
 def sample(value, now, origin="simulated", *, kind="digital"):

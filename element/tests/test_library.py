@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 import subprocess
 import sys
@@ -8,7 +7,7 @@ from element.categories import Structure
 from element.interfaces.geometry import Box
 from element.schema.library import ElementDefinition, ElementQuery, ElementParameter, Evidence, CatalogEntry
 from element.base.quantity import Quantity
-from element.io.records import element_ref, parse_element
+from element.io.records import parse_element
 from element.library import ElementLibrary, LibraryError
 
 def fixture(element_id='housing', revision=1, library_id='demo'):

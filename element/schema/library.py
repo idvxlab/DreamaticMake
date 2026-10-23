@@ -33,7 +33,8 @@ class ElementRef(Contract):
 
 class ElementObjectRef(Contract):
     collection: Literal['bodies', 'envelopes', 'mounts', 'joints', 'terminals', 'interfaces',
-                        'material_ports', 'information_ports', 'energy_ports', 'behaviors']
+                        'material_ports', 'information_ports', 'energy_ports', 'behaviors',
+                        'transmissions', 'material_paths', 'visual_assets', 'sensors']
     object_id: Id
 
 class ElementParameter(Contract):
@@ -171,15 +172,19 @@ class ElementDefinition(Contract):
         model = self.model
         motion = getattr(model, 'motion', None)
         material = getattr(model, 'material', None)
-        wiring = getattr(model, 'wiring', None)
+        wiring = getattr(model, 'electrical', None) or getattr(model, 'wiring', None)
         joints = dict(motion.joints) if motion else {}
         if hasattr(model, 'joint'): joints['axis'] = model.joint
         behaviors = dict(getattr(model, 'functions', {}))
         behaviors.update(getattr(model, 'control_functions', {}))
         behaviors.update(getattr(model, 'channels', {}))
         if getattr(model, 'control', None): behaviors['control'] = model.control
+        for field in ('text', 'frequency'):
+            if hasattr(model, field): behaviors[field] = getattr(model, field)
         return {'bodies': model.geometry.bodies, 'envelopes': model.geometry.envelopes,
                 'mounts': model.mounts.ports, 'joints': joints,
+                'visual_assets': model.geometry.visual_assets,
+                'transmissions': motion.transmissions if motion else {},
                 'terminals': wiring.terminals if wiring else {},
                 'interfaces': getattr(model, 'interfaces', {}),
                 'material_ports': material.ports if material else {},

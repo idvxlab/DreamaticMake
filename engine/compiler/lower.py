@@ -1,6 +1,5 @@
 from types import MappingProxyType
 from element.base.diagnostic import ModelError
-from element.base.frame import Pose
 from element.base.reference import ObjectRef
 from element.interfaces.motion import Joint
 from element.interfaces.effects import MotionEffect

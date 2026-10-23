@@ -1,5 +1,4 @@
 from typing import Literal
-from pydantic import Field
 from element.base.contract import Contract, Sha256, Revision
 from element.base.diagnostic import Diagnostic
 from element.base.frame import Pose

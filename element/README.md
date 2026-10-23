@@ -10,7 +10,7 @@
 | `interfaces/` | Local geometry, mounting, motion, terminals, material paths and declarative behavior contracts |
 | `categories/` | The existing 14 typed authoring categories, without engine execution methods |
 | `schema/library.py` | Versioned definitions, pinned references, capabilities, parameters, catalog entries and search requests |
-| `schema/model.py` | Legacy per-element model contracts, retained for serialization compatibility |
+| `schema/definition.py` | Shared definition identity and descriptive metadata |
 | `io/` | Bounded JSON/TOML, asset inspection, deterministic serialization, explicit legacy catalog migration |
 | `library/` | Immutable definition files and a rebuildable SQLite index |
 
@@ -60,7 +60,7 @@ python -m element seed engine/examples/components --root workspace/element-libra
 
 `seed` explicitly imports the existing synthetic fixtures as `origin=template` records. The legacy files remain in `engine/examples` for compatibility and hash regression testing. `import_catalog_part(part, model)` in `element.io.catalog` imports procurement metadata only with an explicit typed model; it preserves unknown dimensions and does not promote descriptions to measured geometry.
 
-## Engine boundary and compatibility
+## Engine execution boundary
 
 ```python
 from engine.adapters.elements import to_bundle, assemble_elements
@@ -78,3 +78,15 @@ Engine adapters retain element provenance and namespace library definitions duri
 Legacy snapshot hashes retain their original encoding. New element references use the separate `element-v1` domain and Python's deterministic validated JSON encoding; this is not an RFC 8785 claim. See [design records](../engine/design/README.md) for selection and cross-layer use.
 
 Run `python -B -m unittest discover -s element/tests -v` and the existing engine tests after changing these contracts.
+
+## Ownership boundary with engine
+
+An `ElementDefinition` is the authoritative reusable engineering unit. Its category model owns intrinsic geometry, terminals, ratings, mounts, internal motion, material paths, interfaces and behavior. Library-level information and energy ports are part of the same pinned definition. `collections()` exposes these native objects, including transmissions, visual assets, sensors and behavior inputs, without lowering through an execution model.
+
+`engine/design` protocol 2 selects pinned definitions and creates occurrences. It owns placements, initial conditions and connections between units, and resolves local element objects on demand. It must not duplicate intrinsic properties into persisted scheme layers. Changes to geometry, terminal ratings, internal topology or behavior require a revised/derived element definition; scheme placement and connections do not change the element hash. Element contracts have no dependency on engine.
+
+### Single ownership of shared contracts
+
+Terminal properties and electrical validation, material-port properties, and declarative behavior programs are defined once in `element.interfaces`. Scheme views reuse those contracts while binding references in the scheme namespace. Power sources expose their effective electrical terminals in `PowerSource.electrical`, so library occurrences and simulation inputs agree even when wiring is implicit.
+
+Normalized execution containers (`ComponentDefinition`, `PhysicalSpec`, `ElectronicSpec`) belong to `engine.schema.component`. They are compiler inputs rather than an alternate reusable element schema. The old `element.schema.model` import path and identity-only migration wrappers have been removed.

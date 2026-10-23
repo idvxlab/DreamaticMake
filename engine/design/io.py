@@ -20,11 +20,11 @@ def parse_package(value):
 def record_ref(record):
     record = parse_record(record)
     return RecordRef(record_id=record.record_id, revision=record.revision,
-                     content_hash=record_hash(record, 'design-record-v1'))
+                     content_hash=record_hash(record, 'design-record-v2'))
 
 def snapshot_id(manifest):
     manifest = DesignManifest.model_validate_json(_data(manifest))
-    return record_hash(manifest, 'design-manifest-v1')
+    return record_hash(manifest, 'design-manifest-v2')
 
 def make_package(*, design_id, title, records=(), revision=1, elements=(), input_revisions=None):
     from engine.design.contracts import KINDS

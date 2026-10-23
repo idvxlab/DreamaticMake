@@ -1,6 +1,6 @@
 # Versioned design authoring
 
-This package expresses a design as eight typed layers. Reusable device definitions belong to [`element/`](../../element/README.md). The owning application retains Context authority and approval decisions.
+This package expresses a scheme as eight typed layers using protocol `2.0.0-draft`. Version 1 records are not accepted by this protocol. Reusable device definitions belong to [`element/`](../../element/README.md). The owning application retains Context authority and approval decisions.
 
 | `kind` | Editable source |
 | --- | --- |
@@ -37,11 +37,12 @@ Records and manifests are immutable revisions. References use `{record_id, colle
 
 Malformed records, mismatched pins and duplicate identities are rejected. Incomplete selection, missing references, conflicting nets and unsupported mechanisms remain editable and receive diagnostics. Projection does not execute Python or require a successful simulation. A layout omission, unsupported check or incomplete evidence never certifies a physical pass.
 
-## Selection, library integration and migration
+## Element ownership and scheme occurrences
 
 ```python
 from element.library import ElementLibrary
-from engine.design.migrate import instantiate_element, migrate_layout
+from engine.design import instantiate_element, resolve_design
+from engine.design.contracts import ObjectRef
 from engine.design.bom import derive_bom
 
 # ref must be a concrete ElementRef obtained by an explicit selection.
@@ -51,9 +52,38 @@ package = result["package"]
 bom_proposal = derive_bom(package)
 ```
 
-`instantiate_element` explicitly materializes the chosen definition into editable layers and embeds the pinned source. Its loss report identifies descriptions that remain in the source rather than pretending a layout is a complete execution model. Multiple instances reuse one definition. A BOM proposal aggregates only chosen instances/bulk use, preserves the design snapshot, and never writes the application's canonical BOM. Parameter changes that affect geometry or behavior require a pinned derived definition before BOM publication.
+`instantiate_element` writes only a selection record containing a pinned candidate and an occurrence. It embeds the immutable definition once for portability; alternatively a package can omit embedded definitions and resolve through `ElementLibrary`. It never invokes the execution adapter, layout importer, or migration pipeline. Its result contains `package` and `identity_map`; there is no conversion loss report. Without an explicit instance `pose`, placement is unknown.
 
-`migrate_layout(legacy_draft, design_id=..., title=...)` returns `package`, `identity_map`, `losses` and `original_layout`. Legacy `part_id` values do not become exact library references automatically. Missing ratings/pin numbers and undirected flow are explicitly reported; flow directions are never guessed. The original layout remains in the migration report for manual completion. This is not a promise of lossless conversion back to the old format.
+The selected element owns geometry, terminals and ratings, mounts, internal joints/transmissions, material paths, interfaces, behavior bindings, and library-level information/energy ports. `resolve_design` automatically exposes occurrence objects in the corresponding layers. These effective records are read views, not new authoritative records: persist `resolved.package`, never `resolved.records`.
+
+```python
+resolved = resolve_design(package)
+instance = ObjectRef(record_id="selection", collection="instances", object_id="instance")
+# Obtain addresses for scheme connections without repeating any local attributes.
+body = resolved.occurrence_ref(instance, "bodies", "body")
+# Example for an element containing terminal "positive":
+# terminal = resolved.occurrence_ref(instance, "terminals", "positive")
+```
+
+An engineering-layer declaration may consist solely of `source` and `overrides`:
+
+```json
+{
+  "source": {
+    "instance_ref": {"record_id": "selection", "collection": "instances", "object_id": "instance"},
+    "local_ref": {"collection": "bodies", "object_id": "body"}
+  },
+  "overrides": {"pose": {"translation_m": [0.1, 0.0, 0.0]}, "placement": "specified"}
+}
+```
+
+The declaration names the occurrence at that design address, and internal references follow that address. Selected units cannot define additional intrinsic bodies, geometry, mounts, terminals, ports or internal joints without an element source. Duplicate source declarations, wrong source types, unavailable definitions, and conflicting repeated attributes are errors. Allowed differences are root-body placement and moving-joint initial position. Nested differences merge into the inherited value, then undergo typed validation. Intrinsic changes (shape, pin ratings, behavior, internal topology, etc.) require a derived definition with a new pin in `element/`; scheme-level `parameter_bindings` and copied `occurrence_map` are removed.
+
+`resolved.element_object(binding)` returns the complete native object with references scoped to the binding's instance. `resolved.instance_elements` provides the full selected definition, including category-specific specifications, evidence and firmware. Behavior units use `kind="element"` and retain their source rather than duplicating behavior programs in scheme logic. Their typed input/output ports are available for scheme bindings; their internal execution order remains element-owned. Native object metadata is also available in `project_design(...)["element_occurrences"]`. Narrow layout views are execution projections, never the authoritative element representation.
+
+Multiple occurrences have distinct deterministic addresses and reuse a single pinned definition. BOM aggregation counts selections only and rejects conflicting element sources. All eight manifest layer keys remain present even when the persisted engineering layers are empty.
+
+The former `design_import` / `migrate_layout` path is removed: a layout projection cannot reconstruct authoritative element definitions. Import or define elements first, then select pinned occurrences and author scheme connections.
 
 ## Storage and Markdown
 
@@ -63,7 +93,7 @@ bom_proposal = derive_bom(package)
 
 ## Projection and execution boundaries
 
-`project_design` returns the existing scene/circuit/flow views plus all typed records, a reverse-reference index and omission diagnostics. Every view is bound to the design `snapshot_id`; the older layout fingerprint remains available as `layout_snapshot_id`. Relative body poses compose along the declared hierarchy; unplaced bodies are not silently placed for collision checks.
+`project_design` returns the scene/circuit/flow views, persisted `records`, effective `resolved_records`, a reverse-reference index and omission diagnostics. Every view is bound to the design `snapshot_id`; the older layout fingerprint remains available as `layout_snapshot_id`. Relative body poses compose along the declared hierarchy; unplaced bodies are not silently placed for collision checks.
 
 `check_design` supports reference checks and the existing layout collision, motion and connectivity executors. It records snapshot ID, tool version, options hash and coverage. Other checks return `unsupported`. `compile_design(target="layout")` produces a frozen layout execution input after required reference validation; it is not a compiler from arbitrary Markdown/Python/firmware into a physical simulation. Full legacy simulation still uses `ModelBundle`, `Scenario` and the existing engine compiler, including `compile_model(element_definition)`.
 
@@ -73,9 +103,8 @@ New inline `python -m engine request` methods are:
 - `design_check`: also provide `check_kind` and optional `joint_inputs` / verified inline assets.
 - `design_compile`: provide `target="layout"`.
 - `design_bom`: return a read-only BOM proposal.
-- `design_import`: provide `draft` as a legacy `layout_draft`.
 - `design_instantiate`: provide `design` as an `element_definition`.
 
-The request envelope remains `{request_id, method, ...}`. The web workbench continues to use its existing layout API; this refactor introduces the Python/JSON data layer and compatibility bridge, not eight new web editors or new authenticated project routes. Code execution stays in the application worker, and approval stays in authenticated application routes.
+The request envelope remains `{request_id, method, ...}`. The web workbench continues to use its existing layout API; this refactor introduces the Python/JSON scheme protocol and occurrence resolver, not eight new web editors or new authenticated project routes. Code execution stays in the application worker, and approval stays in authenticated application routes.
 
 Run `python -B -m unittest discover -s engine/tests -v` and `python -B -m unittest discover -s element/tests -v`.

@@ -3,7 +3,6 @@ from pydantic import Field
 from element.base.contract import Contract, Id, Positive
 from element.base.frame import Pose
 from element.base.quantity import Parameter
-from element.base.reference import ObjectRef
 
 
 class CircularAperture(Contract):
@@ -20,15 +19,18 @@ class RectangularAperture(Contract):
 Aperture = Annotated[CircularAperture | RectangularAperture, Field(discriminator="kind")]
 
 
-class MaterialPort(Contract):
-    body_ref: Id
-    pose: Pose = Pose()
+class MaterialPortProperties(Contract):
     medium_kind: Literal["gas", "liquid", "granular"]
-    medium_ref: Id
-    direction: Literal["in", "out", "bidirectional"]
     aperture: Aperture
     connector: str | None = None
     limits: dict[Id, Parameter] = Field(default_factory=dict)
+
+
+class MaterialPort(MaterialPortProperties):
+    body_ref: Id
+    pose: Pose = Pose()
+    medium_ref: Id
+    direction: Literal["in", "out", "bidirectional"]
     evidence_refs: tuple[Id, ...] = ()
 
 

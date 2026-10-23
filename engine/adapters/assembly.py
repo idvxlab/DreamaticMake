@@ -2,7 +2,7 @@
 from collections.abc import Mapping
 from element.base.identity import DefinitionRef
 from element.categories.base import ComponentDesign
-from element.schema.model import ComponentDefinition
+from engine.schema.component import ComponentDefinition
 from engine.schema.assembly import AssemblyDefinition, ComponentInstance, Connections, ModelBundle
 from element.io.save import content_hash
 

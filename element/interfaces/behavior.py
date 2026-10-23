@@ -35,15 +35,12 @@ class Transition(Contract):
     event: Id
 
 
-class BehaviorSpec(Contract):
+class BehaviorProgram(Contract):
     kind: Literal["builtin", "state_machine"] = "builtin"
     model_id: Id
     model_version: Literal["1"] = "1"
-    inputs: dict[Id, InputBinding] = Field(default_factory=dict)
     output_type: SignalType
     parameters: dict[Id, Quantity] = Field(default_factory=dict)
-    output_terminals: tuple[Id, ...] = ()
-    supply_terminals: tuple[Id, ...] = ()
     initial_state: Id | None = None
     states: dict[Id, SignalValue] = Field(default_factory=dict)
     transitions: tuple[Transition, ...] = ()
@@ -63,3 +60,9 @@ class BehaviorSpec(Contract):
         elif self.initial_state or self.states or self.transitions:
             raise ValueError("State declarations require state_machine kind")
         return self
+
+
+class BehaviorSpec(BehaviorProgram):
+    inputs: dict[Id, InputBinding] = Field(default_factory=dict)
+    output_terminals: tuple[Id, ...] = ()
+    supply_terminals: tuple[Id, ...] = ()

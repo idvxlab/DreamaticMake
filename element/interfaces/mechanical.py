@@ -1,9 +1,8 @@
 from typing import Literal
-from pydantic import Field, model_validator
+from pydantic import Field
 from element.base.contract import Contract, Id
 from element.base.frame import Pose
 from element.base.quantity import Parameter
-from element.base.reference import ObjectRef
 
 
 class MechanicalPort(Contract):

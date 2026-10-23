@@ -1,11 +1,8 @@
 """Typed authoring contracts; lower into the stable execution DSL, never plug-ins."""
 from element.base.contract import Id
-from element.base.identity import DefinitionRef
-from element.base.evidence import SourceRecord
 from element.interfaces.geometry import GeometrySpec
 from element.interfaces.mechanical import MechanicalSpec
-from element.interfaces.function import FunctionSpec
-from element.schema.model import Definition, ComponentDefinition, PhysicalSpec, ElectronicSpec
+from element.schema.definition import Definition
 from pydantic import BaseModel, Field, model_serializer, model_validator
 from element.base.frame import LocalFrame
 from typing import Literal

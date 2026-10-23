@@ -2,7 +2,7 @@
 
 from math import pi, isfinite
 from typing import Literal
-from pydantic import Field, model_validator
+from pydantic import model_validator
 from element.base.contract import Contract, Id
 
 # dimension, scale to SI, offset to SI, canonical unit

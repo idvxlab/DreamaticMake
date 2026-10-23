@@ -1,10 +1,9 @@
 """Bounded inline entry points; callers supply snapshots, never library filesystem paths."""
 from engine.design import parse_package, project_design, check_design, compile_design, resolve_design
-from engine.design.migrate import migrate_layout, instantiate_element
+from engine.design.selection import instantiate_element
 from engine.design.bom import derive_bom
 
 def dispatch_design(method, request, asset_resolver=None):
-    if method == 'design_import': return migrate_layout(request['draft'])
     if method == 'design_instantiate': return instantiate_element(request['design'])
     package = parse_package(request['design'])
     if method == 'design_project': return project_design(package)

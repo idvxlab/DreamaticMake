@@ -1,9 +1,7 @@
-import json
 import math
 import tempfile
 import unittest
 from pathlib import Path
-from pydantic import ValidationError
 from element.base.quantity import Quantity, Range, Parameter
 from element.base.frame import Pose
 from element.base.reference import AssetRef
@@ -11,8 +9,7 @@ from engine.io.load import loads, load
 from element.io.load import read_asset
 from element.io.save import dumps, save, content_hash
 from engine.io.json_schema import export_schema
-from engine.io.migrate import migrate
-from element.schema.model import ComponentDefinition
+from engine.schema.component import ComponentDefinition
 from engine.schema.scenario import SolverOptions
 from engine.examples.build_examples import actuator_example
 
@@ -50,8 +47,6 @@ class ContractTests(unittest.TestCase):
             loads('{"record_kind":"mystery"}')
         with self.assertRaises(ValueError):
             loads('{"dsl_version":"0.1.0-proposal","id":"test","name":"Test"}', ComponentDefinition)
-        with self.assertRaises(ValueError):
-            migrate('{"dsl_version":"0.1.0-proposal"}')
 
     def test_roundtrip_and_immutable_maps(self):
         bundle, _ = actuator_example()

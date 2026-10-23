@@ -1,13 +1,15 @@
 """Eight strictly typed, editable design layers; incomplete references are diagnostics."""
 from typing import Annotated, Generic, Literal, TypeVar
+from pydantic import JsonValue
 from pydantic import Field, TypeAdapter, model_validator
 from element.base.contract import Contract as BaseContract, Id, Sha256
 from element.base.frame import Pose, Vec3, dot
 from element.base.quantity import Quantity
 from element.base.reference import AssetRef
-from element.base.signal import SignalType, SignalValue
 from element.interfaces.geometry import Shape
-from element.interfaces.behavior import Transition
+from element.interfaces.material import MaterialPortProperties
+from element.interfaces.electrical import TerminalProperties
+from element.interfaces.behavior import BehaviorProgram
 from element.schema.library import ElementRef, ElementObjectRef, Source, Evidence, EnergyPort, Revision
 
 Kind = Literal['analysis', 'function', 'selection', 'structure', 'motion', 'circuit_energy', 'flow', 'logic']
@@ -127,9 +129,8 @@ class Candidate(Contract):
     assessments: dict[Id, Assessment] = Field(default_factory=dict)
 class Instance(Contract):
     label: str
+    pose: Pose | None = None
     parent_instance: ObjectRef | None = None
-    parameter_bindings: dict[Id, Quantity] = Field(default_factory=dict)
-    occurrence_map: dict[str, ObjectRef] = Field(default_factory=dict)
 class DiscreteUsage(Contract):
     kind: Literal['discrete'] = 'discrete'
     planned_count: int = Field(default=0, ge=0, le=100000)
@@ -153,6 +154,11 @@ class SelectionData(Contract):
 class ElementBinding(Contract):
     instance_ref: ObjectRef
     local_ref: ElementObjectRef
+class InheritedObject(Contract):
+    """Reference plus explicit design differences; resolved against the pinned element."""
+    source: ElementBinding
+    overrides: dict[str, JsonValue] = Field(default_factory=dict)
+
 class Body(Contract):
     instance_ref: ObjectRef
     source: ElementBinding | None = None
@@ -183,9 +189,9 @@ class StructureConnection(Contract):
     kind: Literal['fixed', 'joint']
     joint_ref: ObjectRef | None = None
 class StructureData(Contract):
-    bodies: dict[Id, Body] = Field(default_factory=dict)
-    geometry: dict[Id, Geometry] = Field(default_factory=dict)
-    mounts: dict[Id, Mount] = Field(default_factory=dict)
+    bodies: dict[Id, Body | InheritedObject] = Field(default_factory=dict)
+    geometry: dict[Id, Geometry | InheritedObject] = Field(default_factory=dict)
+    mounts: dict[Id, Mount | InheritedObject] = Field(default_factory=dict)
     connections: dict[Id, StructureConnection] = Field(default_factory=dict)
 
 class Joint(Contract):
@@ -206,8 +212,11 @@ class Joint(Contract):
         for value in (self.lower, self.upper, self.initial):
             if value: value.require(dimension)
         Bounds(min=self.lower, max=self.upper)
+        if self.initial and ((self.lower and self.initial.si_value < self.lower.si_value) or (self.upper and self.initial.si_value > self.upper.si_value)):
+            raise ValueError('Initial joint position is outside limits')
         return self
 class Transmission(Contract):
+    source: ElementBinding | None = None
     driver: ObjectRef
     follower: ObjectRef
     kind: Literal['rotary_ratio', 'screw']
@@ -230,29 +239,15 @@ class Drive(Contract):
         if self.speed_limit and self.speed_limit.value <= 0: raise ValueError('Speed limit must be positive')
         return self
 class MotionData(Contract):
-    joints: dict[Id, Joint] = Field(default_factory=dict)
-    transmissions: dict[Id, Transmission] = Field(default_factory=dict)
+    joints: dict[Id, Joint | InheritedObject] = Field(default_factory=dict)
+    transmissions: dict[Id, Transmission | InheritedObject] = Field(default_factory=dict)
     drives: dict[Id, Drive] = Field(default_factory=dict)
 
-class TerminalSpec(Contract):
-    physical_pin_number: str
-    label: str = ''
-    electrical_role: Literal['power_in', 'power_out', 'ground', 'input', 'output', 'bidirectional', 'passive']
-    drive: Literal['push_pull', 'open_drain', 'none'] = 'none'
-    pull: Literal['up', 'down', 'none'] = 'none'
+class TerminalSpec(TerminalProperties):
     voltage_limits: Bounds | None = None
-    nominal_voltage: Quantity | None = None
     current_limits: Bounds | None = None
     reference_terminal: ObjectRef | None = None
     evidence_ids: tuple[Id, ...] = ()
-    @model_validator(mode='after')
-    def dimensions(self):
-        if self.nominal_voltage: self.nominal_voltage.require('voltage')
-        for bounds, dimension in ((self.voltage_limits, 'voltage'), (self.current_limits, 'current')):
-            if bounds:
-                for q in (bounds.min, bounds.max):
-                    if q: q.require(dimension)
-        return self
 class Terminal(Contract):
     instance_ref: ObjectRef
     source: ElementBinding | None = None
@@ -283,18 +278,11 @@ class EnergyTransfer(Contract):
     via: tuple[ObjectRef, ...] = ()
     ratings: dict[Id, Quantity] = Field(default_factory=dict)
 class CircuitEnergyData(Contract):
-    terminals: dict[Id, Terminal] = Field(default_factory=dict)
+    terminals: dict[Id, Terminal | InheritedObject] = Field(default_factory=dict)
     nets: dict[Id, Net] = Field(default_factory=dict)
-    energy_ports: dict[Id, DesignEnergyPort] = Field(default_factory=dict)
+    energy_ports: dict[Id, DesignEnergyPort | InheritedObject] = Field(default_factory=dict)
     transfers: dict[Id, EnergyTransfer] = Field(default_factory=dict)
 
-from element.interfaces.material import Aperture
-from element.base.quantity import Parameter
-class MaterialPortDescription(Contract):
-    medium_kind: Literal['gas', 'liquid', 'granular']
-    aperture: Aperture
-    connector: str | None = None
-    limits: dict[Id, Parameter] = Field(default_factory=dict)
 class FlowPortBase(Contract):
     instance_ref: ObjectRef
     source: ElementBinding | None = None
@@ -309,13 +297,14 @@ class FlowPortBase(Contract):
 class MaterialPort(FlowPortBase):
     domain: Literal['material'] = 'material'
     medium: str | None = None
-    spec: MaterialPortDescription | None = None
+    spec: MaterialPortProperties | None = None
 class InformationPort(FlowPortBase):
     domain: Literal['information'] = 'information'
     type: ValueType | None = None
     interface_ref: ObjectRef | None = None
 FlowPort = Annotated[MaterialPort | InformationPort, Field(discriminator='domain')]
 class FlowEdge(Contract):
+    source: ElementBinding | None = None
     domain: Literal['material', 'information']
     from_: ObjectRef = Field(alias='from')
     to: tuple[ObjectRef, ...] = Field(min_length=1, max_length=128)
@@ -328,11 +317,12 @@ class RequiredPath(Contract):
     from_: ObjectRef = Field(alias='from')
     to: ObjectRef
 class FlowData(Contract):
-    ports: dict[Id, FlowPort] = Field(default_factory=dict)
-    edges: dict[Id, FlowEdge] = Field(default_factory=dict)
+    ports: dict[Id, FlowPort | InheritedObject] = Field(default_factory=dict)
+    edges: dict[Id, FlowEdge | InheritedObject] = Field(default_factory=dict)
     required_paths: dict[Id, RequiredPath] = Field(default_factory=dict)
 
 class LogicInterface(Contract):
+    source: ElementBinding | None = None
     instance_ref: ObjectRef
     protocol: str
     terminal_bindings: dict[Id, ObjectRef] = Field(default_factory=dict)
@@ -340,16 +330,6 @@ class LogicInterface(Contract):
 class LogicPort(Contract):
     name: str
     type: ValueType
-class BehaviorTemplate(Contract):
-    kind: Literal['builtin', 'state_machine'] = 'builtin'
-    model_id: Id
-    model_version: Literal['1'] = '1'
-    output_type: SignalType
-    parameters: dict[Id, Quantity] = Field(default_factory=dict)
-    initial_state: Id | None = None
-    states: dict[Id, SignalValue] = Field(default_factory=dict)
-    transitions: tuple[Transition, ...] = ()
-    assumptions: tuple[str, ...] = ()
 class UnitBase(Contract):
     name: str
     instance_ref: ObjectRef | None = None
@@ -357,7 +337,7 @@ class UnitBase(Contract):
     outputs: dict[Id, ValueType] = Field(default_factory=dict)
 class DeclarativeUnit(UnitBase):
     kind: Literal['declarative'] = 'declarative'
-    behavior: BehaviorTemplate
+    behavior: BehaviorProgram
     supply_terminal_refs: tuple[ObjectRef, ...] = ()
 class CodeUnit(UnitBase):
     kind: Literal['code'] = 'code'
@@ -375,22 +355,26 @@ class FirmwareUnit(UnitBase):
     kind: Literal['firmware_reference'] = 'firmware_reference'
     assets: tuple[AssetRef, ...] = ()
     target: str
-LogicUnit = Annotated[DeclarativeUnit | CodeUnit | MarkdownUnit | FirmwareUnit, Field(discriminator='kind')]
+class ElementUnit(UnitBase):
+    kind: Literal['element'] = 'element'
+    source: ElementBinding
+
+LogicUnit = Annotated[DeclarativeUnit | CodeUnit | MarkdownUnit | FirmwareUnit | ElementUnit, Field(discriminator='kind')]
 class LogicBinding(Contract):
     source: ObjectRef
     target: ObjectRef
 class LogicData(Contract):
-    interfaces: dict[Id, LogicInterface] = Field(default_factory=dict)
+    interfaces: dict[Id, LogicInterface | InheritedObject] = Field(default_factory=dict)
     inputs: dict[Id, LogicPort] = Field(default_factory=dict)
     outputs: dict[Id, LogicPort] = Field(default_factory=dict)
-    units: dict[Id, LogicUnit] = Field(default_factory=dict)
+    units: dict[Id, LogicUnit | InheritedObject] = Field(default_factory=dict)
     bindings: dict[Id, LogicBinding] = Field(default_factory=dict)
     execution_order: tuple[Id, ...] = ()
 
 T = TypeVar('T')
 class DesignRecord(Contract, Generic[T]):
     record_kind: Literal['design_record'] = 'design_record'
-    schema_version: Literal['1.0.0-draft'] = '1.0.0-draft'
+    schema_version: Literal['2.0.0-draft'] = '2.0.0-draft'
     design_id: Id
     record_id: Id
     revision: Revision = 1
@@ -423,7 +407,7 @@ RECORD_ADAPTER = TypeAdapter(Record)
 
 class DesignManifest(Contract):
     record_kind: Literal['design_manifest'] = 'design_manifest'
-    schema_version: Literal['1.0.0-draft'] = '1.0.0-draft'
+    schema_version: Literal['2.0.0-draft'] = '2.0.0-draft'
     design_id: Id
     revision: Revision = 1
     title: str
@@ -440,7 +424,7 @@ class DesignManifest(Contract):
 from element.schema.library import ElementDefinition
 class DesignPackage(Contract):
     record_kind: Literal['design_package'] = 'design_package'
-    schema_version: Literal['1.0.0-draft'] = '1.0.0-draft'
+    schema_version: Literal['2.0.0-draft'] = '2.0.0-draft'
     manifest: DesignManifest
     records: tuple[Record, ...] = Field(default=(), max_length=2000)
     elements: tuple[ElementDefinition, ...] = Field(default=(), max_length=1000)

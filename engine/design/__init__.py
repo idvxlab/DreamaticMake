@@ -7,4 +7,7 @@ from engine.design.store import DesignStore, RevisionConflict
 
 __all__ = ['DesignManifest', 'DesignPackage', 'parse_record', 'parse_package', 'make_package',
            'record_ref', 'snapshot_id', 'resolve_design', 'project_design', 'check_design', 'compile_design',
-           'DesignStore', 'RevisionConflict']
+           'DesignStore', 'RevisionConflict', 'occurrence_ref', 'instantiate_element']
+
+from engine.design.occurrence import occurrence_ref
+from engine.design.selection import instantiate_element

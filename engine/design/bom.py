@@ -5,6 +5,8 @@ from engine.design.resolve import resolve_design, instances
 def derive_bom(package, library=None):
     """Read-only BOM proposal. The owning application decides whether to publish it."""
     r = resolve_design(package, library)
+    if any(d.severity == 'error' and d.code.startswith('element.') for d in r.diagnostics):
+        raise ValueError('Cannot derive BOM from conflicting element sources')
     rows = {}
     for record in r.records.values():
         if record.kind != 'selection': continue
@@ -20,8 +22,6 @@ def derive_bom(package, library=None):
             entries = [('bulk', d.usage.instance, d.usage.quantity.si_value,
                         UNITS[d.usage.quantity.unit][3])]
         for name, instance, amount, unit in entries:
-            bindings = instance.parameter_bindings if instance else {}
-            if bindings: raise ValueError('Materialize configured elements as pinned derived definitions before BOM publication')
             key = canonical_json({'ref': ref.model_dump(mode='json'), 'unit': unit})
             row = rows.setdefault(key, {'element_ref': ref.model_dump(mode='json'), 'quantity': {'value': 0, 'unit': unit}, 'source_refs': []})
             row['quantity']['value'] += amount

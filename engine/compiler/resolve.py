@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from element.base.diagnostic import Diagnostic, ModelError
 from element.base.reference import ObjectRef
 from element.io.save import content_hash
-from engine.schema.assembly import AssemblyDefinition, ModelBundle
-from element.schema.model import ComponentDefinition
+from engine.schema.assembly import ModelBundle
+from engine.schema.component import ComponentDefinition
 from engine.compiler.ir import BoundObject
 
 

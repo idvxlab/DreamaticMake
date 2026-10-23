@@ -2,16 +2,14 @@
 from element.base.identity import DefinitionRef
 from element.base.evidence import SourceRecord
 from element.interfaces.function import FunctionSpec
-from element.schema.model import ComponentDefinition, PhysicalSpec, ElectronicSpec
+from engine.schema.component import ComponentDefinition, PhysicalSpec, ElectronicSpec
 from engine.schema.assembly import ModelBundle
 from element.base.reference import ObjectRef
 from element.interfaces.motion import MotionSpec
 from element.interfaces.behavior import BehaviorSpec
-from element.interfaces.electrical import ElectricalSpec
 from element.interfaces.effects import MotionEffect, BehaviorOutputRef
 from element.base.signal import SignalType
 from element.interfaces.effects import ObservableEffect
-from element.interfaces.electrical import Terminal
 
 def _definition(self, *, motion=None, material=None, electrical=None,
                 sensors=None, effects=None, behaviors=None, interfaces=None,
@@ -107,16 +105,7 @@ def _observable(design, kind, channels, signal_type):
     return _definition(design, electrical=design.wiring, behaviors=behaviors, effects=effects)
 
 def lower_PowerSource(self):
-    if self.wiring is not None:
-        positive = Terminal.model_validate({**dict(self.wiring.terminals["positive"]),
-            "nominal_voltage": self.voltage, "reference_terminal": "ground"})
-        electrical = ElectricalSpec(terminals={**self.wiring.terminals, "positive": positive},
-                                    connectors=self.wiring.connectors)
-        return _definition(self, electrical=electrical)
-    return _definition(self, electrical=ElectricalSpec(terminals={
-        "positive": Terminal(physical_pin_number="+", electrical_role="power_out",
-            nominal_voltage=self.voltage, reference_terminal="ground"),
-        "ground": Terminal(physical_pin_number="-", electrical_role="ground")}))
+    return _definition(self, electrical=self.electrical)
 
 def lower_CircuitElement(self):
     return _definition(self, electrical=self.wiring)
@@ -153,7 +142,6 @@ def to_definition(design):
     return LOWERERS[type(design).__name__](design)
 
 def to_bundle(design):
-    from engine.schema.assembly import ModelBundle
     from element.io.save import content_hash
     definition = to_definition(design)
     return ModelBundle(components=(definition,), root=DefinitionRef(

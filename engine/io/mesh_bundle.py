@@ -3,7 +3,7 @@ import json
 from element.base.contract import Contract, Id
 from element.base.frame import Pose
 from element.interfaces.geometry import TriangleMesh
-from element.schema.model import ComponentDefinition
+from engine.schema.component import ComponentDefinition
 from engine.schema.assembly import ModelBundle
 from engine.schema.scenario import Scenario
 from element.io.save import content_hash

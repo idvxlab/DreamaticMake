@@ -1,7 +1,7 @@
 from typing import Literal
 from element.base.quantity import Quantity
 from element.base.reference import ObjectRef
-from element.interfaces.electrical import Terminal, ElectricalSpec
+from element.interfaces.electrical import ElectricalSpec, Terminal
 from element.categories.base import ComponentDesign
 from element.categories.specs import PowerDescription
 from pydantic import model_validator
@@ -31,6 +31,19 @@ class PowerSource(ComponentDesign):
             if positive.nominal_voltage and abs(positive.nominal_voltage.si_value - self.voltage.si_value) > 1e-9:
                 raise ValueError("Positive terminal voltage conflicts with source voltage")
         return self
+
+    @property
+    def electrical(self):
+        """Effective local terminals, shared by occurrence views and execution lowering."""
+        if self.wiring is not None:
+            positive = Terminal.model_validate({**dict(self.wiring.terminals["positive"]),
+                "nominal_voltage": self.voltage, "reference_terminal": "ground"})
+            return ElectricalSpec(terminals={**self.wiring.terminals, "positive": positive},
+                                  connectors=self.wiring.connectors)
+        return ElectricalSpec(terminals={
+            "positive": Terminal(physical_pin_number="+", electrical_role="power_out",
+                nominal_voltage=self.voltage, reference_terminal="ground"),
+            "ground": Terminal(physical_pin_number="-", electrical_role="ground")})
 
     def terminal_ref(self, name: Literal["positive", "ground"], *, instance_path=()):
         if name not in ("positive", "ground"):

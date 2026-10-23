@@ -9,7 +9,6 @@ from element.interfaces.motion import Joint, MotionSpec
 from element.interfaces.material import MaterialSpec
 from element.interfaces.behavior import BehaviorSpec
 from element.interfaces.electrical import ElectricalSpec
-from element.interfaces.effects import MotionEffect, BehaviorOutputRef
 from element.categories.base import ComponentDesign
 from element.categories.specs import MechanicalDescription, ActuatorDescription, require_positive
 

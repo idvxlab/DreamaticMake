@@ -1,5 +1,3 @@
-from element.interfaces.behavior_validation import MODELS, input_signal_type, check_behavior
-
 def evaluate(spec, inputs, state, now):
     """Pure evaluation: (value, next_state, next_wakeup). Scalar values are SI."""
     model = spec.model_id

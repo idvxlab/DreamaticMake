@@ -4,7 +4,7 @@ from pydantic import Field
 from element.base.contract import Contract, Id, Revision
 from element.categories import Component
 from engine.adapters.assembly import assemble_components
-from element.schema.model import ComponentDefinition
+from engine.schema.component import ComponentDefinition
 from engine.schema.assembly import AssemblyDefinition, Connections, ModelBundle
 from engine.schema.scenario import Scenario
 from element.interfaces.motion import Joint, Transmission

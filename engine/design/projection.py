@@ -81,7 +81,11 @@ def project_design(package, library=None):
     views['layout_snapshot_id'] = views['snapshot_id']
     views['snapshot_id'] = resolved.snapshot_id
     for name in ('scene', 'circuit', 'flow'): views[name]['snapshot_id'] = resolved.snapshot_id
-    return {**views, 'records': [r.model_dump(mode='json', by_alias=True) for r in resolved.records.values()],
+    return {**views, 'records': [r.model_dump(mode='json', by_alias=True) for r in resolved.package.records],
+            'resolved_records': [r.model_dump(mode='json', by_alias=True) for r in resolved.records.values()],
+            'element_occurrences': [
+                {'instance_ref': key[0], 'collection': key[1], 'object_id': key[2],
+                 'definition': value.model_dump(mode='json')} for key, value in resolved.element_objects.items()],
             'reference_index': resolved.reverse, 'projection_omissions': omitted,
             'design_diagnostics': [d.model_dump(mode='json') for d in resolved.diagnostics]}
 

@@ -1,4 +1,3 @@
-import json
 from engine.schema.result import TraceFrame
 
 

@@ -2,8 +2,8 @@
 
 from math import isfinite
 from engine import __version__
-from element.base.diagnostic import Diagnostic, ModelError
-from element.base.quantity import Quantity, UNITS
+from element.base.diagnostic import Diagnostic
+from element.base.quantity import UNITS
 from element.base.signal import SignalType, channel_key
 from element.interfaces.effects import MotionEffect
 from element.io.save import content_hash, canonical_json
@@ -12,7 +12,7 @@ from engine.schema.result import SimulationResult
 from engine.compiler.resolve import error
 from engine.compiler.validate import warning
 from engine.simulator.state import SimulationState
-from engine.simulator.registry import check_behavior, input_signal_type
+from element.interfaces.behavior_validation import check_behavior, input_signal_type
 from engine.simulator.logic import sample, settle
 from engine.simulator.environment import SensorScheduler
 from engine.simulator.kinematics import forward_kinematics, apply_transmissions, advance_positions
