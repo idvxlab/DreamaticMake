@@ -4,14 +4,15 @@ import tempfile
 import unittest
 from pathlib import Path
 from pydantic import ValidationError
-from engine.base.quantity import Quantity, Range, Parameter
-from engine.base.frame import Pose
-from engine.base.reference import AssetRef
-from engine.io.load import loads, load, read_asset
-from engine.io.save import dumps, save, content_hash
+from element.base.quantity import Quantity, Range, Parameter
+from element.base.frame import Pose
+from element.base.reference import AssetRef
+from engine.io.load import loads, load
+from element.io.load import read_asset
+from element.io.save import dumps, save, content_hash
 from engine.io.json_schema import export_schema
 from engine.io.migrate import migrate
-from engine.schema.component import ComponentDefinition
+from element.schema.model import ComponentDefinition
 from engine.schema.scenario import SolverOptions
 from engine.examples.build_examples import actuator_example
 

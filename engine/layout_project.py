@@ -5,8 +5,8 @@ This interface takes inline records only. The owning application resolves files.
 import json
 from pydantic import Field, model_validator
 from typing import Literal
-from engine.base.contract import Contract, Id
-from engine.base.frame import Pose
+from element.base.contract import Contract, Id
+from element.base.frame import Pose
 from engine.layout import DraftJoint, DraftTransmission, Port, Edge, PathCheck, parse_layout
 
 

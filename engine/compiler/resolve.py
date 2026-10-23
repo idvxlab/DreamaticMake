@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
-from engine.base.diagnostic import Diagnostic, ModelError
-from engine.base.reference import ObjectRef
-from engine.io.save import content_hash
+from element.base.diagnostic import Diagnostic, ModelError
+from element.base.reference import ObjectRef
+from element.io.save import content_hash
 from engine.schema.assembly import AssemblyDefinition, ModelBundle
-from engine.schema.component import ComponentDefinition
+from element.schema.model import ComponentDefinition
 from engine.compiler.ir import BoundObject
 
 

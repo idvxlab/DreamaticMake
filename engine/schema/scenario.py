@@ -1,10 +1,10 @@
 from typing import Literal
 from pydantic import Field, model_validator
-from engine.base.contract import Contract, Id, ChannelId, Positive, NonNegative, Sha256
-from engine.base.frame import Pose
-from engine.base.quantity import Quantity
-from engine.base.reference import ObjectRef
-from engine.base.signal import SignalType, SignalValue
+from element.base.contract import Contract, Id, ChannelId, Positive, NonNegative, Sha256
+from element.base.frame import Pose
+from element.base.quantity import Quantity
+from element.base.reference import ObjectRef
+from element.base.signal import SignalType, SignalValue
 
 
 class FixtureChannel(Contract):

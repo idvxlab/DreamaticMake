@@ -1,10 +1,10 @@
 """Explicit file authoring example; requires engine/requirements-mesh.txt."""
 import json
 from pathlib import Path
-from engine.components import Structure
+from element.categories import Structure
 from engine.compiler.lower import compile_model
 from engine.examples.build_components import ASSUMED, scenario_for
-from engine.io.load import read_asset
+from element.io.load import read_asset
 from engine.simulator.engine import simulate
 
 

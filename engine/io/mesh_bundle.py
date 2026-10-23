@@ -1,12 +1,12 @@
 """Create a self-contained static assembly from explicitly supplied STL references."""
 import json
-from engine.base.contract import Contract, Id
-from engine.base.frame import Pose
-from engine.interface.geometry import TriangleMesh
-from engine.schema.component import ComponentDefinition
+from element.base.contract import Contract, Id
+from element.base.frame import Pose
+from element.interfaces.geometry import TriangleMesh
+from element.schema.model import ComponentDefinition
 from engine.schema.assembly import ModelBundle
 from engine.schema.scenario import Scenario
-from engine.io.save import content_hash
+from element.io.save import content_hash
 from engine.compiler.lower import compile_model
 
 

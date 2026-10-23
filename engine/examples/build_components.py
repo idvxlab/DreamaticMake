@@ -1,21 +1,21 @@
 """Trusted Python authoring examples. Run explicitly; the model loader never runs scripts."""
+from engine.adapters.commands import move_to, set_speed
 import json
 from pathlib import Path
-from engine.base.evidence import Evidence
-from engine.base.quantity import Quantity, Range
-from engine.base.reference import ObjectRef
-from engine.base.signal import SignalType
-from engine.components import (Structure, Actuator, TransmissionComponent, Light, Display, Sound,
-    HumanInput, Sensor, Controller, Driver, PowerSource, Transport, EnergyStorage, ControlFunction)
-from engine.interface.geometry import Box, GeometrySpec, RigidBody, Envelope
-from engine.interface.motion import Joint, MotionSpec, Transmission
-from engine.interface.material import MaterialSpec, MaterialPort, MaterialPath, CircularAperture
-from engine.interface.behavior import InputBinding, BehaviorSpec
-from engine.interface.sensing import SensorInput, SensorSource
+from element.base.evidence import Evidence
+from element.base.quantity import Quantity, Range
+from element.base.reference import ObjectRef
+from element.base.signal import SignalType
+from element.categories import Structure, Actuator, TransmissionComponent, Light, Display, Sound, HumanInput, Sensor, Controller, Driver, PowerSource, Transport, EnergyStorage, ControlFunction
+from element.interfaces.geometry import Box, GeometrySpec, RigidBody, Envelope
+from element.interfaces.motion import Joint, MotionSpec, Transmission
+from element.interfaces.material import MaterialSpec, MaterialPort, MaterialPath, CircularAperture
+from element.interfaces.behavior import InputBinding, BehaviorSpec
+from element.interfaces.sensing import SensorInput, SensorSource
 from engine.schema.scenario import Scenario, RootPlacement, FixtureChannel
 from engine.compiler.lower import compile_model
 from engine.simulator.registry import input_signal_type
-from engine.io.save import save
+from element.io.save import save
 
 
 ASSUMED = {"demo": Evidence(kind="assumed", conditions="Synthetic offline component example",
@@ -105,8 +105,8 @@ def scenario_for(component):
                 channels[binding.channel] = input_signal_type(obj.spec)
     commands = ()
     if isinstance(component, Actuator):
-        commands = (component.set_speed(Quantity(value=2.0, unit="rad/s")),) if component.joint.drive_mode == "velocity" else (
-            component.move_to(Quantity(value=0.02, unit="m") if component.joint.dimension == "length" else Quantity(value=30.0, unit="deg")),)
+        commands = (set_speed(component, Quantity(value=2.0, unit='rad/s')),) if component.joint.drive_mode == "velocity" else (
+            move_to(component, Quantity(value=0.02, unit='m') if component.joint.dimension == 'length' else Quantity(value=30.0, unit='deg')),)
     return Scenario(id=component.id + ".demo", snapshot_id=ir.snapshot_id, duration_s=0.5,
         roots=tuple(RootPlacement(body_ref=body(key.split("/")[-1])) for key in ir.roots),
         channels={key: FixtureChannel(signal_type=t, initial_value="1" if t.kind == "digital" else 40.0)

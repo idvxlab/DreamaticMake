@@ -1,18 +1,15 @@
 """Synthetic descriptions and circuit parts; run explicitly, without physical claims."""
 import json
-from engine.base.frame import LocalFrame, Pose
-from engine.base.quantity import Quantity
-from engine.base.signal import SignalType
-from engine.components import Sensor, CircuitElement, Structure
-from engine.components.specs import (MechanicalDescription, ActuatorDescription, LightDescription,
-    DisplayDescription, SoundDescription, InertialDescription, CameraDescription,
-    MicrophoneDescription, PowerDescription)
-from engine.components.circuit import (ResistorSpec, CapacitorSpec, InductorSpec, DiodeSpec,
-    TransistorSpec, OptocouplerSpec)
+from element.base.frame import LocalFrame, Pose
+from element.base.quantity import Quantity
+from element.base.signal import SignalType
+from element.categories import Sensor, CircuitElement, Structure
+from element.categories.specs import MechanicalDescription, ActuatorDescription, LightDescription, DisplayDescription, SoundDescription, InertialDescription, CameraDescription, MicrophoneDescription, PowerDescription
+from element.categories.circuit import ResistorSpec, CapacitorSpec, InductorSpec, DiodeSpec, TransistorSpec, OptocouplerSpec
 from engine.examples.build_components import examples as original_examples, ASSUMED
-from engine.interface.electrical import ElectricalSpec, Terminal
-from engine.interface.sensing import SensorInput, SensorSource
-from engine.interface.geometry import Box
+from element.interfaces.electrical import ElectricalSpec, Terminal
+from element.interfaces.sensing import SensorInput, SensorSource
+from element.interfaces.geometry import Box
 from engine.compiler.lower import compile_model
 
 

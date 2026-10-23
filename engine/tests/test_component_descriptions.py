@@ -1,30 +1,32 @@
 """Typed descriptions, provenance compatibility and honest circuit/stream coverage."""
+from engine.adapters.elements import to_definition
 import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
-from engine.base.frame import LocalFrame
-from engine.base.quantity import Quantity
-from engine.base.reference import ObjectRef
-from engine.base.signal import SignalType
-from engine.components import Sensor, Driver, assemble_components
-from engine.components.specs import InertialDescription, PowerDescription, DisplayDescription
-from engine.components.circuit import ResistorSpec
+from element.base.frame import LocalFrame
+from element.base.quantity import Quantity
+from element.base.reference import ObjectRef
+from element.base.signal import SignalType
+from element.categories import Sensor, Driver
+from engine.adapters.assembly import assemble_components
+from element.categories.specs import InertialDescription, PowerDescription, DisplayDescription
+from element.categories.circuit import ResistorSpec
 from engine.examples.build_components import examples as legacy_examples, scenario_for
 from engine.examples.described_components import examples
-from engine.interface.behavior import BehaviorSpec, InputBinding
-from engine.interface.electrical import ElectricalSpec, Terminal
-from engine.io.components import parse_component, load_component
+from element.interfaces.behavior import BehaviorSpec, InputBinding
+from element.interfaces.electrical import ElectricalSpec, Terminal
+from element.io.components import parse_component, load_component
 from engine.io.design import compose_design
 from engine.io.load import loads_model, loads
 from engine.io.json_schema import export_schema
-from engine.io.save import save
+from element.io.save import save
 from engine.compiler.lower import compile_model
 from engine.cli import dispatch
 from engine.schema.assembly import Connections
-from engine.interface.electrical import ElectricalNet
+from engine.schema.connections import ElectricalNet
 from engine.schema.scenario import Scenario, RootPlacement, FixtureChannel
 from engine.simulator.engine import simulate
 
@@ -63,8 +65,8 @@ class DescriptionTests(unittest.TestCase):
         display = self.examples["screen"]
         changed = display.replace(spec=display.spec.model_copy(update={"refresh": "partial"}))
         self.assertNotEqual(compile_model(display).snapshot_id, compile_model(changed).snapshot_id)
-        self.assertEqual(display.to_definition().behaviors, changed.to_definition().behaviors)
-        self.assertEqual(display.to_definition().physical, changed.to_definition().physical)
+        self.assertEqual(to_definition(display).behaviors, to_definition(changed).behaviors)
+        self.assertEqual(to_definition(display).physical, to_definition(changed).physical)
         self.assertEqual(simulate(compile_model(changed), scenario_for(display)).status, "failed")
         self.assertEqual(simulate(compile_model(changed), scenario_for(changed)).frames[-1].effects["effects/text"].value, "Ready")
 
@@ -113,7 +115,7 @@ class DescriptionTests(unittest.TestCase):
 
     def test_power_custom_terminal_poses_preserve_ideal_source_semantics(self):
         battery = self.examples["battery"]
-        definition = battery.to_definition()
+        definition = to_definition(battery)
         positive = definition.electronic.electrical.terminals["positive"]
         self.assertEqual(positive.pose.translation_m, (0.01, 0.0, 0.0))
         self.assertEqual(positive.nominal_voltage, battery.voltage)

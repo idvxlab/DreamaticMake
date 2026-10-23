@@ -35,7 +35,7 @@ python -m engine.examples.import_structure
 
 最后一条需要可选网格依赖。`build_components` 显式再生成这里的 16 组 JSON；不会执行来自数据文件的 Python。
 
-Python 写法见 [build_components.py](../build_components.py)，跨类别装配见 [component_assembly.py](../component_assembly.py)，STL 文件入口见 [import_structure.py](../import_structure.py)。接口完整说明见 [分类元件建模接口](../../components/README.md)。
+Python 写法见 [build_components.py](../build_components.py)，跨类别装配见 [component_assembly.py](../component_assembly.py)，STL 文件入口见 [import_structure.py](../import_structure.py)。接口完整说明见 [分类元件建模接口](../../../element/categories/README.md)。
 
 ## 新增描述接口与基础器件模板
 

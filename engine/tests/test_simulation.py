@@ -1,6 +1,6 @@
 import math
 import unittest
-from engine.base.frame import Pose, rotate
+from element.base.frame import Pose, rotate
 from engine.compiler.lower import compile_model
 from engine.examples.build_examples import actuator_example, fan_example, lamp_example, ref, quantity, parse
 from engine.schema.scenario import Scenario
@@ -185,7 +185,7 @@ class SimulationTests(unittest.TestCase):
         self.assertEqual(simulate(ir, run).status, "failed")
 
     def test_two_instances_have_separate_inputs_and_state(self):
-        from engine.schema.component import ComponentDefinition
+        from element.schema.model import ComponentDefinition
         from engine.schema.assembly import AssemblyDefinition, ModelBundle
         from engine.examples.build_examples import definition_ref
         component = parse(ComponentDefinition, {"id": "counter", "name": "Timer", "behaviors": {"timer": {
@@ -219,7 +219,7 @@ class SimulationTests(unittest.TestCase):
         self.assertIn("supply.unavailable", [d.code for d in result.diagnostics])
 
     def test_electrical_network_propagates_to_behavior(self):
-        from engine.schema.component import ComponentDefinition
+        from element.schema.model import ComponentDefinition
         from engine.schema.assembly import AssemblyDefinition, ModelBundle
         from engine.examples.build_examples import definition_ref
         source = parse(ComponentDefinition, {"id": "source", "name": "Driver", "electronic": {"electrical": {"terminals": {

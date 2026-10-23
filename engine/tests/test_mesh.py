@@ -11,11 +11,11 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-from engine.base.frame import Pose
+from element.base.frame import Pose
 from engine.compiler.lower import compile_model
 from engine.examples.build_examples import parse, quantity, ref
-from engine.interface.geometry import TriangleMesh
-from engine.io.mesh import inspect_stl, load_stl, resolve_stl
+from element.interfaces.geometry import TriangleMesh
+from element.io.mesh import inspect_stl, load_stl, resolve_stl
 from engine.io.mesh_bundle import mesh_bundle
 from engine.schema.assembly import ModelBundle
 from engine.schema.scenario import Scenario

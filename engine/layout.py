@@ -7,12 +7,12 @@ from math import pi
 from types import SimpleNamespace
 from typing import Literal
 from pydantic import Field, model_validator
-from engine.base.contract import Contract
-from engine.base.frame import Pose, Vec3, dot
-from engine.base.quantity import Quantity
-from engine.interface.geometry import Shape, Envelope
+from element.base.contract import Contract
+from element.base.frame import Pose, Vec3, dot
+from element.base.quantity import Quantity
+from element.interfaces.geometry import Shape, Envelope
 from engine.compiler.ir import BoundObject
-from engine.io.save import content_hash
+from element.io.save import content_hash
 
 
 class Entity(Contract):
@@ -252,8 +252,8 @@ def connectivity(d):
 
 def motion(d, inputs):
     """Validate and move independent mechanisms. Invalid chains keep layout poses."""
-    from engine.interface.motion import Joint
-    from engine.base.reference import ObjectRef
+    from element.interfaces.motion import Joint
+    from element.base.reference import ObjectRef
     from engine.compiler.ir import BoundJoint, BoundTransmission
     from engine.simulator.kinematics import forward_kinematics, apply_transmissions
     poses = {k: b.pose for k, b in d.bodies.items()}
@@ -348,7 +348,7 @@ def motion(d, inputs):
 
 def collision(d, poses, resolver=None):
     from engine.simulator.collision import query_collisions
-    from engine.io.mesh import resolve_stl
+    from element.io.mesh import resolve_stl
     objects, diagnostics, skipped = {}, [], []
     for key, e in d.envelopes.items():
         if e.body not in poses or e.shape.kind == "convex_asset":
@@ -413,21 +413,25 @@ def import_layout(source, scenario=None):
         return compose_project(source)
     from engine.io.load import loads_model
     from engine.compiler.resolve import resolve
-    from engine.components.assembly import assemble_components
+    from engine.adapters.assembly import assemble_components
     if source.get("record_kind") == "layout_draft": return parse_layout(source).model_dump(mode="json")
     if isinstance(source.get("components"), dict):
         from engine.io.design import AssemblyDesign
         design = AssemblyDesign.model_validate_json(json.dumps(source))
         bundle = assemble_components(id=design.id, name=design.name, components=design.components, connections=design.connections)
         from engine.schema.assembly import AssemblyDefinition, ModelBundle
-        from engine.base.identity import DefinitionRef
+        from element.base.identity import DefinitionRef
         assembly = AssemblyDefinition.model_validate_json(json.dumps({**bundle.assemblies[0].model_dump(mode="json"),
             "joints": {k: v.model_dump(mode="json") for k, v in design.joints.items()},
             "transmissions": {k: v.model_dump(mode="json") for k, v in design.transmissions.items()}}))
         bundle = ModelBundle(components=bundle.components, assemblies=(assembly,), root=DefinitionRef(id=assembly.id, revision=assembly.revision, content_hash=content_hash(assembly)))
     else:
         bundle = loads_model(json.dumps(source))
-        if hasattr(bundle, "to_bundle"): bundle = bundle.to_bundle()
+        from element.categories.base import ComponentDesign
+        from element.schema.library import ElementDefinition
+        if isinstance(bundle, (ComponentDesign, ElementDefinition)):
+            from engine.adapters.elements import to_bundle
+            bundle = to_bundle(bundle)
     r = resolve(bundle)
     result = LayoutDraft().model_dump(mode="json")
     roots = {"/".join((*x["body_ref"].get("instance_path", []), "bodies", x["body_ref"]["object_id"])): x.get("world_pose", Pose().model_dump(mode="json")) for x in (scenario or {}).get("roots", [])}

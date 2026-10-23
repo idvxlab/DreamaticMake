@@ -6,10 +6,11 @@ import sys
 import base64
 from pathlib import Path
 from pydantic import ValidationError
-from engine.base.diagnostic import ModelError
+from element.base.diagnostic import ModelError
 from engine.compiler.lower import compile_model
-from engine.io.load import load, loads, load_model, loads_model, MAX_BYTES
-from engine.io.save import content_hash, canonical_json
+from engine.io.load import load, loads, load_model, loads_model
+from element.io.load import MAX_BYTES
+from element.io.save import content_hash, canonical_json
 from engine.io.json_schema import export_schema
 from engine.schema.assembly import ModelBundle
 from engine.schema.scenario import Scenario
@@ -22,7 +23,7 @@ from engine.projection.flow import project_flow
 def dispatch(method, bundle, scenario=None, *, asset_resolver=None):
     ir = compile_model(bundle)
     if method in ("validate", "compile"):
-        from engine.io.mesh import resolve_stl
+        from element.io.mesh import resolve_stl
         for obj in ir.collection("envelopes").values():
             if obj.spec.shape.kind == "triangle_mesh":
                 resolve_stl(obj.spec.shape, asset_resolver)
@@ -71,17 +72,27 @@ def main(argv=None):
             output = export_schema(args.input or "model_bundle")
         elif args.method == "request":
             # One bounded request per process. Inline snapshots eliminate implicit path access.
-            from engine.io.load import _unique, _nonfinite
+            from element.io.load import _unique, _nonfinite
             text = sys.stdin.buffer.read(MAX_BYTES + 1)
             if len(text) > MAX_BYTES:
                 raise ValueError("Request exceeds size limit")
             request = json.loads(text, object_pairs_hook=_unique, parse_constant=_nonfinite)
-            if not isinstance(request, dict) or set(request) - {"request_id", "method", "bundle", "scenario", "assets", "data", "unit", "meshes", "design", "record_kind", "draft", "source", "joint_inputs"}:
+            if not isinstance(request, dict) or set(request) - {"request_id", "method", "bundle", "scenario", "assets", "data", "unit", "meshes", "design", "record_kind", "draft", "source", "joint_inputs", "check_kind", "target"}:
                 raise ValueError("Unexpected request fields")
             request_id = request.get("request_id")
             if not isinstance(request_id, str) or len(request_id) > 128:
                 raise ValueError("request_id must be a short string")
-            if request["method"].startswith("layout_"):
+            if request["method"].startswith("design_"):
+                from engine.design.dispatch import dispatch_design
+                assets = request.get('assets', {})
+                if not isinstance(assets, dict) or len(assets) > 32:
+                    raise ValueError('Invalid inline assets')
+                def design_resolver(ref):
+                    if ref.relative_path or ref.sha256 not in assets:
+                        raise ValueError('Project asset is unavailable')
+                    return base64.b64decode(assets[ref.sha256], validate=True)
+                payload = dispatch_design(request['method'], request, design_resolver)
+            elif request["method"].startswith("layout_"):
                 from engine.layout import dispatch_layout
                 assets = request.get("assets", {})
                 if not isinstance(assets, dict) or len(assets) > 32:
@@ -97,7 +108,7 @@ def main(argv=None):
                 from engine.io.design import compose_design
                 payload = compose_design(request["design"], request["scenario"])
             elif request["method"] == "inspect_stl":
-                from engine.io.mesh import inspect_stl
+                from element.io.mesh import inspect_stl
                 payload = inspect_stl(base64.b64decode(request["data"], validate=True), request["unit"])
             elif request["method"] == "mesh_bundle":
                 from engine.io.mesh_bundle import mesh_bundle
@@ -117,7 +128,7 @@ def main(argv=None):
                 payload = dispatch(request["method"], bundle, scenario, asset_resolver=resolver)
             output = {"request_id": request_id, "type": "result", "payload": payload}
         elif args.method == "import-stl":
-            from engine.io.mesh import inspect_stl, MAX_STL_BYTES
+            from element.io.mesh import inspect_stl, MAX_STL_BYTES
             from engine.io.mesh_bundle import mesh_bundle
             if not args.input or not args.unit:
                 raise ValueError("import-stl requires a file and explicit --unit")
@@ -132,7 +143,7 @@ def main(argv=None):
                 raise ValueError("A model bundle or component design path is required")
             bundle = load_model(args.input)
             scenario = load(args.scenario, Scenario) if args.scenario else None
-            from engine.io.load import read_asset
+            from element.io.load import read_asset
             resolver = (lambda ref: read_asset(ref, Path(args.asset_root))) if args.asset_root else None
             output = dispatch(args.method, bundle, scenario, asset_resolver=resolver)
         print(json.dumps(output, ensure_ascii=True, allow_nan=False, separators=(",", ":")))

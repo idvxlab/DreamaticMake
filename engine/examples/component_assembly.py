@@ -1,11 +1,14 @@
 """Combine typed servo and structural pointer using the existing mount contracts."""
+from engine.adapters.commands import move_to
 import json
-from engine.base.quantity import Quantity
-from engine.base.reference import ObjectRef
-from engine.components import Structure, assemble_components
+from element.base.quantity import Quantity
+from element.base.reference import ObjectRef
+from element.categories import Structure
+from engine.adapters.assembly import assemble_components
 from engine.examples.build_components import examples, ASSUMED
-from engine.interface.geometry import Box
-from engine.interface.mechanical import MechanicalSpec, MechanicalPort, MechanicalConnection
+from element.interfaces.geometry import Box
+from element.interfaces.mechanical import MechanicalSpec, MechanicalPort
+from engine.schema.connections import MechanicalConnection
 from engine.schema.assembly import Connections
 from engine.schema.scenario import Scenario, RootPlacement
 from engine.compiler.lower import compile_model
@@ -26,7 +29,7 @@ def example():
                 method="fastener", constraint_mode="fixed")}))
     scenario = Scenario(id="pointer_demo", snapshot_id=compile_model(bundle).snapshot_id, duration_s=0.5,
         roots=(RootPlacement(body_ref=ObjectRef(instance_path=("servo",), collection="bodies", object_id="case")),),
-        joint_commands=(servo.move_to(Quantity(value=30.0, unit="deg"), instance_path=("servo",)),))
+        joint_commands=(move_to(servo, Quantity(value=30.0, unit='deg'), instance_path=('servo',)),))
     return bundle, scenario
 
 

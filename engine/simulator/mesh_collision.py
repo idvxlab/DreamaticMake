@@ -1,7 +1,7 @@
 """Optional FCL BVH queries plus closed-volume containment; no contact dynamics."""
 from itertools import combinations, product
-from engine.base.frame import rotate
-from engine.io.mesh import MeshDependencyError, resolve_stl
+from element.base.frame import rotate
+from element.io.mesh import MeshDependencyError, resolve_stl
 from engine.simulator.collision import BASIS
 
 

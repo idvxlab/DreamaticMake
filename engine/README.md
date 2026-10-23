@@ -1,8 +1,16 @@
-# Product Design Engine — 0.4.0
+# Product Design Engine — 0.5.0
 
 This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
 
 **The sample models are synthetic assumptions. Successful simulation is not physical validation.** The package remains usable independently of the Node.js application. The web workbench now invokes its CLI through the [server adapter](../docs/design-engine-integration.md), keeping Context authoritative. A model bundle is an immutable snapshot input, not another canonical BOM.
+
+## Element/design separation (0.5.0)
+
+Reusable component contracts now live in [`element/`](../element/README.md), with 14 authoring categories, pinned library definitions and a rebuildable local search index. `engine` owns design-level composition, projection, checking and execution. New [`engine.design`](design/README.md) contracts cover analysis documents, function cards, selection, structure, motion, circuit/energy, material/information flow and logic.
+
+Python callers now import reusable contracts directly from `element.categories`, `element.base` and `element.interfaces`; the old engine forwarding modules and compatibility subclasses have been removed. Conversion and scenario commands live in `engine.adapters`; cross-instance relationships live in `engine.schema.connections`. Existing bundles, layouts and their hashes retain their original contracts. New library/design records have separate versioned hashes and explicit migration reports.
+
+Use `python -m element schema element_definition` and `python -m engine schema design_package` to inspect the new contracts. New design operations are available through Python and inline CLI requests. The existing web workbench keeps its current layout API.
 
 ## Install and run
 
@@ -64,22 +72,23 @@ contracts, immutable snapshots and verification remain available.
 
 ### Executable component API
 
-For category-specific authoring, start with [the component design API](components/README.md)
-and [16 common component examples](examples/components/README.md). `engine.components` provides
+For category-specific authoring, start with [the component design API](../element/categories/README.md)
+and [16 common component examples](examples/components/README.md). `element.categories` provides
 strict, immutable types for structure, transmission, actuators, light, displays, sound, human
 input, sensors, controllers, drivers, power, transport and mechanical energy storage. Python
 constructors, mappings, JSON and TOML all lower into the existing execution contracts; structure
 also has an explicit STL import entry point. Existing bundles and their hashes are unchanged.
 
 ```python
-from engine.components import Light
-from engine.interface.behavior import InputBinding
+from element.categories import Light
+from element.interfaces.behavior import InputBinding
 from engine.compiler.lower import compile_model
 
 led = Light(id="status", name="Status LED",
             channels={"brightness": InputBinding(kind="constant", value=0.5)})
 ir = compile_model(led)
-bundle = led.to_bundle()  # Use in the existing application/assembly contract.
+from engine.adapters.elements import to_bundle
+bundle = to_bundle(led)  # Use in the existing application/assembly contract.
 ```
 
 ```bash
@@ -113,7 +122,7 @@ projections remain available, but no analog conduction, image/audio samples or p
 are inferred. The application reviewer rejects unsupported coverage. Existing scalar IMU fixtures
 can execute with the new acceleration/magnetic units. Added protocol names are descriptive only.
 
-See [typed descriptions and circuit parts](components/README.md#7-紧凑描述接口与基础电路器件)
+See [typed descriptions and circuit parts](../element/categories/README.md#7-紧凑描述接口与基础电路器件)
 and run `python -m engine.examples.described_components` to compile the synthetic templates.
 
 ```python
@@ -140,11 +149,10 @@ Read `diagnostics`, sample `quality`, and `coverage` even when status is `comple
 
 | Directory | Responsibility |
 | --- | --- |
-| `base/` | Strict contracts, immutable maps, identities, units, frames, references, evidence, samples and diagnostics |
-| `interface/` | Geometry, joints/transmissions, mounts, material paths, terminals/nets, protocol contracts, sensing, effects, behaviors and function/principle mappings |
-| `components/` | Category-specific authoring contracts, validated methods and lowering to stable component/assembly definitions |
-| `schema/` | Components, assemblies, self-contained bundles, scenarios and simulation results |
-| `io/` | Bounded strict JSON, category-dispatched mapping/JSON/TOML inputs, deterministic serialization, explicit asset access and JSON Schema export |
+| `adapters/` | Lower reusable element definitions into execution models, compose assemblies and create scenario commands |
+| `design/` | Eight-layer design records, references, storage, validation and projection |
+| `schema/` | Cross-instance connections, assemblies, self-contained bundles, scenarios and simulation results |
+| `io/` | Engine record dispatch, assembly inputs and JSON Schema export; shared parsing, serialization and assets use `element.io` |
 | `compiler/` | Version/hash resolution, recursive instance expansion, aliases, semantic checks and read-only IR |
 | `simulator/` | Kinematics, sampled collisions, four-state logic, built-in behaviors, sensor/event scheduling and traces |
 | `projection/` | Stable-ID scene, circuit/logic and material topology projections |
@@ -156,7 +164,7 @@ The implementation refines some proposal sketches: behavior-output references ar
 ## Data and identity rules
 
 - A standard component JSON contains its physical/electronic domains. A `component_design` instead exposes category-specific fields and is lowered explicitly; Python modules define authoring types, not dynamically loaded device plug-ins.
-- A definition reference includes `id`, positive `revision`, and `content_hash`. Compute it with `engine.io.save.content_hash(definition)` after schema validation. The hash covers the expanded/defaulted JSON representation, with sorted object keys and preserved array order. This is an application-specific encoding, not RFC 8785 or a cross-language semantic hash. Python float fields normalize integer inputs during validation; different units are retained in the source representation.
+- A definition reference includes `id`, positive `revision`, and `content_hash`. Compute it with `element.io.save.content_hash(definition)` after schema validation. The hash covers the expanded/defaulted JSON representation, with sorted object keys and preserved array order. This is an application-specific encoding, not RFC 8785 or a cross-language semantic hash. Python float fields normalize integer inputs during validation; different units are retained in the source representation.
 - A bundle pins every definition and the root reference. Nested assemblies expand without ambient directory discovery. Exported ports alias descendant objects. Recursive definitions, conflicting revisions, broken hashes, and missing objects fail compilation.
 - References use `{instance_path, collection, object_id}`. Expanded IDs look like `left/servo/joints/axis`; source IDs cannot contain `/`. Ports and connected objects retain these IDs in every view.
 - Maps are frozen after validation, and sequences use tuples. Compilation revalidates its input so unchecked Pydantic copy/construct operations cannot bypass external contracts. Do not use unchecked Pydantic construction as an authoring API.

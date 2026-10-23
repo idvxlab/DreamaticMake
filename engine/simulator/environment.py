@@ -1,7 +1,7 @@
 """Sample only declared environment fixtures or previous committed joint state."""
 
 from engine.simulator.logic import sample
-from engine.base.signal import channel_key
+from element.base.signal import channel_key
 
 
 class SensorScheduler:

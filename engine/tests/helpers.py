@@ -1,5 +1,5 @@
 from engine.examples.build_examples import parse, definition_ref
-from engine.schema.component import ComponentDefinition
+from element.schema.model import ComponentDefinition
 from engine.schema.assembly import ModelBundle
 from engine.schema.scenario import Scenario
 from engine.compiler.lower import compile_model

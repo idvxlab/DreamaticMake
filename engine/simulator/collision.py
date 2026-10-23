@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from itertools import combinations
 from math import sqrt
-from engine.base.frame import rotate, dot, cross, add, scale
+from element.base.frame import rotate, dot, cross, add, scale
 
 
 @dataclass(frozen=True)

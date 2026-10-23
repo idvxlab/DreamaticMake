@@ -1,4 +1,6 @@
 """Category authoring, executable outcomes, format boundaries and old-DSL compatibility."""
+from engine.adapters.elements import to_bundle, to_definition
+from engine.adapters.commands import move_to, set_speed
 import importlib.util
 import json
 import math
@@ -7,18 +9,21 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from engine.base.quantity import Quantity
-from engine.base.reference import ObjectRef
-from engine.base.signal import SignalType
-from engine.components import Structure, ControlFunction, assemble_components
+from element.base.quantity import Quantity
+from element.base.reference import ObjectRef
+from element.base.signal import SignalType
+from element.categories import Structure, ControlFunction
+from engine.adapters.assembly import assemble_components
 from engine.compiler.lower import compile_model
 from engine.examples.build_components import examples, scenario_for
-from engine.interface.behavior import BehaviorSpec, InputBinding
-from engine.interface.geometry import Box
-from engine.interface.mechanical import MechanicalSpec, MechanicalPort, MechanicalConnection
-from engine.io.components import parse_component, load_component
-from engine.io.load import load, loads, loads_model, read_asset
-from engine.io.save import content_hash, save
+from element.interfaces.behavior import BehaviorSpec, InputBinding
+from element.interfaces.geometry import Box
+from element.interfaces.mechanical import MechanicalSpec, MechanicalPort
+from engine.schema.connections import MechanicalConnection
+from element.io.components import parse_component, load_component
+from engine.io.load import load, loads, loads_model
+from element.io.load import read_asset
+from element.io.save import content_hash, save
 from engine.io.json_schema import export_schema
 from engine.schema.assembly import Connections
 from engine.schema.scenario import Scenario, RootPlacement, FixtureChannel, Stimulus
@@ -42,7 +47,7 @@ class ComponentTests(unittest.TestCase):
                 loaded = load(EXAMPLES / f"{name}.json")
                 self.assertEqual(loaded, design)
                 ir = compile_model(loaded)
-                self.assertEqual(ir.snapshot_id, compile_model(design.to_bundle()).snapshot_id)
+                self.assertEqual(ir.snapshot_id, compile_model(to_bundle(design)).snapshot_id)
                 result = simulate(ir, load(EXAMPLES / f"{name}.scenario.json"))
                 self.assertEqual(result.status, "completed", result.diagnostics)
                 self.assertEqual(result.actual_end_s, 0.5)
@@ -55,13 +60,13 @@ class ComponentTests(unittest.TestCase):
             run = simulate(compile_model(c), scenario_for(c))
             self.assertAlmostEqual(run.frames[-1].joint_positions["joints/axis"], position)
         with self.assertRaises(ValueError):
-            self.examples["continuous_servo"].move_to(Quantity(value=30.0, unit="deg"))
+            move_to(self.examples['continuous_servo'], Quantity(value=30.0, unit='deg'))
         with self.assertRaises(ValueError):
-            self.examples["servo"].move_to(Quantity(value=180.0, unit="deg"))
+            move_to(self.examples['servo'], Quantity(value=180.0, unit='deg'))
         with self.assertRaises(ValueError):
-            self.examples["motor"].set_speed(Quantity(value=200.0, unit="rpm"))
+            set_speed(self.examples['motor'], Quantity(value=200.0, unit='rpm'))
         with self.assertRaises(ValueError):
-            self.examples["slider"].move_to(Quantity(value=1.0, unit="rad"))
+            move_to(self.examples['slider'], Quantity(value=1.0, unit='rad'))
 
     def test_specialized_outputs_and_immutable_edits(self):
         edits = ((self.examples["rgb_led"].set_brightness(0.6, channel="red"), "red", 0.6),
@@ -131,7 +136,7 @@ class ComponentTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 parse_component({**design, **change})
         forged = self.examples["usb_supply"].model_copy(update={"voltage": Quantity(value=0.0, unit="V")})
-        for invoke in (forged.to_definition, lambda: compile_model(forged)):
+        for invoke in ((lambda: to_definition(forged)), lambda: compile_model(forged)):
             with self.assertRaises(ValueError):
                 invoke()
 
@@ -139,7 +144,7 @@ class ComponentTests(unittest.TestCase):
         oled = self.examples["oled"]
         changed = oled.replace(width_px=256)
         self.assertNotEqual(compile_model(oled).snapshot_id, compile_model(changed).snapshot_id)
-        definition = oled.to_definition()
+        definition = to_definition(oled)
         self.assertEqual(definition.sources["_component_design"].source_revision, content_hash(oled))
         self.assertEqual(definition.functions["_category"].capability, "component.display")
 
@@ -166,7 +171,7 @@ class ComponentTests(unittest.TestCase):
         ir = compile_model(bundle)
         scenario = Scenario(id="run", snapshot_id=ir.snapshot_id, duration_s=0.5,
             roots=(RootPlacement(body_ref=ObjectRef(instance_path=("servo",), collection="bodies", object_id="case")),),
-            joint_commands=(servo.move_to(Quantity(value=30.0, unit="deg"), instance_path=("servo",)),))
+            joint_commands=(move_to(servo, Quantity(value=30.0, unit='deg'), instance_path=('servo',)),))
         result = simulate(ir, scenario)
         self.assertEqual(result.status, "completed", result.diagnostics)
         self.assertEqual(result.frames[-1].body_poses["pointer/bodies/body"].rotation_xyzw,
@@ -181,7 +186,7 @@ class ComponentTests(unittest.TestCase):
         self.assertEqual(toml.channels["brightness"].value, 0.5)
         self.assertEqual(len(export_schema("component_design")["oneOf"]), 14)
         self.assertEqual(loads(self.examples["servo"].model_dump_json()), self.examples["servo"])
-        legacy = self.examples["servo"].to_bundle().model_dump(mode="json")
+        legacy = to_bundle(self.examples['servo']).model_dump(mode="json")
         legacy.pop("record_kind")
         self.assertEqual(compile_model(loads_model(json.dumps(legacy))).snapshot_id,
                          compile_model(self.examples["servo"]).snapshot_id)
@@ -216,7 +221,7 @@ class ComponentTests(unittest.TestCase):
     @unittest.skipUnless(MESH, "Install engine/requirements-mesh.txt")
     def test_real_stl_import_scope_hash_units_and_simulation(self):
         import trimesh
-        from engine.io.mesh import resolve_stl
+        from element.io.mesh import resolve_stl
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             path = root / "housing.stl"

@@ -2,11 +2,11 @@
 
 from math import isfinite
 from engine import __version__
-from engine.base.diagnostic import Diagnostic, ModelError
-from engine.base.quantity import Quantity, UNITS
-from engine.base.signal import SignalType, channel_key
-from engine.interface.effects import MotionEffect
-from engine.io.save import content_hash, canonical_json
+from element.base.diagnostic import Diagnostic, ModelError
+from element.base.quantity import Quantity, UNITS
+from element.base.signal import SignalType, channel_key
+from element.interfaces.effects import MotionEffect
+from element.io.save import content_hash, canonical_json
 from engine.schema.scenario import Scenario
 from engine.schema.result import SimulationResult
 from engine.compiler.resolve import error
@@ -19,27 +19,6 @@ from engine.simulator.kinematics import forward_kinematics, apply_transmissions,
 from engine.simulator.collision import query_collisions
 from engine.simulator.electrical import supply_valid
 from engine.simulator.recorder import frame
-
-
-def typed_value(value, signal_type):
-    if value is None:
-        return None
-    kind = signal_type.kind
-    if kind == "scalar":
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or not isfinite(value):
-            raise ValueError("Scalar fixtures require finite numbers")
-        return Quantity(value=value, unit=signal_type.unit).si_value
-    if kind == "digital" and value in ("0", "1", "X", "Z"):
-        return value
-    if kind == "boolean" and isinstance(value, bool):
-        return value
-    if kind == "event" and isinstance(value, str):
-        return value
-    raise ValueError(f"Invalid or unsupported fixture value for {kind}")
-
-
-def compatible(a, b):
-    return a.kind == b.kind and (a.kind != "scalar" or UNITS[a.unit][0] == UNITS[b.unit][0])
 
 
 def preflight(ir, scenario):
@@ -183,7 +162,7 @@ def simulate(ir, scenario: Scenario, *, cancelled=None, asset_resolver=None) -> 
         return result("unsupported" if any(d.outcome == "unsupported" and d.severity == "error" for d in diagnostics) else "failed")
     mesh_world = None
     if mesh_mode and scenario.solver_options.collision:
-        from engine.io.mesh import MeshDependencyError
+        from element.io.mesh import MeshDependencyError
         from engine.simulator.mesh_collision import MeshCollisionWorld
         try:
             mesh_world = MeshCollisionWorld(ir, asset_resolver)
@@ -279,3 +258,5 @@ def simulate(ir, scenario: Scenario, *, cancelled=None, asset_resolver=None) -> 
             return result("failed")
         state.joint_positions, state.joint_velocities, state.time_s = positions, velocities, next_time
     return result("failed")
+
+from element.base.signal_validation import typed_value, compatible

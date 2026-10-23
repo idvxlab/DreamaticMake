@@ -1,9 +1,9 @@
 from typing import Literal
 from pydantic import Field
-from engine.base.contract import Contract, Sha256, Revision
-from engine.base.diagnostic import Diagnostic
-from engine.base.frame import Pose
-from engine.base.signal import Sample
+from element.base.contract import Contract, Sha256, Revision
+from element.base.diagnostic import Diagnostic
+from element.base.frame import Pose
+from element.base.signal import Sample
 
 
 class TraceFrame(Contract):

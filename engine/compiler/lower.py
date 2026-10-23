@@ -1,21 +1,22 @@
 from types import MappingProxyType
-from engine.base.diagnostic import ModelError
-from engine.base.frame import Pose
-from engine.base.reference import ObjectRef
-from engine.interface.motion import Joint
-from engine.interface.effects import MotionEffect
-from engine.io.save import canonical_json, content_hash
+from element.base.diagnostic import ModelError
+from element.base.frame import Pose
+from element.base.reference import ObjectRef
+from element.interfaces.motion import Joint
+from element.interfaces.effects import MotionEffect
+from element.io.save import canonical_json, content_hash
 from engine.schema.assembly import ModelBundle
 from engine.compiler.ir import SimulationIR, BoundJoint, BoundNet, BoundTransmission
 from engine.compiler.resolve import resolve, error
 from engine.compiler.validate import validate_resolved, warning
-from engine.components.base import ComponentDesign
+from element.categories.base import ComponentDesign
 
 
 def compile_model(bundle: ModelBundle | ComponentDesign) -> SimulationIR:
-    if isinstance(bundle, ComponentDesign):
-        from engine.io.components import parse_component
-        bundle = parse_component(bundle).to_bundle()
+    from element.schema.library import ElementDefinition
+    if isinstance(bundle, (ComponentDesign, ElementDefinition)):
+        from engine.adapters.elements import to_bundle
+        bundle = to_bundle(bundle)
     # Revalidate callers that used unchecked Pydantic model_copy/model_construct.
     bundle = ModelBundle.model_validate_json(canonical_json(bundle))
     r = resolve(bundle)

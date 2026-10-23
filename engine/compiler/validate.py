@@ -1,10 +1,10 @@
 """Cross-object validation, kept separate from schema parsing."""
 
 from pydantic import BaseModel
-from engine.base.diagnostic import Diagnostic
-from engine.base.reference import ObjectRef
-from engine.base.quantity import Parameter
-from engine.interface.effects import MotionEffect
+from element.base.diagnostic import Diagnostic
+from element.base.reference import ObjectRef
+from element.base.quantity import Parameter
+from element.interfaces.effects import MotionEffect
 from engine.compiler.resolve import error
 
 
@@ -102,7 +102,7 @@ def validate_resolved(r):
             if isinstance(spec, MotionEffect):
                 joint = need(spec.target_joint, scope, key)
                 if joint and spec.target_joint.collection == "joints":
-                    from engine.base.quantity import UNITS
+                    from element.base.quantity import UNITS
                     dimension = joint.dimension if spec.mode == "position" else ("speed" if joint.dimension == "length" else "angular_speed")
                     if spec.value_type.kind != "scalar" or UNITS[spec.value_type.unit][0] != dimension or joint.drive_mode != spec.mode:
                         diagnostics.append(error("effect.motion", "Motion effect type or drive mode is incompatible", key))

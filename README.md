@@ -48,6 +48,8 @@ Project files, uploads, agent sessions, toolchains, and generated artifacts live
 
 The lightweight Python library and CLI in [`engine/`](engine/README.md) validate, compile, and simulate product designs and generate scene, circuit, and flow projections. The **CAD workbench** now connects these capabilities to the web application through a bounded Python subprocess. The standalone CLI remains available.
 
+Reusable component types and the versioned searchable library live in [`element/`](element/README.md). The engine's [eight-layer design protocol](engine/design/README.md) adds Markdown analysis/function records, pinned selection and shared references across the five engineering domains. Workbench layouts and serialized models remain compatible; Python callers use the canonical `element` imports and explicit `engine.adapters` functions.
+
 Install the engine dependencies in a virtual environment (independent of the macOS CAD worker):
 
 ```bash
@@ -71,6 +73,7 @@ With Python 3.11+ and Pydantic 2.x installed, run from the repository root:
 ```bash
 python -m engine validate engine/examples/actuator.bundle.json
 python -B -m unittest discover -s engine/tests -v
+python -B -m unittest discover -s element/tests -v
 ```
 
 See the [engine documentation](engine/README.md) for setup, API examples, and calculation limits. Local AI collaboration documents in `agent/` are excluded from Git.

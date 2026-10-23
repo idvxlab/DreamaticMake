@@ -1,11 +1,11 @@
 """Regenerate the three offline example bundles and scenarios."""
 
 from pathlib import Path
-from engine.base.identity import DefinitionRef
-from engine.base.reference import ObjectRef
+from element.base.identity import DefinitionRef
+from element.base.reference import ObjectRef
 from engine.io.load import loads
-from engine.io.save import content_hash, save
-from engine.schema.component import ComponentDefinition
+from element.io.save import content_hash, save
+from element.schema.model import ComponentDefinition
 from engine.schema.assembly import AssemblyDefinition, ModelBundle
 from engine.schema.scenario import Scenario
 from engine.compiler.lower import compile_model

@@ -1,14 +1,14 @@
 from typing import Literal
 from pydantic import Field
-from engine.base.contract import Contract, Id, Revision
-from engine.base.identity import DefinitionRef
-from engine.base.quantity import Parameter
-from engine.base.reference import ObjectRef
-from engine.interface.mechanical import MechanicalConnection
-from engine.interface.electrical import ElectricalNet
-from engine.interface.material import MaterialConnection
-from engine.interface.motion import Joint, Transmission
-from engine.schema.component import Definition, ComponentDefinition
+from element.base.contract import Contract, Id, Revision
+from element.base.identity import DefinitionRef
+from element.base.quantity import Parameter
+from element.base.reference import ObjectRef
+from engine.schema.connections import MechanicalConnection
+from engine.schema.connections import ElectricalNet
+from engine.schema.connections import MaterialConnection
+from element.interfaces.motion import Joint, Transmission
+from element.schema.model import Definition, ComponentDefinition
 
 
 class ComponentInstance(Contract):
