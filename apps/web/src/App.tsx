@@ -1,3 +1,4 @@
+import { WorkflowNodes } from "./components/WorkflowNodes";
 import { ReviewReport } from "./components/ReviewReport";
 import { LocalLibrary } from "./components/LocalLibrary";
 import { ChatResizeHandle, readChatWidth } from "./components/ChatResizeHandle";
@@ -167,9 +168,13 @@ export function App() {
     [],
   );
   const refresh = useCallback(async (id: string) => {
-    const next = await api<ProjectView>("/projects/" + id);
+    const [next, parts] = await Promise.all([
+      api<ProjectView>("/projects/" + id),
+      api<Part[]>(`/projects/${id}/catalog`),
+    ]);
     if (selectedRef.current !== id) return;
     setProject(next);
+    setCatalog(parts);
     setParameters((old) => old ?? next.parameters);
   }, []);
   useEffect(() => {
@@ -195,6 +200,8 @@ export function App() {
       return;
     }
     let disposed = false;
+    setChat(false);
+    setTab("overview");
     setProject(undefined);
     setParameters(undefined);
     setEvents([]);
@@ -317,9 +324,14 @@ export function App() {
         key: crypto.randomUUID(),
       });
       const p = await api<ProjectView>("/projects/" + project.id);
-      setStage(p.currentStage ?? stage);
+      const scopeComplete =
+        p.productFlow?.enabledThrough === "hardware" &&
+        p.currentStage &&
+        stages.indexOf(p.currentStage) > stages.indexOf("hardware");
+      setStage(scopeComplete ? "hardware" : (p.currentStage ?? stage));
       setTab("overview");
-      if (p.currentStage) await api(`/projects/${project.id}/run`, "POST", {});
+      if (p.currentStage && !scopeComplete)
+        await api(`/projects/${project.id}/run`, "POST", {});
     });
   }
   async function send() {
@@ -391,9 +403,49 @@ export function App() {
     ? stages.filter((id) => project.stages[id].status === "approved").length
     : 0;
   const activePart = catalog.find((p) => p.id === measurementId);
+  const approvalPanel = project &&
+    current?.draft &&
+    current.review &&
+    current.status === "awaiting_confirmation" &&
+    stage === project.currentStage &&
+    !isRunning &&
+    !project.archived && (
+      <ApprovalCard
+        compact={tab === "overview"}
+        key={`${project.id}:${stage}:${current.revision}:${current.review.inputHash}`}
+        stage={current}
+        pendingQuestion={!!pendingQuestion}
+        automaticRepairUsed={reviewAttempts.current.has(reviewKey)}
+        disabled={!!isRunning || project.archived}
+        onDecision={decision}
+        unverifiedParts={
+          stage === "hardware"
+            ? catalog
+                .filter(
+                  (part) =>
+                    current.draft?.partIds.includes(part.id) &&
+                    !part.geometryVerified,
+                )
+                .map((part) => part.name)
+            : []
+        }
+        onInspectHardware={() => setTab("hardware")}
+        onSelectChoice={selectChoice}
+        onAnswerChoices={(answers) =>
+          action(async () => {
+            await api(`/projects/${project.id}/choice-answers`, "POST", {
+              stage,
+              revision: current.revision,
+              answers,
+            });
+            await run();
+          })
+        }
+      />
+    );
   return (
     <div
-      className={`app-shell ${chat ? "" : "chat-hidden"}`}
+      className={`app-shell ${chat ? "" : "chat-hidden"} ${project && tab === "overview" ? "node-workspace" : ""}`}
       style={
         chatWidth
           ? ({ "--chat-width": `${chatWidth}px` } as React.CSSProperties)
@@ -585,6 +637,7 @@ export function App() {
               aria-label={chat ? t("收起对话") : t("展开对话")}
               onClick={() => setChat(!chat)}
             >
+              {project && tab === "overview" && <span>{t("项目对话")}</span>}
               {chat ? (
                 <PanelRightClose size={17} />
               ) : (
@@ -595,7 +648,9 @@ export function App() {
         </header>
         {project ? (
           <>
-            <div className="progress-section">
+            <div
+              className={`progress-section ${tab === "overview" ? "workflow-progress" : ""}`}
+            >
               <div className="progress-top">
                 <span>
                   <i className={project.running ? "pulse" : ""} />
@@ -606,22 +661,24 @@ export function App() {
                       : t("项目进度")}
                 </span>
                 <small>
-                  {t("已确认")} <b>{Math.min(approved, 6)}</b>{" "}
-                  {t("/ 6 个设计阶段")}{" "}
+                  {t("已确认")} <b>{approved}</b> {t("/ 8 个设计阶段")}{" "}
                 </small>
               </div>
-              <StageProgress
-                project={project}
-                selected={stage}
-                onSelect={(id) => {
-                  setStage(id);
-                  setTab("overview");
-                }}
-              />
+              {tab !== "overview" && (
+                <StageProgress
+                  project={project}
+                  selected={stage}
+                  onSelect={(id) => {
+                    setStage(id);
+                    setTab("overview");
+                  }}
+                />
+              )}
             </div>
             <nav className="workspace-tabs">
               {[
-                ["overview", t("阶段概览")],
+                ["overview", t("节点工作台")],
+                ["details", t("阶段详情")],
                 ["hardware", t("硬件")],
                 ["cad", t("CAD 工作台")],
                 ["files", t("工程文件")],
@@ -633,6 +690,7 @@ export function App() {
                   key={id}
                   onClick={() => {
                     setTab(id);
+                    if (id === "overview") setChat(false);
                     if (id === "history")
                       void api<any[]>(`/projects/${project.id}/history`)
                         .then(setHistory)
@@ -647,9 +705,77 @@ export function App() {
               ))}
               <span>{t(statusLabels[current?.status ?? "not_started"])}</span>
             </nav>
-            <div className="workspace-body">
+            <div
+              className={`workspace-body ${tab === "overview" ? "workflow-body" : ""}`}
+            >
               {tab === "overview" && (
+                <WorkflowNodes
+                  key={project.id}
+                  project={project}
+                  selected={stage}
+                  catalog={catalog}
+                  onSelect={setStage}
+                  onDetails={() => setTab("details")}
+                  onConversation={() => setChat(true)}
+                  actions={
+                    <>
+                      {pendingQuestion && stage === project.currentStage && (
+                        <QuestionCard
+                          key={pendingQuestion.id}
+                          card={pendingQuestion}
+                          disabled={!!isRunning || project.archived}
+                          onAnswer={(answers) =>
+                            action(async () => {
+                              await api(
+                                `/projects/${project.id}/answers`,
+                                "POST",
+                                { interactionId: pendingQuestion.id, answers },
+                              );
+                              await run();
+                            })
+                          }
+                        />
+                      )}
+                      {approvalPanel}
+                      {current?.error && (
+                        <div className="error error-panel">
+                          {t(current.error)}
+                        </div>
+                      )}
+                      {current?.status === "approved" && (
+                        <button
+                          disabled={!!isRunning || project.archived}
+                          onClick={() => {
+                            setRevisionText("");
+                            setRevisionOpen(true);
+                          }}
+                        >
+                          <Pencil size={14} />
+                          {t("修改此阶段")}
+                        </button>
+                      )}
+                      {stage === project.currentStage &&
+                        !isRunning &&
+                        !pendingQuestion &&
+                        current?.status !== "awaiting_confirmation" &&
+                        current?.status !== "approved" && (
+                          <button
+                            className="primary"
+                            disabled={project.archived}
+                            onClick={() => void action(run)}
+                          >
+                            <Sparkles size={14} />
+                            {t(current?.draft ? "重新执行当前阶段" : "开始")}
+                            {!current?.draft && t(stageLabels[stage])}
+                          </button>
+                        )}
+                    </>
+                  }
+                />
+              )}
+              {tab === "details" && (
                 <>
+                  {!chat && approvalPanel}
                   <div className="section-heading">
                     <div>
                       <div className="eyebrow">
@@ -830,7 +956,7 @@ export function App() {
               )}
               {tab === "hardware" && (
                 <>
-                  <LocalLibrary />
+                  <LocalLibrary projectId={project?.id} />
                   <div className="section-heading">
                     <div>
                       <div className="eyebrow">HARDWARE LIBRARY</div>
@@ -898,6 +1024,12 @@ export function App() {
                     )}{" "}
                   </p>
                 </>
+              )}
+              {tab === "cad" && (
+                <details className="library-cad-panel">
+                  <summary>搜索硬件资料与检查 STEP 模型</summary>
+                  <LocalLibrary projectId={project?.id} />
+                </details>
               )}
               {tab === "cad" && parameters && (
                 <>
@@ -1338,8 +1470,8 @@ export function App() {
                   .filter(
                     (message) =>
                       !(
-                        tab === "overview" &&
-                        !current?.draft &&
+                        (tab === "overview" ||
+                          (tab === "details" && !current?.draft)) &&
                         stage === project.currentStage &&
                         message.interaction?.id === pendingQuestion?.id &&
                         pendingQuestion
@@ -1419,46 +1551,7 @@ export function App() {
                     ))}
                   </details>
                 )}
-                {current?.draft &&
-                  current.review &&
-                  current.status === "awaiting_confirmation" &&
-                  stage === project.currentStage &&
-                  !isRunning &&
-                  !project.archived && (
-                    <ApprovalCard
-                      key={`${project.id}:${stage}:${current.revision}:${current.review.inputHash}`}
-                      stage={current}
-                      pendingQuestion={!!pendingQuestion}
-                      automaticRepairUsed={reviewAttempts.current.has(
-                        reviewKey,
-                      )}
-                      disabled={!!isRunning || project.archived}
-                      onDecision={decision}
-                      unverifiedParts={
-                        stage === "hardware"
-                          ? catalog
-                              .filter(
-                                (part) =>
-                                  current.draft?.partIds.includes(part.id) &&
-                                  !part.geometryVerified,
-                              )
-                              .map((part) => part.name)
-                          : []
-                      }
-                      onInspectHardware={() => setTab("hardware")}
-                      onSelectChoice={selectChoice}
-                      onAnswerChoices={(answers) =>
-                        action(async () => {
-                          await api(
-                            `/projects/${project.id}/choice-answers`,
-                            "POST",
-                            { stage, revision: current.revision, answers },
-                          );
-                          await run();
-                        })
-                      }
-                    />
-                  )}
+                {tab !== "overview" && approvalPanel}
               </>
             ) : (
               <div className="chat-welcome">

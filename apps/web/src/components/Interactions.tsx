@@ -203,6 +203,7 @@ export function ApprovalCard({
   onInspectHardware,
   pendingQuestion = false,
   automaticRepairUsed = false,
+  compact = false,
 }: {
   stage: Stage;
   disabled: boolean;
@@ -216,6 +217,7 @@ export function ApprovalCard({
   onInspectHardware?: () => void;
   pendingQuestion?: boolean;
   automaticRepairUsed?: boolean;
+  compact?: boolean;
 }) {
   useLanguage();
   const [editing, setEditing] = useState(false),
@@ -258,7 +260,15 @@ export function ApprovalCard({
       <strong>
         {blocked ? t("需要完善后再确认") : t("预览已就绪，等待你确认")}
       </strong>
-      {stage.review && <ReviewReport review={stage.review} />}
+      {stage.review &&
+        (compact ? (
+          <details className="workflow-full-text">
+            <summary>{t("展开审阅意见")}</summary>
+            <ReviewReport review={stage.review} />
+          </details>
+        ) : (
+          <ReviewReport review={stage.review} />
+        ))}
       {questions ? (
         <QuestionCard
           card={{ ...questions, id: `legacy-${stage.id}-${stage.revision}` }}
@@ -287,21 +297,25 @@ export function ApprovalCard({
         )
       )}
 
-      {stage.draft?.blockers.map((b, i) => (
-        <div className="warning" key={i}>
-          <MarkdownMessage text={b} card />
-        </div>
-      ))}
+      {!compact &&
+        stage.draft?.blockers.map((b, i) => (
+          <div className="warning" key={i}>
+            <MarkdownMessage text={b} card />
+          </div>
+        ))}
       {!!stage.draft?.futureChecks?.length && (
-        <div className="approval-followups">
-          <strong>{t("后续阶段待核验（不阻塞本阶段确认）")}</strong>
+        <details
+          className="approval-followups"
+          open={compact ? undefined : true}
+        >
+          <summary>{t("后续阶段待核验（不阻塞本阶段确认）")}</summary>
           {stage.draft.futureChecks.map((check, i) => (
             <div key={i}>
               <strong>{t(stageLabels[check.stage])}</strong>
               <MarkdownMessage text={check.description} card />
             </div>
           ))}
-        </div>
+        </details>
       )}
       {blocked && (
         <p className="approval-guidance">

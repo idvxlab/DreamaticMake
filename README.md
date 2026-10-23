@@ -40,6 +40,8 @@ The first firmware build downloads the PlatformIO toolchain and requires network
 
 The hardware tab can search a live local procurement library. Set **Settings → System → Local procurement library directory** to its root (containing `parts_library` and `jd_purchase`). Searches read current SQLite data and extracted parameter evidence without re-exporting; the hardware view refreshes every 30 seconds. Existing project evidence remains versioned. See [local library integration](docs/local-library.md).
 
+Arduino official hardware is available through the same search: set the library root and run `npm run library:sync -- ../小家电元件库` to build its independent index. The hardware view and CAD workbench can search hardware, read parameter evidence and full manuals, download linked resources, and inspect associated STEP models with the real CAD kernel. Hardware, mechanical, CAD and reviewer agents receive the same search/read/check tools. STEP bounds and optional axis-aligned space comparisons are saved as versioned project evidence; they do not verify mounting, wiring, electrical compatibility or physical assembly, or bypass approval gates. This does not add Arduino firmware build targets.
+
 Create a project, describe your goals, and answer clarification cards. Review each stage's results before confirming the next stage. The system can revise drafts based on review findings; missing engineering evidence still requires verification. Unverified hardware geometry blocks confirmation.
 
 Current engineering support covers parameterized enclosures and Raspberry Pi Pico firmware. CAD and firmware outputs require actual worker execution; physical printing, assembly, and flashing remain separate steps.

@@ -1,4 +1,10 @@
 import { validateAnswers, answerText } from "./answers";
+import {
+  validateProductSubmission,
+  validateFunctionRouting,
+  routingSourceKey,
+  productFlowIssues,
+} from "./product-flow";
 import type { Answers } from "./contracts";
 import { choiceQuestions } from "./choice-questions";
 import { randomUUID } from "node:crypto";
@@ -43,6 +49,8 @@ export function inputHash(p: Project, id: StageId) {
     parameters: p.parameters,
     selectedParts: p.selectedParts,
     draft: p.stages[id].draft,
+    productRouting:
+      stages.indexOf(id) >= 2 ? p.productFlow?.routing : undefined,
     // Verification is an output of this input snapshot, never an input to itself.
     artifacts: p.stages[id].artifacts
       .filter((a) => a.name !== "engine-verification.json")
@@ -109,7 +117,14 @@ export class Workflow {
         !draft.choices.some((c) => c.id === draft.selectedChoice)
       )
         throw new HttpError(400, "无效方案");
+      validateProductSubmission(p, stage, draft);
+      if (stage === "intent" && draft.functionModules) {
+        p.productFlow ??= { version: 1, requests: [] };
+        p.productFlow.enabledThrough = "hardware";
+      }
       if (stage === "hardware") {
+        // Keep the existing duplicate-part compatibility while giving each port one ID.
+        draft.partIds = [...new Set(draft.partIds)];
         if (!draft.partIds.length) draft.blockers.push("尚未选择硬件");
         const selected = [...new Set(draft.partIds)].map((partId) => {
           const part = catalog.find((c) => c.id === partId);
@@ -201,11 +216,14 @@ export class Workflow {
         }
       }
       const inconsistent =
-        verdict === "pass" && (s.draft.blockers.length > 0 || !!engineIssue);
+        verdict === "pass" &&
+        (s.draft.blockers.length > 0 ||
+          !!engineIssue ||
+          (stage === "hardware" && productFlowIssues(p).length > 0));
       s.review = {
         verdict: inconsistent ? "changes_requested" : verdict,
         summary: inconsistent
-          ? `审阅结论未通过服务端校验：${engineIssue || "当前仍有未解决阻塞，不能确认。硬件完整安装几何缺口必须通过真实资料或实测核验解决，不能通过去重、改写描述或移入 futureChecks 消除；请在硬件页查看待核验器件并补充实测尺寸。"}\n\n${summary}`
+          ? `审阅结论未通过服务端校验：${engineIssue || (stage === "hardware" && productFlowIssues(p).join("；")) || "当前仍有未解决阻塞，不能确认。硬件完整安装几何缺口必须通过真实资料或实测核验解决，不能通过去重、改写描述或移入 futureChecks 消除；请在硬件页查看待核验器件并补充实测尺寸。"}\n\n${summary}`
           : summary,
         inputHash: inputHash(p, stage),
         engineVerification: verification,
@@ -293,6 +311,8 @@ export class Workflow {
           throw new HttpError(409, "需要当前版本的独立审阅通过");
         if (s.draft.blockers.length)
           throw new HttpError(409, s.draft.blockers.join("；"));
+        if (args.stage === "hardware" && productFlowIssues(p).length)
+          throw new HttpError(409, productFlowIssues(p).join("；"));
         if (engineStages.includes(args.stage)) {
           if (!s.review.engineVerification)
             throw new HttpError(409, "缺少引擎验证证据");
@@ -353,8 +373,19 @@ export class Workflow {
         comment: args.comment,
       };
       p.approvals.push(receipt);
-      if (args.decision === "approved") s.status = "approved";
-      else {
+      if (args.decision === "approved") {
+        s.status = "approved";
+        for (const request of p.productFlow?.requests ?? []) {
+          if (
+            request.status === "open" &&
+            request.target === args.stage &&
+            s.revision >= request.targetRevision
+          ) {
+            request.status = "resolved";
+            request.resolvedAt = new Date().toISOString();
+          }
+        }
+      } else {
         const repairContext = [
           "请系统负责完善当前阶段：先根据以下审阅意见和阻塞项提出具体修复步骤，再逐项执行并重新提交独立审阅。复用已确认的需求、方案和历史答案；不要要求用户通过自由文本自行设计完善方案。只在确实缺少用户才能提供的信息或存在必要决策时，用结构化问题卡索取少量补充。不得自动代替用户批准成果，也不得无依据宣称已消除工程阻塞。",
           s.review
@@ -391,6 +422,116 @@ export class Workflow {
         text: `重新打开${stage}阶段：${comment}`,
         createdAt: new Date().toISOString(),
       });
+    });
+  }
+  async routeFunctions(
+    id: string,
+    stage: StageId,
+    revision: number,
+    value: unknown,
+  ) {
+    const catalog = await this.catalogFor(id);
+    return this.store.update(id, (project) => {
+      if (
+        stage !== "hardware" ||
+        currentStage(project) !== stage ||
+        project.stages[stage].revision !== revision
+      )
+        throw new HttpError(409, "只能统筹当前版本的硬件选型连接");
+      const input = validateFunctionRouting(project, value);
+      project.productFlow ??= { version: 1, requests: [] };
+      project.productFlow.enabledThrough = "hardware";
+      const partEvidence = (project.stages.hardware.draft?.partIds ?? []).map(
+        (partId) => {
+          const part = catalog.find((p) => p.id === partId);
+          if (!part)
+            throw new HttpError(409, "所选器件已不在项目目录，请重新选型");
+          return {
+            partId,
+            sourceUrl: part.source,
+            libraryRef: part.libraryRef,
+          };
+        },
+      );
+      project.productFlow.routing = {
+        ...input,
+        author: "orchestrator",
+        sourceKey: routingSourceKey(project),
+        intentRevision: project.stages.intent.revision,
+        hardwareRevision: revision,
+        createdAt: new Date().toISOString(),
+        partEvidence,
+        sourceArtifacts: project.stages.hardware.artifacts
+          .filter((a) => a.name.startsWith("source-"))
+          .map(({ id, name, hash }) => ({ id, name, hash })),
+      };
+      project.stages.hardware.review = undefined;
+      return {
+        recorded: true,
+        routing: project.productFlow.routing,
+        issues: productFlowIssues(project),
+      };
+    });
+  }
+  async requestUpstream(
+    id: string,
+    from: StageId,
+    revision: number,
+    target: "requirements" | "intent",
+    reason: string,
+    needed: string[],
+  ) {
+    return this.store.update(id, (project) => {
+      if (
+        !["intent", "hardware"].includes(from) ||
+        stages.indexOf(target) >= stages.indexOf(from) ||
+        currentStage(project) !== from ||
+        project.stages[from].revision !== revision
+      )
+        throw new HttpError(
+          409,
+          "上游补充必须指向当前阶段之前的需求或功能节点",
+        );
+      project.productFlow ??= { version: 1, requests: [] };
+      if (
+        project.productFlow.requests.some(
+          (r) => r.status === "open" && r.target === target,
+        )
+      )
+        throw new HttpError(
+          409,
+          "上游已有补充请求，请处理现有请求，不能循环回退",
+        );
+      if (
+        project.productFlow.requests.filter(
+          (r) => Date.parse(r.createdAt) > Date.now() - 600000,
+        ).length >= 4
+      )
+        throw new HttpError(
+          409,
+          "短时间内上游回退过多，请向用户澄清冲突后再继续",
+        );
+      const request = {
+        id: randomUUID(),
+        from: from as "intent" | "hardware",
+        target,
+        reason,
+        needed,
+        status: "open" as const,
+        fromRevision: revision,
+        targetRevision: project.stages[target].revision + 1,
+        createdAt: new Date().toISOString(),
+      };
+      invalidate(project, target);
+      project.productFlow.requests.push(request);
+      project.messages.push({
+        id: randomUUID(),
+        role: "assistant",
+        agent: "orchestrator",
+        text: `上游补充请求：${from} → ${target}\n${reason}\n需要补充：${needed.join("；")}\n原确认记录保留；补充后的新版本需重新审阅并由用户确认。`,
+        createdAt: request.createdAt,
+      });
+      return request;
     });
   }
   async answerChoiceQuestions(

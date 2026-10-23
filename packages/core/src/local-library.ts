@@ -8,10 +8,19 @@ export async function localLibrary(
   settings: Settings,
   query = "",
   candidateId?: string,
+  options: { assetId?: string; documentId?: string; offset?: number } = {},
 ) {
   if (
     query.length > 200 ||
-    (candidateId && !/^[a-f0-9]{64}$/.test(candidateId))
+    [candidateId, options.assetId, options.documentId].some(
+      (id) => id !== undefined && !/^[a-f0-9]{64}$/.test(id),
+    ) ||
+    (options.offset !== undefined &&
+      (!Number.isInteger(options.offset) ||
+        options.offset < 0 ||
+        options.offset > 10_000_000)) ||
+    ((options.assetId !== undefined || options.documentId !== undefined) &&
+      !candidateId)
   )
     throw new HttpError(400, "无效采购库查询");
   const config = await settings.snapshot();
@@ -32,10 +41,13 @@ export async function localLibrary(
         root: resolve(root, config.MAKE_LOCAL_LIBRARY),
         query,
         candidateId,
+        ...options,
       }),
       env: { PYTHONDONTWRITEBYTECODE: "1", PYTHONIOENCODING: "utf-8" },
     },
   );
+  if (response.code === 4)
+    throw new HttpError(404, "资料不存在或未关联到该硬件");
   if (response.code !== 0)
     throw new HttpError(
       503,

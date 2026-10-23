@@ -1,0 +1,601 @@
+.workspace-body.workflow-body {
+  padding: 19px 22px 24px;
+}
+.progress-section.workflow-progress {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.workflow-progress .progress-top {
+  margin-bottom: 0;
+}
+.port-workbench {
+  min-width: 0;
+  container-type: inline-size;
+}
+.port-workbench-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 17px;
+}
+.port-workbench-header h1 {
+  font-size: 23px;
+  letter-spacing: -0.6px;
+  margin: 6px 0;
+}
+.port-workbench-header p {
+  font-size: 12px;
+  color: #7d866f;
+  margin: 0;
+}
+.port-workbench-header > button {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.product-flow-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 34%);
+  gap: 0;
+  border: 1px solid #d6ddcd;
+  border-radius: 13px;
+  overflow: hidden;
+  background: #f6f8f0;
+}
+.product-flow-split.preview-hidden {
+  grid-template-columns: minmax(0, 1fr);
+}
+.product-flow-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.product-flow-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #dce2d3;
+  background: #fafbf5;
+}
+.product-flow-stages,
+.product-flow-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+}
+.product-flow-toolbar button {
+  font-size: 11px;
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.product-flow-toolbar button:hover:enabled {
+  background: #eaf0df;
+}
+.product-flow-surface {
+  height: calc(100dvh - 340px);
+  min-height: 540px;
+  background: #eef2e8;
+}
+.product-flow-surface .react-flow__node {
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+.product-flow-surface .react-flow__node:focus-visible {
+  outline: 2px solid #739246;
+  outline-offset: 5px;
+  border-radius: 12px;
+}
+.product-flow-surface .react-flow__controls {
+  box-shadow: 0 1px 6px #3b4e2820;
+  border: 1px solid #d4ddc9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.product-flow-surface .react-flow__controls button {
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
+  background: #fafbf5;
+  border: 0;
+  border-bottom: 1px solid #e0e5d7;
+  padding: 7px;
+}
+.product-flow-surface .react-flow__minimap {
+  background: #f9fbf4;
+  box-shadow: 0 1px 6px #3b4e2820;
+  border: 1px solid #d4ddc9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.product-flow-surface .react-flow__edge.selected .react-flow__edge-path {
+  stroke: #546e37;
+  stroke-width: 3;
+}
+.product-flow-node {
+  width: 300px;
+  background: #fcfdf8;
+  border: 1px solid #aab99c;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px #34462712;
+  overflow: visible;
+  color: #303b2a;
+}
+.product-flow-node.is-selected {
+  border-color: #5b773a;
+  box-shadow:
+    0 0 0 2px #b7cda1,
+    0 3px 14px #34462715;
+}
+.product-flow-node-header {
+  padding: 13px 15px 10px;
+  background: #e6eddb;
+  border-bottom: 1px solid #ccd6bd;
+  border-radius: 9px 9px 0 0;
+  display: grid;
+  gap: 4px;
+}
+.product-flow-node-header > span {
+  font-size: 10px;
+  letter-spacing: 1.1px;
+  color: #72825f;
+}
+.product-flow-node-header > strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+.product-flow-node-header > small {
+  font-size: 11px;
+  color: #6e7f59;
+}
+.product-flow-node.raw .product-flow-node-header {
+  background: #f0ebdb;
+}
+.product-flow-node.manager .product-flow-node-header {
+  background: #dce7c8;
+}
+.product-flow-node.part .product-flow-node-header {
+  background: #efe5d5;
+}
+.product-flow-node.proposal {
+  border-style: dashed;
+  border-color: #aab3a0;
+  background: #f8f9f3;
+  box-shadow: none;
+}
+.product-flow-node.proposal .product-flow-node-header {
+  background: #e9ede2;
+}
+.product-flow-node-description {
+  padding: 10px 15px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+  color: #7d886f;
+  overflow-wrap: anywhere;
+}
+.product-flow-ports {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  padding: 4px 0 10px;
+  gap: 12px;
+}
+.product-flow-inputs,
+.product-flow-outputs {
+  min-width: 0;
+}
+.product-flow-port {
+  position: relative;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+}
+.product-flow-port button {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  min-height: 30px;
+  padding: 5px 13px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.product-flow-port.source button {
+  text-align: right;
+}
+.product-flow-port button:hover:enabled {
+  background: #e9efdf;
+}
+.product-flow-port .react-flow__handle {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid #fcfdf8;
+  background: #c3cbb9;
+}
+.product-flow-port.target .react-flow__handle {
+  left: -5px;
+}
+.product-flow-port.source .react-flow__handle {
+  right: -5px;
+}
+.product-flow-port.is-ready.text .react-flow__handle {
+  background: #a19062;
+}
+.product-flow-port.is-ready.requirement .react-flow__handle {
+  background: #839e56;
+}
+.product-flow-port.is-ready.function .react-flow__handle {
+  background: #659b99;
+}
+.product-flow-port.is-ready.hardware .react-flow__handle {
+  background: #bc9561;
+}
+.product-flow-port.feedback .react-flow__handle {
+  background: #bd7450;
+}
+.product-flow-node > footer {
+  padding: 8px 13px;
+  border-top: 1px solid #e0e7d5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #8c9780;
+}
+.product-flow-footer {
+  font-size: 10px;
+  color: #7f8c70;
+  background: #f8faf3;
+  border-top: 1px solid #dce2d3;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 9px 12px;
+}
+.product-flow-footer > span {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.product-flow-scope {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #88917c;
+  padding-top: 13px;
+}
+.product-flow-scope > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.product-preview {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #fffef8;
+  border-left: 1px solid #d6ddcd;
+  max-height: calc(100dvh - 270px);
+  min-height: 620px;
+}
+.product-preview-header {
+  padding: 17px 18px 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.product-preview-header h2 {
+  font-size: 18px;
+  letter-spacing: -0.3px;
+  margin: 4px 0 0;
+}
+.product-preview-header > button {
+  border: 0;
+  background: transparent;
+  padding: 6px;
+}
+.product-preview-tabs {
+  display: flex;
+  border-bottom: 1px solid #dde3d4;
+  padding: 0 12px;
+  gap: 3px;
+}
+.product-preview-tabs button {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 10px 5px;
+  font-size: 11px;
+  color: #8a947b;
+  border-bottom: 2px solid transparent;
+}
+.product-preview-tabs button[aria-pressed="true"] {
+  color: #4e6635;
+  border-bottom-color: #829d58;
+}
+.product-preview-scroll {
+  overflow: auto;
+  padding: 19px 18px 24px;
+  min-height: 0;
+  flex: 1;
+}
+.product-preview-scroll h3 {
+  font-size: 16px;
+  margin: 13px 0 10px;
+  line-height: 1.6;
+}
+.product-preview-scroll h4 {
+  font-size: 12px;
+  margin: 17px 0 8px;
+}
+.product-preview-scroll p,
+.product-preview-scroll li {
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.product-preview-scroll ul {
+  padding-left: 19px;
+}
+.product-preview-scroll button,
+.product-preview-scroll .button {
+  font-size: 12px;
+  white-space: normal;
+}
+.product-preview-scroll .markdown-content {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.product-chip {
+  font-size: 10px;
+  color: #82936c;
+  background: #edf2e3;
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+.product-text-card,
+.product-function-card {
+  border: 1px solid #dce4d0;
+  background: #fafcf4;
+  border-radius: 9px;
+  padding: 13px 14px;
+  margin: 12px 0 15px;
+}
+.product-function-card.is-active {
+  border-color: #739246;
+}
+.product-card-id {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  color: #8b977b;
+  overflow-wrap: anywhere;
+}
+.product-io {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  border-top: 1px solid #e2e8d7;
+  border-bottom: 1px solid #e2e8d7;
+  padding-bottom: 8px;
+}
+.product-io p {
+  font-size: 11px;
+  color: #78886b;
+  margin: 5px 0;
+}
+.product-technical,
+.product-full-text {
+  font-size: 11px;
+  margin-top: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #e0e7d5;
+}
+.product-technical summary,
+.product-full-text summary,
+.product-request summary {
+  cursor: pointer;
+  color: #6b7c57;
+}
+.product-technical code {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.product-request {
+  background: #f3eddd;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 14px 0;
+  font-size: 12px;
+}
+.product-request h4 {
+  margin-top: 0;
+}
+.product-preview-empty {
+  color: #8a967d;
+  padding: 22px 4px 20px;
+  font-size: 12px;
+}
+.product-preview-empty > svg {
+  color: #a7b795;
+}
+.product-muted {
+  color: #88957b;
+  font-size: 11px !important;
+}
+.product-part-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 11px;
+  color: #7b8a68;
+  margin: 12px 0;
+}
+.product-part-picker select {
+  width: 100%;
+  min-width: 0;
+}
+.product-evidence {
+  padding-top: 12px;
+}
+.product-evidence dl {
+  display: grid;
+  grid-template-columns: 75px minmax(0, 1fr);
+  font-size: 12px;
+  gap: 10px 12px;
+  margin: 16px 0;
+}
+.product-evidence dt {
+  color: #8b977c;
+}
+.product-evidence dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.product-library-button {
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.product-relation {
+  border-bottom: 1px solid #e0e7d5;
+  padding: 9px 0;
+  font-size: 12px;
+}
+.product-relation strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+}
+.product-relation > span {
+  font-size: 11px;
+  color: #8a957a;
+}
+.product-relation p {
+  margin: 5px 0;
+  color: #7e8b6c;
+}
+.product-routing-summary {
+  font-size: 11px;
+  color: #7a8967;
+  padding-bottom: 7px;
+}
+.product-port-preview {
+  font-size: 12px;
+  padding: 7px 0;
+  color: #83936f;
+}
+.product-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+.product-actions:empty {
+  display: none;
+}
+.product-actions .interaction-card,
+.product-actions .approval-card {
+  margin: 0;
+  padding: 14px;
+}
+.product-actions .interaction-card legend {
+  font-size: 12px;
+}
+.product-actions .interaction-card .option-list {
+  display: grid;
+}
+.product-actions .interaction-card .option {
+  width: 100%;
+  white-space: normal;
+}
+.product-actions .button-row {
+  flex-wrap: wrap;
+}
+.product-actions .button-row button {
+  flex: 1;
+}
+.product-actions .workflow-full-text {
+  border-top: 1px solid #e0e7d5;
+  font-size: 11px;
+  margin: 10px 0;
+  padding: 10px 0;
+}
+.product-actions .workflow-full-text summary {
+  cursor: pointer;
+}
+.product-details-link {
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.product-preview .local-library {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  margin: 0;
+}
+.product-preview .local-library form {
+  flex-wrap: wrap;
+}
+.product-preview .local-library form input {
+  min-width: 0;
+  width: 100%;
+}
+@container (max-width:880px) {
+  .product-flow-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .product-preview {
+    border-left: 0;
+    border-top: 1px solid #d6ddcd;
+    max-height: none;
+    min-height: 0;
+  }
+  .product-preview-scroll {
+    overflow: visible;
+  }
+  .product-flow-surface {
+    height: 560px;
+    min-height: 560px;
+  }
+  .port-workbench-header h1 {
+    font-size: 21px;
+  }
+}
+@container (max-width:430px) {
+  .port-workbench-header {
+    align-items: flex-start;
+  }
+  .port-workbench-header h1 {
+    font-size: 18px;
+  }
+  .product-flow-surface .react-flow__minimap {
+    width: 110px;
+    height: 80px;
+  }
+  .product-flow-tools button > span {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .workspace-body.workflow-body {
+    padding: 15px 10px 22px;
+  }
+}

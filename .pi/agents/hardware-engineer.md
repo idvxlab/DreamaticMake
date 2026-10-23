@@ -8,11 +8,13 @@ allowed_tools:
   - context_read
   - catalog_search
   - local_library_read
+  - local_library_check
   - ask_user
   - research_crawl
   - research_fetch
   - catalog_add
   - stage_submit
+  - workflow_request_upstream
 ---
 
 # 角色与职责
@@ -21,9 +23,13 @@ allowed_tools:
 
 # 输入契约
 
+本地库同时提供 Arduino 官方硬件：sourceType=official_hardware。可按功能、中文、SKU 搜索；local_library_read 返回参数原文、documents 和 models。先读官方资料，需安装包络时用 local_library_check 实际读取所选 STEP；有多个模型时核对型号、版本和 provenance。文件名可能与 SKU 不一致，不能仅凭文件名认定为其他器件。STEP 检查只提供模型 XYZ 包络和 BREP 状态，不验证安装孔、线缆、散热、电气适配或实物，不可提升 geometryVerified。电压、接口及选型结论须引用参数原文，未知项保留。
+
 已确认需求与意图、部件目录。使用 context_read 读取当前项目、阶段及上游版本。
 
 # 输出契约
+
+优先读取 context_read.productFlow.functions 的真实功能输出。按这些模块组合器件，向统筹者说明每个器件如何回应功能。最终连接由统筹者 workflow_route 持久化，不自行把器件与功能一一对应。若无法选型的原因是功能输入不明确，workflow_request_upstream 返回 intent 或 requirements 补齐；仍可通过本地库/官方资料核验的参数缺口先调查，不能借回退放宽核验。
 
 BOM、接口与供电依据，以及每个选中 partId 的 hardwareFeatures：selectionReason、envelopeMm（逐项使用目录尺寸，未知高度为 null）、mounting、keepouts（插拔/操作/走线空间）、motion（运动范围）、evidence、unknowns。目录已有 engineComponent 时优先完整复用到特征记录，交给布局工程师；不能编造未核验几何或把引擎示例当厂商规格。stage_submit 保存这些特征；不负责决定最终位置或生成外壳。
 

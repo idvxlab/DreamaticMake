@@ -1,6 +1,7 @@
 import english from "./locales/en.json";
+import productFlowEnglish from "./locales/product-flow-en.json";
 export type Language = "zh" | "en";
-const messages: Record<string, string> = english;
+const messages: Record<string, string> = { ...english, ...productFlowEnglish };
 /** Translate application messages; unknown content stays in its original language. */
 export function translate(
   source: string,

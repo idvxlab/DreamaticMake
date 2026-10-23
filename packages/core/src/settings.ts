@@ -52,7 +52,7 @@ export const fields: ConfigField[] = [
     module: "system",
     example: "../小家电元件库",
     description:
-      "只读连接含 parts_library 与 jd_purchase 的目录。每次检索读取最新数据库和参数文件，硬件页每 30 秒刷新。已选项目保留证据快照，不自动改写审批或已确认尺寸。使用 CAD Python，无需另装依赖。",
+      "连接元件库根目录，支持 parts_library、jd_purchase 及 official_catalog/library/hardware.sqlite3。采购记录实时读取，官方硬件用 library:sync 更新索引；支持手册及 STEP 查询与包络检查。已选项目保留证据快照，不自动改写审批或已确认尺寸。",
   },
   {
     key: "MAKE_RESEARCH_SOURCES",

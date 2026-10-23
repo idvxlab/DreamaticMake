@@ -444,7 +444,7 @@ test("用户已回答资料问题，缺口转成明确 blocker 而不是再次�
     if (!messages.length) return { name: "context_read", args: {} };
     if (tools.includes("agent_dispatch") && messages.length === 1)
       return { name: "agent_dispatch", args: { objective: "选型" } };
-    if (tools.includes("catalog_search")) {
+    if (tools.includes("catalog_search") && tools.includes("catalog_add")) {
       if (messages.length === 1)
         return { name: "catalog_search", args: { query: "battery" } };
       if (messages.length === 2) return { name: "stage_submit", args: draft };

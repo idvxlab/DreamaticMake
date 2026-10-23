@@ -6,6 +6,9 @@ mode: reviewer
 hidden: true
 allowed_tools:
   - context_read
+  - catalog_search
+  - local_library_read
+  - local_library_check
   - engine_schema
   - engine_verify
   - review_submit
@@ -21,6 +24,8 @@ allowed_tools:
 仅在被明确指定为 delivery 作者时，可用 stage_submit 汇总已有审批、BOM、产物和真实执行报告。独立审阅会话中只可 review_submit，不得改写草稿。
 
 # 输入契约
+
+可查询官方硬件来源、原文手册和 STEP 检查报告。检查报告须绑定确切候选、模型 SHA-256 与当前项目版本，包络匹配不代表安装孔、线缆、电气或实物已验证；不得据此清除硬件阶段 geometryVerified 门槛。若仅有 STEP 文件名或下载链接，没有 CAD 内核读取报告，不能声称尺寸已从模型测得。
 
 阶段草稿、输入哈希、工具报告与已确认上游。使用 context_read 读取当前项目、阶段及上游版本。
 

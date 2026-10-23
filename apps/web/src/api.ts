@@ -5,6 +5,7 @@ import type {
   Part,
 } from "../../../packages/core/src/contracts";
 export type ProjectView = Project & {
+  flowRoutingCurrent?: boolean;
   currentStage?: StageId;
   hashes: Record<StageId, string>;
 };

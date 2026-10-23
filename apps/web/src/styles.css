@@ -432,6 +432,8 @@ pre {
   margin-bottom: 24px;
   overflow-wrap: anywhere;
 }
+.library-source-text { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 480px; overflow: auto; }
+.library-cad-panel { margin-bottom: 24px; }
 .local-library form {
   display: flex;
   gap: 8px;

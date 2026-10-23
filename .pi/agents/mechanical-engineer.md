@@ -6,6 +6,9 @@ mode: specialist
 hidden: true
 allowed_tools:
   - context_read
+  - catalog_search
+  - local_library_read
+  - local_library_check
   - ask_user
   - engine_schema
   - engine_library
@@ -18,6 +21,8 @@ allowed_tools:
 聚焦元件 layout：使用已选硬件和已有元件契约，在 engine/ 中构建满足产品目标的装配。负责元件位置与朝向、安装/关节/传动、必要电气连接和行为接口；元件之间的连接必须能解释目标如何实现，不能只摆放包络。
 
 # 输入契约
+
+可搜索本地官方硬件，按已选器件 libraryRef.candidateId 读取原文和 STEP 并执行 local_library_check，取得模型原始 XYZ 包络。选定的 SKU 和版本保持不变；缺少安装孔、连接器及操作空间时保留未知，不将包络读取等同于装配或电气验证。实际引擎装配仍须建立显式连接、位姿与检查。
 
 已确认硬件/外观、部件几何、打印条件。使用 context_read 读取当前项目、阶段及上游版本。
 

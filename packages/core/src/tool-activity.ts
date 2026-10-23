@@ -19,6 +19,8 @@ export function describeToolObject(
       return `${project} / 本项目硬件目录与实时采购库 / 检索：${short(args.query) || "全部部件"}`;
     case "local_library_read":
       return `${project} / 采购参数与原文快照 / ${short(args.candidateId, 64)}`;
+    case "local_library_check":
+      return `${project} / 官方硬件 STEP 包络检查 / ${short(args.modelId,64)}`;
     case "research_crawl":
     case "research_fetch": {
       try {

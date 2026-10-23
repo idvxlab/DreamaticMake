@@ -1,5 +1,10 @@
 import { z } from "zod";
 import {
+  requirementCardSchema,
+  functionModuleSchema,
+  type ProductFlow,
+} from "./product-flow-schema";
+import {
   hardwareFeatureSchema,
   engineDesignSchema,
   type EngineVerification,
@@ -172,6 +177,8 @@ export const stageDraftSchema = z
       .default([]),
     selectedChoice: z.string().optional(),
     partIds: z.array(z.string()).max(20).default([]),
+    requirementCards: z.array(requirementCardSchema).min(1).max(40).optional(),
+    functionModules: z.array(functionModuleSchema).min(1).max(40).optional(),
     hardwareFeatures: z.array(hardwareFeatureSchema).max(20).optional(),
     engineDesign: engineDesignSchema.optional(),
     parameters: enclosureSchema.optional(),
@@ -279,6 +286,7 @@ export type Approval = {
   comment?: string;
 };
 export type Project = {
+  productFlow?: ProductFlow;
   id: string;
   name: string;
   brief: string;
@@ -302,6 +310,8 @@ export type Event = {
   payload: unknown;
 };
 export type Part = {
+  /** Exact official evidence version; newer library data never silently replaces it. */
+  libraryRef?: { candidateId: string; rawHash: string; sourceUrl: string };
   id: string;
   name: string;
   manufacturer: string;

@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parse } from "yaml";
 import { z } from "zod";
+import type { StageId } from "../../core/src/contracts";
 export const roleIds = [
   "orchestrator",
   "analyst",
@@ -19,10 +20,14 @@ const schema = z.object({
   mode: z.enum(["primary", "specialist", "reviewer"]),
   allowed_tools: z.array(z.string()),
 });
-export async function loadRole(root: string, id: string) {
+export async function loadRole(root: string, id: string, stage?: StageId) {
   if (!roleIds.includes(id as (typeof roleIds)[number]))
     throw new Error("未知智能体");
-  const source = await readFile(join(root, ".pi/agents", id + ".md"), "utf8");
+  const file =
+    id === "analyst" && (stage === "requirements" || stage === "intent")
+      ? join(root, `.pi/stages/${stage}-analyst.md`)
+      : join(root, ".pi/agents", id + ".md");
+  const source = await readFile(file, "utf8");
   const match = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!match) throw new Error("智能体描述格式无效");
   const meta = schema.parse(parse(match[1]));

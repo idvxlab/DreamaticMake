@@ -4,6 +4,11 @@ import {
   type ServerResponse,
 } from "node:http";
 import { localLibrary } from "../../../packages/core/src/local-library";
+import { currentFunctionRouting } from "../../../packages/core/src/product-flow";
+import {
+  libraryAsset,
+  checkLibraryModel,
+} from "../../../packages/core/src/library-assets";
 import { readFile, writeFile, mkdir, stat } from "node:fs/promises";
 import { resolve, join, extname } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -44,6 +49,13 @@ export const root = resolve(
   fileURLToPath(new URL("../../../", import.meta.url)),
 );
 const partSchema = z.object({
+  libraryRef: z
+    .object({
+      candidateId: z.string().regex(/^[a-f0-9]{64}$/),
+      rawHash: z.string().regex(/^[a-f0-9]{64}$/),
+      sourceUrl: z.string().url(),
+    })
+    .optional(),
   id: z.string().regex(/^[a-z0-9_-]+$/),
   name: z.string().min(1).max(160),
   manufacturer: z.string().max(160),
@@ -158,6 +170,46 @@ export async function createApp(
             settings,
             url.searchParams.get("q") ?? "",
             url.searchParams.get("candidateId") ?? undefined,
+            {
+              documentId: url.searchParams.get("documentId") ?? undefined,
+              offset: url.searchParams.has("offset")
+                ? Number(url.searchParams.get("offset"))
+                : undefined,
+            },
+          ),
+        );
+        return;
+      }
+      if (path === "/api/local-library/asset" && method === "GET") {
+        const { bytes, asset } = await libraryAsset(
+          root,
+          settings,
+          url.searchParams.get("candidateId") ?? "",
+          url.searchParams.get("assetId") ?? "",
+        );
+        res.writeHead(200, {
+          "Content-Type": asset.mime,
+          "Content-Length": bytes.length,
+          "Content-Disposition":
+            "attachment; filename=\"hardware-resource\"; filename*=UTF-8''" +
+            encodeURIComponent(asset.label),
+          "Cache-Control": "no-store",
+        });
+        res.end(bytes);
+        return;
+      }
+      const libraryCheck = path.match(
+        /^\/api\/projects\/([a-zA-Z0-9_-]+)\/local-library\/check$/,
+      );
+      if (libraryCheck && method === "POST") {
+        json(
+          res,
+          await checkLibraryModel(
+            root,
+            settings,
+            store,
+            libraryCheck[1],
+            await body(req),
           ),
         );
         return;
@@ -446,6 +498,7 @@ export async function createApp(
             ...p,
             projectPath: store.dir(id),
             currentStage: currentStage(p),
+            flowRoutingCurrent: !!currentFunctionRouting(p),
             hashes: Object.fromEntries(stages.map((s) => [s, inputHash(p, s)])),
           });
           return;
