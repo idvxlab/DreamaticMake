@@ -1,0 +1,136 @@
+{
+  "date": "2026-10-29",
+  "timezone": "Asia/Taipei",
+  "environment": {
+    "node": "26.10.0",
+    "python": "3.11.17",
+    "build123d": "0.10.0",
+    "numpy": "2.4.6",
+    "trimesh": "4.8.3",
+    "matplotlib": "3.11.2"
+  },
+  "application": {
+    "check": "passed",
+    "tests": {
+      "passed": 192,
+      "failed": 0
+    },
+    "build": "passed; existing chunk-size warning",
+    "ui": "passed with isolated fixtures and read-only historical snapshot",
+    "assemblyUI": "passed with isolated fixtures"
+  },
+  "geometry": {
+    "assembly": [
+      {
+        "goodChecksPassed": true,
+        "blockedWireRejected": true,
+        "smallBedRejected": true,
+        "collisionRejected": true,
+        "shapeListType": "ShapeList",
+        "shapeListVolumeMm3": 31.999999999999993
+      },
+      {
+        "closurePositivePassed": true,
+        "shortScrewRejected": true,
+        "floatingLocatorRejected": true
+      },
+      {
+        "blockedConnectorRejected": true,
+        "duplicateLocatorRejected": true
+      }
+    ],
+    "appearance": [
+      {
+        "checks": {
+          "outerValid": true,
+          "interiorValid": true,
+          "shellValid": true,
+          "positiveVolumes": true,
+          "singleShellSolid": true,
+          "stepRoundtripValid": true
+        },
+        "insidePass": true,
+        "roundedCornerReject": true,
+        "overlapReject": true,
+        "sameScaleAcrossSets": true,
+        "concaveSilhouetteRetained": true
+      }
+    ],
+    "appearanceFeatures": [
+      {
+        "features": [
+          "button",
+          "port"
+        ],
+        "featureBooleanTypes": [
+          "Solid",
+          "Solid"
+        ],
+        "overlapFeatureBooleanTypes": [
+          "Solid",
+          "Solid",
+          "ShapeList",
+          "Solid",
+          "Solid"
+        ],
+        "allCADChecksPassed": true,
+        "missRejected": "Feature misses exterior: miss",
+        "multiSolidBooleanType": "ShapeList",
+        "multiSolidVolumeMm3": 31.999999999999993,
+        "normalizedSolidCount": 2,
+        "generatorSha256": "77c58b2aaedce988d98d8726233a1916751a8d10de9ab56a75e4c9d89f641209",
+        "physicalVerified": false
+      }
+    ]
+  },
+  "scope": {
+    "newPaidModelCalls": 0,
+    "historicalProjectRewritten": false,
+    "syntheticGeometryFixtures": true,
+    "printed": false,
+    "physicalAssemblyVerified": false,
+    "firmwareCompiled": false
+  },
+  "screenshots": [
+    {
+      "file": "screenshots/workflow-overview.png",
+      "bytes": 219325,
+      "sha256": "40f0794481875f46b24c5f11985638cb8f2499ddd8f26faae5a6ec6b84c29e70"
+    },
+    {
+      "file": "screenshots/live-structure.png",
+      "bytes": 71994,
+      "sha256": "c989b02ea558fa467c18e664ccae136971c9ef139e6353c3c602b6ec310b2983"
+    },
+    {
+      "file": "screenshots/assembly-failure.png",
+      "bytes": 282735,
+      "sha256": "3bbbd1a7cf1265000905dfac6af4c4e1228ecacb90cf67603a2ef076ef82235f"
+    },
+    {
+      "file": "screenshots/assembly-geometry-pass.png",
+      "bytes": 202621,
+      "sha256": "081ca3df6fdd4f25b166499951d8e96f7f557d9d7003362022618bfd325c3fed"
+    },
+    {
+      "file": "screenshots/appearance-perspective.png",
+      "bytes": 33504,
+      "sha256": "31c3367b7dc77ff4e831bc9d0c75abe877b637fe28bca451ba3482d9bf1b2192"
+    },
+    {
+      "file": "screenshots/appearance-front.png",
+      "bytes": 12418,
+      "sha256": "1f2f8ae9716a46c58328464a798e529f45202e79c37a920b5697c055bc9bd1d7"
+    },
+    {
+      "file": "screenshots/appearance-top.png",
+      "bytes": 20182,
+      "sha256": "409383e2e3673a29f9c4200455e48b3d00604bf5cfca42326eabeef8096f5f24"
+    },
+    {
+      "file": "screenshots/appearance-side.png",
+      "bytes": 21712,
+      "sha256": "c5c2ecd775c85fc3ff260b5722de95de3704c1b0d1b6c9730824cb9b7de710cd"
+    }
+  ]
+}

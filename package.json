@@ -14,7 +14,9 @@
     "test:engineering": "node --import tsx scripts/test-engineering.ts",
     "test:pipeline": "node --import tsx scripts/test-pipeline.ts",
     "format": "prettier --write \"apps/**/*.{ts,tsx,css,html}\" \"packages/**/*.ts\" \"scripts/**/*.ts\" \"tests/**/*.ts\" \"*.json\" \"*.md\" \"docs/*.md\" \".pi/**/*.md\"",
-    "test:ui:language": "node --import tsx scripts/test-navigation-i18n.ts"
+    "test:ui:language": "node --import tsx scripts/test-navigation-i18n.ts",
+    "workbench": "node --import tsx apps/workbench/server.ts",
+    "test:workbench:ui": "node --import tsx scripts/test-workbench-ui.ts"
   },
   "dependencies": {
     "@earendil-works/pi-ai": "1.3.0",

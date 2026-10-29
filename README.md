@@ -4,6 +4,12 @@ A local AI workbench for turning product ideas into hardware plans, enclosure CA
 
 Projects follow eight stages: requirements, intent, hardware, appearance, structure, CAD, firmware, and delivery. Each stage uses independent review and user confirmation.
 
+## Agent Workbench checkpoint
+
+The independent multi-agent workbench is available at `http://127.0.0.1:4322/workbench/` after `npm run build` and `npm run workbench`. It uses on-demand product-manager coordination and authenticated question/gap decisions, separately from the eight-stage entry below.
+
+See the [screenshot-first checkpoint and test results](docs/checkpoints/2026-10-29/README.md) and [workbench setup](docs/agent-workbench.md). This checkpoint includes small source files and tests; runtime projects, credentials, hardware databases, CAD files and toolchains are excluded. External hardware data and the geometry Python environment must be configured locally.
+
 ## Installation
 
 Requirements: **Node.js 22.19+**, **Python 3.11**, and npm. Engineering workers currently require **macOS** for sandboxed execution; Apple Silicon is the verified environment.
