@@ -8,11 +8,26 @@ from element.library import ElementLibrary
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Reusable element library')
-    parser.add_argument('method', choices=['schema', 'validate', 'publish', 'get', 'search', 'rebuild-index', 'seed'])
+    parser.add_argument('method', choices=['schema', 'validate', 'publish', 'get', 'search', 'rebuild-index', 'seed', 'language'])
     parser.add_argument('input', nargs='?')
     parser.add_argument('--root')
     args = parser.parse_args(argv)
     try:
+        if args.method == 'language':
+            from pathlib import Path
+            from element.language import to_markdown
+            from element.io.load import read_record
+            if args.input and Path(args.input).suffix.lower() == '.toml':
+                from element.io.components import load_component
+                value = load_component(args.input)
+            elif args.input:
+                value = read_record(args.input)
+            else:
+                raw = sys.stdin.buffer.read(MAX_BYTES + 1)
+                if len(raw) > MAX_BYTES: raise ValueError('Input exceeds size limit')
+                value = raw.decode('utf-8')
+            sys.stdout.write(to_markdown(value))
+            return 0
         if args.method == 'schema': result = export_schema(args.input or 'element_definition')
         else:
             if args.method in ('rebuild-index', 'seed'): data = None

@@ -5,6 +5,9 @@ from engine.design.bom import derive_bom
 
 def dispatch_design(method, request, asset_resolver=None):
     if method == 'design_instantiate': return instantiate_element(request['design'])
+    if method == 'design_language':
+        from engine.language import to_document
+        return to_document(request['design'])
     package = parse_package(request['design'])
     if method == 'design_project': return project_design(package)
     if method == 'design_check': return check_design(package, request.get('check_kind', 'references'),

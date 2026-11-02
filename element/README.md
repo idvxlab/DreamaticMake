@@ -2,6 +2,8 @@
 
 `element/` owns reusable component descriptions. It has no dependency on `engine`, application Context, Pi, or model providers. `engine/` owns assembly, design records, projections, compilation and simulation.
 
+Structured Markdown output for LLM context is available through [`element.language`](language/README.md): `to_markdown(value)`, `to_document(value)`, or `python -m element language path/to/element.json`. Existing JSON storage and CLI methods retain their contracts.
+
 ## Structure
 
 | Package | Responsibility |

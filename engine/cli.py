@@ -58,7 +58,7 @@ def dispatch(method, bundle, scenario=None, *, asset_resolver=None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline product design engine tools")
-    parser.add_argument("method", choices=["validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl"])
+    parser.add_argument("method", choices=["validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language"])
     parser.add_argument("input", nargs="?")
     parser.add_argument("--scenario")
     parser.add_argument("--asset-root", help="Explicit confined asset library for relative STL references")
@@ -66,7 +66,18 @@ def main(argv=None):
     args = parser.parse_args(argv)
     request_id = None
     try:
-        if args.method == "schema":
+        if args.method == "language":
+            from engine.language import to_markdown
+            from element.io.load import read_record
+            if args.input:
+                value = read_record(args.input)
+            else:
+                raw = sys.stdin.buffer.read(MAX_BYTES + 1)
+                if len(raw) > MAX_BYTES: raise ValueError('Input exceeds size limit')
+                value = raw.decode('utf-8')
+            sys.stdout.write(to_markdown(value))
+            return 0
+        elif args.method == "schema":
             output = export_schema(args.input or "model_bundle")
         elif args.method == "request":
             # One bounded request per process. Inline snapshots eliminate implicit path access.
@@ -80,7 +91,10 @@ def main(argv=None):
             request_id = request.get("request_id")
             if not isinstance(request_id, str) or len(request_id) > 128:
                 raise ValueError("request_id must be a short string")
-            if request["method"].startswith("design_"):
+            if request['method'] == 'language':
+                from engine.language import to_document
+                payload = to_document(request['source'])
+            elif request["method"].startswith("design_"):
                 from engine.design.dispatch import dispatch_design
                 assets = request.get('assets', {})
                 if not isinstance(assets, dict) or len(assets) > 32:

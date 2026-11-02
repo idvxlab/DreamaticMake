@@ -2,6 +2,8 @@
 
 This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
 
+Structured Markdown output for LLM context is available through [`engine.language`](language/README.md): `to_markdown(value)`, `to_document(value)`, or `python -m engine language path/to/project.json`. This covers eight-layer design packages and existing project/layout/bundle records without changing their storage contracts.
+
 **The sample models are synthetic assumptions. Successful simulation is not physical validation.** The package remains usable independently of the Node.js application. The web workbench now invokes its CLI through the [server adapter](../docs/design-engine-integration.md), keeping Context authoritative. A model bundle is an immutable snapshot input, not another canonical BOM.
 
 ## Element/design separation (0.5.0)
