@@ -1,0 +1,55 @@
+{
+  "channels": {},
+  "dsl_version": "0.2.0-proposal",
+  "duration_s": 0.5,
+  "id": "example.continuous_servo.demo",
+  "joint_commands": [
+    {
+      "mode": "velocity",
+      "target": {
+        "collection": "joints",
+        "instance_path": [],
+        "object_id": "axis"
+      },
+      "time_s": 0.0,
+      "value": {
+        "unit": "rad/s",
+        "value": 2.0
+      }
+    }
+  ],
+  "random_seed": 0,
+  "record_kind": "scenario",
+  "roots": [
+    {
+      "anchored": true,
+      "body_ref": {
+        "collection": "bodies",
+        "instance_path": [],
+        "object_id": "case"
+      },
+      "world_pose": {
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "snapshot_id": "883489c5c932666ada0bbd1e8c23a32968f0b01dc2e511a8b34b7a1199ac164c",
+  "solver_options": {
+    "collision": true,
+    "conservative_shapes": false,
+    "logic_iterations": 32,
+    "max_steps": 10000,
+    "step_s": 0.01
+  },
+  "stimuli": []
+}

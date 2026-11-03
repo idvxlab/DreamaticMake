@@ -1,0 +1,94 @@
+{
+  "id": "described.gear",
+  "name": "Passive 2:1 rotary transmission",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "case",
+    "bodies": {
+      "case": {},
+      "input": {},
+      "output": {}
+    }
+  },
+  "mechanism": "gear",
+  "motion": {
+    "joints": {
+      "input": {
+        "kind": "continuous",
+        "parent_body": {
+          "collection": "bodies",
+          "object_id": "case"
+        },
+        "child_body": {
+          "collection": "bodies",
+          "object_id": "input"
+        },
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "initial_position": {
+          "value": 0.0,
+          "unit": "rad"
+        }
+      },
+      "output": {
+        "kind": "continuous",
+        "parent_body": {
+          "collection": "bodies",
+          "object_id": "case"
+        },
+        "child_body": {
+          "collection": "bodies",
+          "object_id": "output"
+        },
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "initial_position": {
+          "value": 0.0,
+          "unit": "rad"
+        }
+      }
+    },
+    "transmissions": {
+      "reduction": {
+        "kind": "rotary_ratio",
+        "driver_joint": {
+          "collection": "joints",
+          "object_id": "input"
+        },
+        "follower_joint": {
+          "collection": "joints",
+          "object_id": "output"
+        },
+        "ratio": -0.5,
+        "offset": {
+          "value": 0.0,
+          "unit": "rad"
+        }
+      }
+    }
+  },
+  "spec": {
+    "kind": "gear",
+    "dimensions": {
+      "shaft_diameter": {
+        "value": 3.0,
+        "unit": "mm"
+      }
+    }
+  },
+  "category": "transmission",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

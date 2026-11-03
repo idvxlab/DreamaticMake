@@ -1,0 +1,99 @@
+{
+  "record_kind": "component_design",
+  "design_version": "1",
+  "id": "demo.gripper",
+  "name": "双指夹爪",
+  "category": "structure",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "工作台概念案例",
+      "note": "尺寸、接口和功能用于设计演示，非厂家数据或制造验证。"
+    }
+  },
+  "geometry": {
+    "root_body": "palm",
+    "bodies": {
+      "palm": {},
+      "left": {},
+      "right": {}
+    },
+    "envelopes": {
+      "palm": {
+        "body_ref": "palm",
+        "shape": {
+          "kind": "box",
+          "size_m": [
+            0.014,
+            0.055,
+            0.012
+          ]
+        },
+        "pose": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "approximation": "outer"
+      },
+      "left": {
+        "body_ref": "left",
+        "shape": {
+          "kind": "box",
+          "size_m": [
+            0.032,
+            0.006,
+            0.012
+          ]
+        },
+        "pose": {
+          "translation_m": [
+            0.025,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "approximation": "outer"
+      },
+      "right": {
+        "body_ref": "right",
+        "shape": {
+          "kind": "box",
+          "size_m": [
+            0.032,
+            0.006,
+            0.012
+          ]
+        },
+        "pose": {
+          "translation_m": [
+            0.025,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "approximation": "outer"
+      }
+    }
+  }
+}

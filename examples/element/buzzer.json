@@ -1,0 +1,19 @@
+{
+  "id": "example.buzzer",
+  "name": "Passive buzzer tone command",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "transducer": "buzzer",
+  "frequency": {
+    "kind": "constant",
+    "value": 440.0
+  },
+  "category": "sound",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

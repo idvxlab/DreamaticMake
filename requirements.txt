@@ -1,0 +1,2 @@
+# Core engine/element contracts. Optional collision extras: engine/requirements-mesh.txt.
+pydantic==2.14.1

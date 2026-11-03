@@ -1,0 +1,37 @@
+{
+  "name": "dreamatic-design-engine",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config engine/interface/vite.config.ts",
+    "check": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts && node scripts/test-python.mjs",
+    "test:python": "node scripts/test-python.mjs",
+    "build": "tsc --noEmit && vite build --config engine/interface/vite.config.ts",
+    "preview": "vite preview --config engine/interface/vite.config.ts",
+    "engine:dev": "vite --config engine/interface/vite.config.ts",
+    "engine:build": "tsc --noEmit && vite build --config engine/interface/vite.config.ts",
+    "engine:preview": "vite preview --config engine/interface/vite.config.ts",
+    "test:ui:standalone-engine": "node --import tsx scripts/test-standalone-engine-ui.ts",
+    "format": "prettier --write \"engine/**/*.{ts,tsx,css,html}\" \"scripts/*.{ts,mjs}\" \"tests/*.ts\" \"*.json\" \"*.md\""
+  },
+  "dependencies": {
+    "@jscad/modeling": "2.13.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.6",
+    "@types/react": "19.1.16",
+    "@types/react-dom": "19.1.9",
+    "@types/three": "0.180.0",
+    "@vitejs/plugin-react": "5.0.4",
+    "playwright-core": "1.60.0",
+    "prettier": "3.6.2",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vite": "7.3.7"
+  }
+}

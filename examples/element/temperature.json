@@ -1,0 +1,29 @@
+{
+  "id": "example.temperature",
+  "name": "Temperature input",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "measurements": {
+    "temperature": {
+      "quantity": "temperature",
+      "signal_type": {
+        "kind": "scalar",
+        "unit": "degC"
+      },
+      "source": {
+        "kind": "environment",
+        "channel": "temperature"
+      },
+      "sample_period_s": 0.05,
+      "latency_s": 0.02
+    }
+  },
+  "category": "sensor",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

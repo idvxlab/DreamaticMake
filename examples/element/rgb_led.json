@@ -1,0 +1,28 @@
+{
+  "id": "example.rgb_led",
+  "name": "RGB indicator, normalized commands",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "channels": {
+    "red": {
+      "kind": "constant",
+      "value": 0.8
+    },
+    "green": {
+      "kind": "constant",
+      "value": 0.2
+    },
+    "blue": {
+      "kind": "constant",
+      "value": 0.0
+    }
+  },
+  "category": "light",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

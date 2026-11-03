@@ -1,0 +1,73 @@
+{
+  "instances": {
+    "base": {
+      "definition": "base",
+      "pose": {
+        "translation_m": [
+          0,
+          0,
+          0.008
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    "yaw": {
+      "definition": "servo",
+      "name": "底座旋转舵机"
+    },
+    "shoulder": {
+      "definition": "servo",
+      "name": "肩关节舵机"
+    },
+    "elbow": {
+      "definition": "servo",
+      "name": "肘关节舵机"
+    },
+    "upper": {
+      "definition": "upper_link"
+    },
+    "forearm": {
+      "definition": "forearm"
+    },
+    "gripper": {
+      "definition": "gripper"
+    },
+    "controller": {
+      "definition": "controller",
+      "pose": {
+        "translation_m": [
+          -0.09,
+          -0.03,
+          0.012
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    "supply": {
+      "definition": "supply",
+      "pose": {
+        "translation_m": [
+          -0.09,
+          0.025,
+          0.012
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    }
+  }
+}

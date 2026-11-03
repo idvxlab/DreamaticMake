@@ -1,0 +1,46 @@
+{
+  "id": "described.camera",
+  "name": "Camera description only",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "spec": {
+    "resolution_px": [
+      640,
+      480
+    ],
+    "frame_rate_hz": 30.0,
+    "encoding": "jpeg",
+    "optical_frame": {
+      "body_ref": "body"
+    },
+    "bus": "csi",
+    "kind": "camera"
+  },
+  "category": "sensor",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

@@ -1,0 +1,45 @@
+{
+  "id": "example.controller",
+  "name": "Controller with a named threshold function",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "platform": "generic_mcu",
+  "control_functions": {
+    "too_hot": {
+      "inputs": {
+        "value": {
+          "kind": "scalar",
+          "unit": "degC"
+        }
+      },
+      "behavior": {
+        "model_id": "threshold",
+        "inputs": {
+          "value": {
+            "kind": "fixture",
+            "channel": "temperature"
+          }
+        },
+        "output_type": {
+          "kind": "digital"
+        },
+        "parameters": {
+          "threshold": {
+            "value": 30.0,
+            "unit": "degC"
+          }
+        },
+        "kind": "builtin"
+      },
+      "description": "temperature.threshold"
+    }
+  },
+  "category": "controller",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

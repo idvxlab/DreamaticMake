@@ -1,0 +1,134 @@
+{
+  "assemblies": [],
+  "components": [
+    {
+      "behaviors": {
+        "threshold": {
+          "assumptions": [
+            "Logical indicator only; no light distribution, thermal solver, or physical sensor model."
+          ],
+          "initial_state": null,
+          "inputs": {
+            "value": {
+              "channel": null,
+              "kind": "sensor",
+              "output": "value",
+              "ref": {
+                "collection": "sensors",
+                "instance_path": [],
+                "object_id": "temperature"
+              },
+              "value": null
+            }
+          },
+          "kind": "builtin",
+          "model_id": "threshold",
+          "model_version": "1",
+          "output_terminals": [],
+          "output_type": {
+            "kind": "digital",
+            "protocol": null,
+            "unit": null
+          },
+          "parameters": {
+            "threshold": {
+              "unit": "degC",
+              "value": 30.0
+            }
+          },
+          "states": {},
+          "supply_terminals": [],
+          "transitions": []
+        }
+      },
+      "dsl_version": "0.2.0-proposal",
+      "electronic": {
+        "effects": {
+          "indicator": {
+            "behavior_output_ref": {
+              "behavior_id": "threshold",
+              "output": "value"
+            },
+            "kind": "light",
+            "location": null,
+            "model_ref": null,
+            "value_type": {
+              "kind": "digital",
+              "protocol": null,
+              "unit": null
+            }
+          }
+        },
+        "electrical": {
+          "connectors": {},
+          "terminals": {}
+        },
+        "interfaces": {},
+        "sensors": {
+          "temperature": {
+            "evidence_refs": [],
+            "latency_s": 0.02,
+            "location": null,
+            "quantity": "temperature",
+            "sample_period_s": 0.05,
+            "signal_type": {
+              "kind": "scalar",
+              "protocol": null,
+              "unit": "K"
+            },
+            "source": {
+              "channel": "temperature",
+              "joint_ref": null,
+              "kind": "environment"
+            }
+          }
+        }
+      },
+      "evidence": {
+        "assumption": {
+          "conditions": "Offline synthetic demonstration only",
+          "kind": "assumed",
+          "locator": null,
+          "note": "Not manufacturer data or evidence of physical validation.",
+          "source_ref": null
+        }
+      },
+      "functions": {},
+      "id": "example.lamp",
+      "name": "Synthetic temperature-triggered indicator",
+      "parameters": {},
+      "physical": {
+        "geometry": {
+          "bodies": {},
+          "envelopes": {},
+          "root_body": null,
+          "visual_assets": {}
+        },
+        "material": {
+          "paths": {},
+          "ports": {}
+        },
+        "mechanical": {
+          "ports": {}
+        },
+        "motion": {
+          "joints": {},
+          "transmissions": {}
+        }
+      },
+      "principles": {},
+      "realizations": {},
+      "record_kind": "component_definition",
+      "revision": 1,
+      "sources": {}
+    }
+  ],
+  "dsl_version": "0.2.0-proposal",
+  "input_revisions": {},
+  "record_kind": "model_bundle",
+  "root": {
+    "content_hash": "667f2fcf3110575ea4d681e8c59f3312276603d5198706353e113925e7f50230",
+    "id": "example.lamp",
+    "revision": 1
+  }
+}

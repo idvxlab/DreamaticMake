@@ -1,0 +1,41 @@
+{
+  "id": "described.microphone",
+  "name": "Audio stream description only",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "spec": {
+    "sample_rate_hz": 16000.0,
+    "sound_port": {
+      "body_ref": "body"
+    },
+    "bus": "i2s",
+    "kind": "microphone"
+  },
+  "category": "sensor",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

@@ -1,0 +1,6 @@
+# Optional STL/collision extras. The analytic primitive engine does not import these.
+pydantic>=2,<3
+numpy>=1.26,<3
+trimesh==4.8.3
+python-fcl==0.7.0.11
+rtree==1.4.1

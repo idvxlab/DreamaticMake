@@ -1,0 +1,65 @@
+{
+  "id": "example.pump",
+  "name": "Pump liquid topology",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "mechanism": "pump",
+  "material": {
+    "ports": {
+      "inlet": {
+        "body_ref": "body",
+        "medium_kind": "liquid",
+        "medium_ref": "water",
+        "direction": "in",
+        "aperture": {
+          "diameter_m": 0.006,
+          "kind": "circle"
+        }
+      },
+      "outlet": {
+        "body_ref": "body",
+        "medium_kind": "liquid",
+        "medium_ref": "water",
+        "direction": "out",
+        "aperture": {
+          "diameter_m": 0.006,
+          "kind": "circle"
+        }
+      }
+    },
+    "paths": {
+      "water": {
+        "inlet_port": "inlet",
+        "outlet_port": "outlet",
+        "mechanism": "pump"
+      }
+    }
+  },
+  "category": "transport",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

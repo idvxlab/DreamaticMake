@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "cells": [
+    {
+      "id": "control",
+      "file": "control.py"
+    }
+  ],
+  "inputs": [
+    {
+      "name": "yaw_deg",
+      "value": 0,
+      "min": -90,
+      "max": 90,
+      "step": 1
+    },
+    {
+      "name": "shoulder_deg",
+      "value": 25,
+      "min": -90,
+      "max": 90,
+      "step": 1
+    },
+    {
+      "name": "elbow_deg",
+      "value": -40,
+      "min": -90,
+      "max": 90,
+      "step": 1
+    },
+    {
+      "name": "grip_half_mm",
+      "value": 20,
+      "min": 8,
+      "max": 35,
+      "step": 1
+    }
+  ],
+  "bindings": [
+    {
+      "output": "yaw_deg",
+      "target": "yaw/joints/axis",
+      "unit": "deg"
+    },
+    {
+      "output": "shoulder_deg",
+      "target": "shoulder/joints/axis",
+      "unit": "deg"
+    },
+    {
+      "output": "elbow_deg",
+      "target": "elbow/joints/axis",
+      "unit": "deg"
+    },
+    {
+      "output": "left_mm",
+      "target": "gripper/joints/left",
+      "unit": "mm"
+    },
+    {
+      "output": "right_mm",
+      "target": "gripper/joints/right",
+      "unit": "mm"
+    },
+    {
+      "output": "yaw_deg",
+      "target": "yaw/info/target",
+      "unit": "sample"
+    },
+    {
+      "output": "shoulder_deg",
+      "target": "shoulder/info/target",
+      "unit": "sample"
+    },
+    {
+      "output": "elbow_deg",
+      "target": "elbow/info/target",
+      "unit": "sample"
+    }
+  ]
+}

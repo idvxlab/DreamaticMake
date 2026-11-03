@@ -1,0 +1,483 @@
+{
+  "assemblies": [
+    {
+      "connections": {
+        "electrical_nets": {
+          "ground": {
+            "evidence_refs": [],
+            "kind": "ground",
+            "members": [
+              {
+                "collection": "terminals",
+                "instance_path": [
+                  "supply"
+                ],
+                "object_id": "ground"
+              },
+              {
+                "collection": "terminals",
+                "instance_path": [
+                  "fan"
+                ],
+                "object_id": "ground"
+              }
+            ],
+            "reference_net": null
+          },
+          "power": {
+            "evidence_refs": [],
+            "kind": "power",
+            "members": [
+              {
+                "collection": "terminals",
+                "instance_path": [
+                  "supply"
+                ],
+                "object_id": "positive"
+              },
+              {
+                "collection": "terminals",
+                "instance_path": [
+                  "fan"
+                ],
+                "object_id": "vcc"
+              }
+            ],
+            "reference_net": "ground"
+          }
+        },
+        "material": {},
+        "mechanical": {}
+      },
+      "dsl_version": "0.2.0-proposal",
+      "evidence": {
+        "assumption": {
+          "conditions": "Offline synthetic demonstration only",
+          "kind": "assumed",
+          "locator": null,
+          "note": "Not manufacturer data or evidence of physical validation.",
+          "source_ref": null
+        }
+      },
+      "exported_ports": {},
+      "functions": {},
+      "id": "example.fan_assembly",
+      "instances": {
+        "fan": {
+          "definition_ref": {
+            "content_hash": "d677fdd9d60faba0f70a8854f42dd5bbc8628084f94811b1854d4b7988e20009",
+            "id": "example.fan",
+            "revision": 1
+          },
+          "parameter_bindings": {}
+        },
+        "supply": {
+          "definition_ref": {
+            "content_hash": "ed55f4385ca127c261a31b7b2de7c28a71ec5d82d92c222993e503c4765ee269",
+            "id": "example.ideal_supply",
+            "revision": 1
+          },
+          "parameter_bindings": {}
+        }
+      },
+      "joints": {},
+      "name": "Synthetic fan assembly",
+      "parameters": {},
+      "principles": {},
+      "realizations": {},
+      "record_kind": "assembly_definition",
+      "revision": 1,
+      "sources": {},
+      "transmissions": {}
+    }
+  ],
+  "components": [
+    {
+      "behaviors": {
+        "speed": {
+          "assumptions": [],
+          "initial_state": null,
+          "inputs": {
+            "value": {
+              "channel": "speed",
+              "kind": "fixture",
+              "output": "value",
+              "ref": null,
+              "value": null
+            }
+          },
+          "kind": "builtin",
+          "model_id": "pass",
+          "model_version": "1",
+          "output_terminals": [],
+          "output_type": {
+            "kind": "scalar",
+            "protocol": null,
+            "unit": "rad/s"
+          },
+          "parameters": {},
+          "states": {},
+          "supply_terminals": [
+            "vcc"
+          ],
+          "transitions": []
+        }
+      },
+      "dsl_version": "0.2.0-proposal",
+      "electronic": {
+        "effects": {
+          "rotation": {
+            "behavior_output_ref": {
+              "behavior_id": "speed",
+              "output": "value"
+            },
+            "kind": "motion",
+            "mode": "velocity",
+            "target_joint": {
+              "collection": "joints",
+              "instance_path": [],
+              "object_id": "axis"
+            },
+            "value_type": {
+              "kind": "scalar",
+              "protocol": null,
+              "unit": "rad/s"
+            }
+          }
+        },
+        "electrical": {
+          "connectors": {},
+          "terminals": {
+            "ground": {
+              "body_ref": null,
+              "current_limits": null,
+              "drive": "none",
+              "electrical_role": "ground",
+              "evidence_refs": [],
+              "label": "",
+              "nominal_voltage": null,
+              "physical_pin_number": "2",
+              "pose": null,
+              "pull": "none",
+              "reference_terminal": null,
+              "voltage_limits": null
+            },
+            "vcc": {
+              "body_ref": null,
+              "current_limits": null,
+              "drive": "none",
+              "electrical_role": "power_in",
+              "evidence_refs": [],
+              "label": "",
+              "nominal_voltage": null,
+              "physical_pin_number": "1",
+              "pose": null,
+              "pull": "none",
+              "reference_terminal": "ground",
+              "voltage_limits": {
+                "max": {
+                  "unit": "V",
+                  "value": 6.0
+                },
+                "min": {
+                  "unit": "V",
+                  "value": 4.0
+                }
+              }
+            }
+          }
+        },
+        "interfaces": {},
+        "sensors": {}
+      },
+      "evidence": {
+        "assumption": {
+          "conditions": "Offline synthetic demonstration only",
+          "kind": "assumed",
+          "locator": null,
+          "note": "Not manufacturer data or evidence of physical validation.",
+          "source_ref": null
+        }
+      },
+      "functions": {},
+      "id": "example.fan",
+      "name": "Synthetic continuous fan",
+      "parameters": {},
+      "physical": {
+        "geometry": {
+          "bodies": {
+            "case": {
+              "description": "",
+              "inertia_ref": null,
+              "mass": null
+            },
+            "rotor": {
+              "description": "",
+              "inertia_ref": null,
+              "mass": null
+            }
+          },
+          "envelopes": {
+            "rotor": {
+              "approximation": "unknown",
+              "body_ref": "rotor",
+              "evidence_refs": [],
+              "margin_m": 0.0,
+              "pose": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "purpose": "solid",
+              "shape": {
+                "kind": "box",
+                "size_m": [
+                  0.08,
+                  0.01,
+                  0.005
+                ]
+              }
+            }
+          },
+          "root_body": "case",
+          "visual_assets": {}
+        },
+        "material": {
+          "paths": {
+            "air": {
+              "capacity": null,
+              "drive_effect_ref": null,
+              "inlet_port": "inlet",
+              "mechanism": "fan",
+              "outlet_port": "outlet",
+              "transport_model_ref": null
+            }
+          },
+          "ports": {
+            "inlet": {
+              "aperture": {
+                "diameter_m": 0.08,
+                "kind": "circle"
+              },
+              "body_ref": "case",
+              "connector": null,
+              "direction": "in",
+              "evidence_refs": [],
+              "limits": {},
+              "medium_kind": "gas",
+              "medium_ref": "air",
+              "pose": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "outlet": {
+              "aperture": {
+                "diameter_m": 0.08,
+                "kind": "circle"
+              },
+              "body_ref": "case",
+              "connector": null,
+              "direction": "out",
+              "evidence_refs": [],
+              "limits": {},
+              "medium_kind": "gas",
+              "medium_ref": "air",
+              "pose": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              }
+            }
+          }
+        },
+        "mechanical": {
+          "ports": {}
+        },
+        "motion": {
+          "joints": {
+            "axis": {
+              "axis": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "child_anchor": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "child_body": {
+                "collection": "bodies",
+                "instance_path": [],
+                "object_id": "rotor"
+              },
+              "drive_mode": "velocity",
+              "effort_limit": null,
+              "evidence_refs": [],
+              "initial_position": {
+                "unit": "rad",
+                "value": 0.0
+              },
+              "kind": "continuous",
+              "parent_anchor": {
+                "rotation_xyzw": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "translation_m": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              },
+              "parent_body": {
+                "collection": "bodies",
+                "instance_path": [],
+                "object_id": "case"
+              },
+              "position_limit": null,
+              "velocity_limit": {
+                "unit": "rad/s",
+                "value": 20.0
+              }
+            }
+          },
+          "transmissions": {}
+        }
+      },
+      "principles": {},
+      "realizations": {},
+      "record_kind": "component_definition",
+      "revision": 1,
+      "sources": {}
+    },
+    {
+      "behaviors": {},
+      "dsl_version": "0.2.0-proposal",
+      "electronic": {
+        "effects": {},
+        "electrical": {
+          "connectors": {},
+          "terminals": {
+            "ground": {
+              "body_ref": null,
+              "current_limits": null,
+              "drive": "none",
+              "electrical_role": "ground",
+              "evidence_refs": [],
+              "label": "",
+              "nominal_voltage": null,
+              "physical_pin_number": "-",
+              "pose": null,
+              "pull": "none",
+              "reference_terminal": null,
+              "voltage_limits": null
+            },
+            "positive": {
+              "body_ref": null,
+              "current_limits": null,
+              "drive": "none",
+              "electrical_role": "power_out",
+              "evidence_refs": [],
+              "label": "",
+              "nominal_voltage": {
+                "unit": "V",
+                "value": 5.0
+              },
+              "physical_pin_number": "+",
+              "pose": null,
+              "pull": "none",
+              "reference_terminal": "ground",
+              "voltage_limits": null
+            }
+          }
+        },
+        "interfaces": {},
+        "sensors": {}
+      },
+      "evidence": {
+        "assumption": {
+          "conditions": "Offline synthetic demonstration only",
+          "kind": "assumed",
+          "locator": null,
+          "note": "Not manufacturer data or evidence of physical validation.",
+          "source_ref": null
+        }
+      },
+      "functions": {},
+      "id": "example.ideal_supply",
+      "name": "Assumed ideal 5 V supply",
+      "parameters": {},
+      "physical": {
+        "geometry": {
+          "bodies": {},
+          "envelopes": {},
+          "root_body": null,
+          "visual_assets": {}
+        },
+        "material": {
+          "paths": {},
+          "ports": {}
+        },
+        "mechanical": {
+          "ports": {}
+        },
+        "motion": {
+          "joints": {},
+          "transmissions": {}
+        }
+      },
+      "principles": {},
+      "realizations": {},
+      "record_kind": "component_definition",
+      "revision": 1,
+      "sources": {}
+    }
+  ],
+  "dsl_version": "0.2.0-proposal",
+  "input_revisions": {
+    "synthetic-fixture": 1
+  },
+  "record_kind": "model_bundle",
+  "root": {
+    "content_hash": "42432c646e8e28172f21e160d0e0b29aef411d285867b06cba15dfb209e76f23",
+    "id": "example.fan_assembly",
+    "revision": 1
+  }
+}

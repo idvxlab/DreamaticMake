@@ -1,0 +1,107 @@
+{
+  "id": "described.optocoupler",
+  "name": "Assumed optocoupler",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "spec": {
+    "package": "DIP-6",
+    "kind": "optocoupler"
+  },
+  "wiring": {
+    "terminals": {
+      "anode": {
+        "body_ref": "body",
+        "pose": {},
+        "physical_pin_number": "1",
+        "electrical_role": "passive"
+      },
+      "cathode": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.00254,
+            0.0,
+            0.0
+          ]
+        },
+        "physical_pin_number": "2",
+        "electrical_role": "passive"
+      },
+      "nc": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.00508,
+            0.0,
+            0.0
+          ]
+        },
+        "physical_pin_number": "3",
+        "electrical_role": "passive"
+      },
+      "emitter": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.00762,
+            0.0,
+            0.0
+          ]
+        },
+        "physical_pin_number": "4",
+        "electrical_role": "passive"
+      },
+      "collector": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.01016,
+            0.0,
+            0.0
+          ]
+        },
+        "physical_pin_number": "5",
+        "electrical_role": "passive"
+      },
+      "base": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.012700000000000001,
+            0.0,
+            0.0
+          ]
+        },
+        "physical_pin_number": "6",
+        "electrical_role": "passive"
+      }
+    }
+  },
+  "category": "circuit_element",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

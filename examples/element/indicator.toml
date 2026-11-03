@@ -1,0 +1,11 @@
+# Compact non-JSON component input. Values are synthetic normalized commands.
+record_kind = "component_design"
+design_version = "1"
+category = "light"
+id = "example.toml_indicator"
+name = "TOML indicator"
+roles = ["status_indicator"]
+
+[channels.brightness]
+kind = "constant"
+value = 0.5

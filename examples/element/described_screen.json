@@ -1,0 +1,50 @@
+{
+  "id": "described.screen",
+  "name": "128x64 OLED text command",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "width_px": 128,
+  "height_px": 64,
+  "text": {
+    "kind": "constant",
+    "value": "Ready"
+  },
+  "spec": {
+    "kind": "oled",
+    "active_size_m": [
+      0.02,
+      0.01
+    ],
+    "bus": "i2c",
+    "cable_exit": {
+      "body_ref": "body"
+    }
+  },
+  "category": "display",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

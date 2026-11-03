@@ -1,0 +1,77 @@
+{
+  "id": "described.battery",
+  "name": "Ideal USB 5 V source",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.08,
+            0.05,
+            0.03
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "source_kind": "battery",
+  "voltage": {
+    "value": 3.7,
+    "unit": "V"
+  },
+  "spec": {
+    "capacity": {
+      "value": 1000.0,
+      "unit": "mAh"
+    },
+    "current_limit": {
+      "value": 0.5,
+      "unit": "A"
+    },
+    "chemistry": "Li-ion"
+  },
+  "wiring": {
+    "terminals": {
+      "positive": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.01,
+            0.0,
+            0.0
+          ]
+        },
+        "physical_pin_number": "1",
+        "electrical_role": "power_out"
+      },
+      "ground": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.01,
+            0.0,
+            0.0
+          ]
+        },
+        "physical_pin_number": "2",
+        "electrical_role": "ground"
+      }
+    }
+  },
+  "category": "power",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

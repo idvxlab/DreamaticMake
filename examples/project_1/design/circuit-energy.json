@@ -1,0 +1,55 @@
+{
+  "edges": {
+    "nets/power": {
+      "domain": "electrical",
+      "members": [
+        "supply/terminals/positive",
+        "controller/terminals/vcc",
+        "yaw/terminals/vcc",
+        "shoulder/terminals/vcc",
+        "elbow/terminals/vcc"
+      ],
+      "kind": "power",
+      "directed": false
+    },
+    "nets/ground": {
+      "domain": "electrical",
+      "members": [
+        "supply/terminals/ground",
+        "controller/terminals/ground",
+        "yaw/terminals/ground",
+        "shoulder/terminals/ground",
+        "elbow/terminals/ground"
+      ],
+      "kind": "ground",
+      "directed": false
+    },
+    "nets/yaw_pwm": {
+      "domain": "electrical",
+      "members": [
+        "controller/terminals/yaw_pwm",
+        "yaw/terminals/pwm"
+      ],
+      "kind": "signal",
+      "directed": false
+    },
+    "nets/shoulder_pwm": {
+      "domain": "electrical",
+      "members": [
+        "controller/terminals/shoulder_pwm",
+        "shoulder/terminals/pwm"
+      ],
+      "kind": "signal",
+      "directed": false
+    },
+    "nets/elbow_pwm": {
+      "domain": "electrical",
+      "members": [
+        "controller/terminals/elbow_pwm",
+        "elbow/terminals/pwm"
+      ],
+      "kind": "signal",
+      "directed": false
+    }
+  }
+}

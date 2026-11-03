@@ -1,0 +1,44 @@
+{
+  "id": "described.screw",
+  "name": "Assumed M3 fastener envelope",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "size_m": [
+            0.006,
+            0.006,
+            0.014
+          ],
+          "kind": "box"
+        }
+      }
+    }
+  },
+  "spec": {
+    "kind": "fastener",
+    "standard": "M3",
+    "dimensions": {
+      "length": {
+        "value": 12.0,
+        "unit": "mm"
+      }
+    },
+    "material": "steel"
+  },
+  "category": "structure",
+  "record_kind": "component_design",
+  "design_version": "1"
+}

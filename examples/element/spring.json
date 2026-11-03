@@ -1,0 +1,17 @@
+{
+  "id": "example.spring",
+  "name": "Torsion spring capacity contract",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "Synthetic offline component example",
+      "note": "Illustrative dimensions and ratings; not manufacturer specifications or physical validation."
+    }
+  },
+  "mechanism": "torsion_spring",
+  "capacity_j": 0.2,
+  "initial_energy_j": 0.1,
+  "category": "energy_storage",
+  "record_kind": "component_design",
+  "design_version": "1"
+}
