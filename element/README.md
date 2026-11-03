@@ -2,6 +2,25 @@
 
 `element/` owns reusable component descriptions. It has no dependency on `engine`, application Context, Pi, or model providers. `engine/` owns assembly, design records, projections, compilation and simulation.
 
+## Custom CAD housings
+
+`CADHousing` is a specialized `structure` authoring object with `structural_role="housing"`, an existing `GeometrySpec`, and versioned `CADHousingSpec` metadata. This preserves the fourteen primary categories. Generic JSON parsing returns a `Structure` retaining the full `cad_housing` payload; callers can validate it as `CADHousing` when they require that specialization.
+
+```python
+from element.categories import CADHousing, CADHousingSpec, HousingMaterial
+from element.interfaces.geometry import Box
+
+housing = CADHousing.from_shape(
+    id="housing", name="Housing envelope",
+    shape=Box(size_m=(0.08, 0.06, 0.03)),
+    cad_housing=CADHousingSpec(material=HousingMaterial(name="PETG")),
+)
+```
+
+Geometry uses the existing bodies, envelopes, local transforms, visual assets and explicit mesh units. `CADHousing.from_stl(...)` verifies an explicit STL asset using the existing optional mesh backend. Material supports density (`kg/m3`), elastic modulus/yield strength (`Pa` or compatible units), and dimensionless isotropic Poisson ratio as existing `Parameter` values with known/assumed/unknown status and model-local evidence references. Missing properties stay unknown; selecting a material name supplies no physical constants or strength proof. Material and CAD metadata participate in the immutable element hash.
+
+Source CAD/command assets and exchange assets use hashed `AssetRef` values. There is no new B-rep parser or manufacturing solver. The [custom housing example](../examples/element/custom_cad_housing.json) includes a real JSCAD STL and authoring source. Integration into a scheme is provided by [process/](../process/README.md).
+
 Structured Markdown output for LLM context is available through [`element.language`](language/README.md): `to_markdown(value)`, `to_document(value)`, or `python -m element language path/to/element.json`. Existing JSON storage and CLI methods retain their contracts.
 
 ## Structure

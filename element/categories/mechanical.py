@@ -11,12 +11,34 @@ from element.interfaces.behavior import BehaviorSpec
 from element.interfaces.electrical import ElectricalSpec
 from element.categories.base import ComponentDesign
 from element.categories.specs import MechanicalDescription, ActuatorDescription, require_positive
+from element.categories.housing_spec import CADHousingSpec
 
 
 class Structure(ComponentDesign):
     category: Literal["structure"] = "structure"
     structural_role: Literal["housing", "bracket", "blade", "pointer", "diffuser", "other"] = "other"
     spec: MechanicalDescription | None = None
+    cad_housing: CADHousingSpec | None = None
+
+    @model_validator(mode='after')
+    def housing_contract(self):
+        if self.cad_housing is not None:
+            if self.structural_role != 'housing':
+                raise ValueError('CAD housing metadata requires structural_role=housing')
+            if self.spec and (self.spec.kind != 'housing' or (
+                self.spec.material is not None and self.spec.material.strip().casefold()
+                != self.cad_housing.material.name.strip().casefold()
+            )):
+                raise ValueError('Mechanical description conflicts with CAD housing material or role')
+            if self.geometry.root_body not in self.geometry.bodies or not (
+                self.geometry.envelopes or self.geometry.visual_assets
+            ):
+                raise ValueError('CAD housing requires a root body and explicit geometry')
+            for parameter in (self.cad_housing.material.density, self.cad_housing.material.elastic_modulus,
+                              self.cad_housing.material.yield_strength, self.cad_housing.material.poisson_ratio):
+                if parameter and set(parameter.evidence_refs) - self.evidence.keys():
+                    raise ValueError('Unknown housing material evidence')
+        return self
 
     @classmethod
     def from_shape(cls, *, id: str, name: str, shape: Shape, **kwargs):

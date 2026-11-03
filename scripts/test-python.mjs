@@ -1,24 +1,34 @@
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const candidates = [
+  ".runtime/python/Scripts/python.exe",
+  ".runtime/python/bin/python",
   ".venv-engine/Scripts/python.exe",
   ".venv-engine/bin/python",
 ];
 const local = candidates.map((path) => resolve(root, path)).find(existsSync);
 const python = process.env.MAKE_ENGINE_PYTHON || local || "python";
+const temp = resolve(root, ".runtime/tmp/python-tests");
+mkdirSync(temp, { recursive: true });
 
-for (const suite of ["element/tests", "engine/tests"]) {
+for (const suite of ["element/tests", "engine/tests", "process/tests"]) {
   console.log(`\nPython suite: ${suite}`);
   const result = spawnSync(
     python,
     ["-B", "-m", "unittest", "discover", "-s", suite, "-v"],
     {
       cwd: root,
-      env: { ...process.env, PYTHONIOENCODING: "utf-8" },
+      env: {
+        ...process.env,
+        PYTHONIOENCODING: "utf-8",
+        TEMP: temp,
+        TMP: temp,
+        TMPDIR: temp,
+      },
       stdio: "inherit",
       windowsHide: true,
     },

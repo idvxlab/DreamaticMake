@@ -33,6 +33,7 @@ UNITS = {
     "A": ("current", 1.0, 0.0, "A"), "mA": ("current", 0.001, 0.0, "A"),
     "K": ("temperature", 1.0, 0.0, "K"), "degC": ("temperature", 1.0, 273.15, "K"),
     "kg": ("mass", 1.0, 0.0, "kg"), "g": ("mass", 0.001, 0.0, "kg"),
+    "kg/m3": ("density", 1.0, 0.0, "kg/m3"),
     "kg/s": ("mass_flow", 1.0, 0.0, "kg/s"),
     "Pa": ("pressure", 1.0, 0.0, "Pa"), "kPa": ("pressure", 1000.0, 0.0, "Pa"),
     "W": ("power", 1.0, 0.0, "W"), "N": ("force", 1.0, 0.0, "N"),

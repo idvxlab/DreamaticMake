@@ -6,6 +6,7 @@ from element.categories.mechanical import Structure, Actuator, TransmissionCompo
 from element.categories.electronic import Light, Display, Sound, HumanInput, Sensor, Controller, Driver, ControlFunction, FirmwareSource
 from element.categories.power import PowerSource
 from element.categories.circuit import CircuitElement
+from element.categories.housing import CADHousing, CADHousingSpec, HousingMaterial
 
 Component = Annotated[
     Structure | Actuator | TransmissionComponent | Light | Display | Sound | HumanInput |
@@ -15,4 +16,5 @@ COMPONENT_ADAPTER = TypeAdapter(Component)
 
 __all__ = ["Component", "ComponentDesign", "Structure", "Actuator", "TransmissionComponent", "Light",
            "Display", "Sound", "HumanInput", "Sensor", "Controller", "Driver", "PowerSource",
-           "Transport", "EnergyStorage", "CircuitElement", "ControlFunction", "FirmwareSource"]
+           "Transport", "EnergyStorage", "CircuitElement", "ControlFunction", "FirmwareSource",
+           "CADHousing", "CADHousingSpec", "HousingMaterial"]

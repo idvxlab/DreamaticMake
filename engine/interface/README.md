@@ -19,7 +19,7 @@ When dependencies are already installed at the repository root, the existing sho
 npm run engine:dev
 ```
 
-Open http://127.0.0.1:4322. The default design is the two-finger gripper. No application server, application project, API credentials or approval routes are needed. Set `MAKE_ENGINE_PYTHON` if your Python environment is elsewhere; otherwise the launcher tries `.venv-engine` then `python`. Python requires the engine's existing dependencies (including Pydantic).
+Open http://127.0.0.1:4322. The default design is the two-finger gripper. No application server, application project, API credentials or approval routes are needed. Set `MAKE_ENGINE_PYTHON` if your Python environment is elsewhere; otherwise the launcher tries `.runtime/python`, `.venv-engine`, then `python`. Python requires the engine's existing dependencies (including Pydantic). The Windows repository environment uses `.\npm.cmd run engine:dev` from the root; see [runtime setup](../../RUNTIME.md).
 
 `npm run build` here (or `npm run engine:build` at the repository root) writes `engine/interface/dist`. `npm run engine:preview` serves that build with the local Python bridge. Opening `index.html` via `file://` is not supported because projections require the local engine.
 

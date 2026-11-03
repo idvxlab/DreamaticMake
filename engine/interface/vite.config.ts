@@ -9,11 +9,15 @@ const root = fileURLToPath(new URL("../../", import.meta.url));
 const interfaceRoot = fileURLToPath(new URL("./", import.meta.url));
 const python =
   process.env.MAKE_ENGINE_PYTHON ||
-  (existsSync(resolve(root, ".venv-engine/Scripts/python.exe"))
-    ? resolve(root, ".venv-engine/Scripts/python.exe")
-    : existsSync(resolve(root, ".venv-engine/bin/python"))
-      ? resolve(root, ".venv-engine/bin/python")
-      : "python");
+  (existsSync(resolve(root, ".runtime/python/Scripts/python.exe"))
+    ? resolve(root, ".runtime/python/Scripts/python.exe")
+    : existsSync(resolve(root, ".runtime/python/bin/python"))
+      ? resolve(root, ".runtime/python/bin/python")
+      : existsSync(resolve(root, ".venv-engine/Scripts/python.exe"))
+        ? resolve(root, ".venv-engine/Scripts/python.exe")
+        : existsSync(resolve(root, ".venv-engine/bin/python"))
+          ? resolve(root, ".venv-engine/bin/python")
+          : "python");
 function api(): Plugin {
   const middleware = async (
     req: IncomingMessage,
@@ -99,6 +103,7 @@ function api(): Plugin {
 }
 export default defineConfig({
   root: interfaceRoot,
+  cacheDir: resolve(root, ".runtime/cache/vite"),
   plugins: [react(), api()],
   // Prebundle the worker's CJS kernel before interaction so its first run does
   // not trigger dependency discovery and reload the current design view.
@@ -112,6 +117,7 @@ export default defineConfig({
         interfaceRoot,
         resolve(root, "engine/custom_model"),
         resolve(root, "node_modules"),
+        resolve(root, ".runtime/node_modules"),
       ],
     },
   },
