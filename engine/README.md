@@ -4,6 +4,8 @@ This Python package implements the executable core of the product DSL v2 proposa
 
 Structured Markdown output for LLM context is available through [`engine.language`](language/README.md): `to_markdown(value)`, `to_document(value)`, or `python -m engine language path/to/project.json`. This covers eight-layer design packages and existing project/layout/bundle records without changing their storage contracts.
 
+The [standalone interface](interface/README.md) also includes **深化设计 — 定制化模型**, backed by the [custom model module](custom_model/README.md): view/import condition packs, enter modeling commands, select materials, preview local JSCAD geometry, and export individual STL parts. This browser module does not execute engineering constraint checks or publish parts into an authoritative design.
+
 **The sample models are synthetic assumptions. Successful simulation is not physical validation.** The package remains usable independently of the Node.js application. The web workbench now invokes its CLI through the [server adapter](../docs/design-engine-integration.md), keeping Context authoritative. A model bundle is an immutable snapshot input, not another canonical BOM.
 
 ## Element/design separation (0.5.0)

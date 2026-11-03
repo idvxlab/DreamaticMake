@@ -25,6 +25,8 @@ Open http://127.0.0.1:4322. The default design is the two-finger gripper. No app
 
 Views: structure/3D, motion, circuit/energy, material/information, source JSON, and searchable element library. The tree selects entities and bodies, the 3D view supports orbit/zoom/fit/wireframe, and sliders call the real engine's kinematics. Missing geometry is not invented. This is conceptual geometry and kinematics, not manufactured or physically validated output.
 
+The **深化设计 — 定制化模型** view adds condition-pack browsing/import/editing, command-driven JSCAD modeling, material selection, local project persistence and per-part STL export. It does not run engineering constraint checks. See [custom model authoring](../custom_model/README.md) for commands and boundaries.
+
 Data comes from `examples/element`, `examples/engine` and `examples/project_1`. The default gripper engine example retains the project's finger joints. The raw gripper element contains geometry; its motion constraints are owned by the engine/project design layer.
 
 The Python bridge accepts only enumerated example IDs and read/compute operations. It does not execute the project's Python notebook. The server binds to localhost. Search creates a replaceable SQLite index and immutable definitions under ignored `workspace/element-library`.

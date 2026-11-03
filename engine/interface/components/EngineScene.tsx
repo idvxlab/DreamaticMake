@@ -32,6 +32,7 @@ export function EngineScene({
   highlighted = [],
   anchors = [],
   onPoseChange,
+  bodyColors = {},
 }: {
   scene: SceneData;
   frame?: EngineFrame;
@@ -42,6 +43,7 @@ export function EngineScene({
   highlighted?: string[];
   anchors?: { body: string; pose: EnginePose }[];
   onPoseChange?: (body: string, pose: EnginePose) => void;
+  bodyColors?: Record<string, string>;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const [wire, setWire] = useState(false);
@@ -62,6 +64,7 @@ export function EngineScene({
     anchors,
     onPoseChange,
     transformMode,
+    bodyColors,
   });
   live.current = {
     frame,
@@ -73,6 +76,7 @@ export function EngineScene({
     anchors,
     onPoseChange,
     transformMode,
+    bodyColors,
   };
   const cameraState = useRef<{
     position: THREE.Vector3;
@@ -324,7 +328,7 @@ export function EngineScene({
                 ? 0xd9a461
                 : purpose === "service"
                   ? 0x76a4b1
-                  : 0x839375,
+                  : state.bodyColors[body] || 0x839375,
         );
         mesh.material.wireframe = state.wire || auxiliary;
         mesh.material.transparent = auxiliary;

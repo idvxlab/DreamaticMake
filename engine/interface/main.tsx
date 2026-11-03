@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { EngineScene } from "./components/EngineScene";
 import { TopologyGraph } from "./components/TopologyGraph";
+import { CustomModelPanel } from "./components/CustomModelPanel";
 import type { LayoutProjection } from "./contracts";
 import "./style.css";
 type Design = { id: string; title: string; level: string };
@@ -111,6 +112,7 @@ function App() {
     ["motion", "运动机构"],
     ["circuit", "电路与能量"],
     ["flow", "物质与信息"],
+    ["custom", "深化设计 — 定制化模型"],
     ["source", "设计源文件"],
     ["library", "元件库"],
   ];
@@ -152,7 +154,18 @@ function App() {
         ))}
       </nav>
       {error && <p role="alert">{error}</p>}
-      {layer === "library" ? (
+      {layer === "custom" ? (
+        view ? (
+          <CustomModelPanel
+            key={id}
+            designId={id}
+            title={designs.find((d) => d.id === id)?.title ?? id}
+            view={view}
+          />
+        ) : (
+          <p role="status">正在加载设计上下文…</p>
+        )
+      ) : layer === "library" ? (
         <main className="library">
           <h2>元件索引</h2>
           <p>按标识、名称、分类、标签、型号、厂商检索；价格未知时保留为空。</p>

@@ -1,0 +1,210 @@
+.custom-model {
+  padding: 24px 28px;
+}
+.custom-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.custom-heading small {
+  color: #497b78;
+  letter-spacing: 3px;
+}
+.custom-heading h2 {
+  font-size: 26px;
+  margin: 6px 0;
+}
+.custom-heading p,
+.custom-command > p {
+  color: #567479;
+  line-height: 1.7;
+}
+.custom-badge {
+  background: #e0ece5;
+  border: 1px solid #b4cbbf;
+  border-radius: 20px;
+  padding: 9px 14px;
+  white-space: nowrap;
+}
+.custom-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 15px 0 22px;
+}
+.custom-actions label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.custom-actions input {
+  max-width: 260px;
+  font-size: 12px;
+}
+.custom-grid {
+  display: grid;
+  grid-template-columns: minmax(250px, 290px) minmax(300px, 1fr) minmax(
+      290px,
+      350px
+    );
+  gap: 16px;
+  align-items: start;
+}
+.custom-grid > aside {
+  border: 1px solid #cbdad9;
+  border-radius: 10px;
+  background: #fafcfc;
+  padding: 16px;
+  max-height: none;
+}
+.custom-conditions > button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 7px;
+}
+.custom-conditions button small {
+  display: block;
+  color: #648283;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+.custom-conditions > h3 {
+  overflow-wrap: anywhere;
+}
+.custom-conditions details pre {
+  max-height: 280px;
+  overflow: auto;
+  padding: 10px;
+  background: #eef3f2;
+  border-radius: 5px;
+}
+.custom-conditions details summary {
+  overflow-wrap: anywhere;
+}
+.condition-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 12px 0;
+}
+.condition-actions button {
+  font-size: 12px;
+}
+.custom-model textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 380px;
+  padding: 14px;
+  border: 1px solid #b7cbcd;
+  border-radius: 7px;
+  background: #132c32;
+  color: #e4f4ed;
+  line-height: 1.8;
+  tab-size: 2;
+  font:
+    12px/1.8 Consolas,
+    monospace;
+}
+.custom-conditions textarea {
+  min-height: 450px;
+}
+.custom-preview {
+  background: #e6eeec;
+  border: 1px solid #c3d6d2;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.custom-preview .engine-scene {
+  min-height: 500px;
+}
+.custom-preview .viewer {
+  height: 440px;
+  min-height: 440px;
+}
+.custom-preview-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+  font-size: 12px;
+}
+.custom-preview-footer input {
+  margin-right: 6px;
+}
+.custom-note {
+  font-size: 12px;
+  color: #60797b;
+  line-height: 1.9;
+}
+.custom-model button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+.custom-model .custom-run {
+  background: #23685e;
+  color: white;
+  border-color: #23685e;
+}
+.custom-parts {
+  border-top: 1px solid #c7d6d4;
+  padding-top: 8px;
+}
+.custom-parts > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 6px 0;
+}
+.custom-parts span {
+  font-size: 12px;
+  color: #5b7576;
+}
+.custom-parts button {
+  margin-left: auto;
+}
+.custom-command details pre {
+  padding: 8px 0;
+  font-size: 11px;
+  line-height: 1.9;
+}
+@media (max-width: 1150px) {
+  .custom-model {
+    padding: 18px;
+  }
+  .custom-grid {
+    grid-template-columns: 260px minmax(300px, 1fr);
+  }
+  .custom-command {
+    grid-column: 1 / -1;
+  }
+  .custom-command textarea {
+    min-height: 240px;
+  }
+  .custom-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+@media (max-width: 680px) {
+  .custom-grid {
+    display: flex;
+    flex-direction: column;
+  }
+  .custom-grid > * {
+    width: 100%;
+  }
+  .custom-badge {
+    white-space: normal;
+  }
+  nav {
+    flex-wrap: wrap;
+  }
+}

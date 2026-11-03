@@ -104,7 +104,13 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 4322,
     strictPort: true,
-    fs: { allow: [interfaceRoot, resolve(root, "node_modules")] },
+    fs: {
+      allow: [
+        interfaceRoot,
+        resolve(root, "engine/custom_model"),
+        resolve(root, "node_modules"),
+      ],
+    },
   },
   preview: { host: "127.0.0.1", port: 4322 },
   build: { outDir: resolve(interfaceRoot, "dist"), emptyOutDir: true },
