@@ -1,155 +1,142 @@
-# Design processes — 0.2.0-draft
+# Process：设计信息、上下文与流程产物
 
-`process/` 是设计引擎的流程接口层：定义输入输出、组装上下文、检查依赖版本，并输出宿主可展示的设计产物。它不负责连接 agent、模型供应商或调度器。依赖保持 `process → engine → element`；复用原生几何、材料、位姿、关节和电路类型，不复制其实现。
+`process → engine → element`。process 负责明确任务输入、组织已有设计信息、校验依赖与接收 Agent 编写的产物；元件原生工程定义归 element，项目表达与检查归 engine，Agent/LLM 调用和持久化归宿主。
 
-## 九个关键流程
+## 目录组织
 
-| `process_kind` | 必需输入 | 输出 | 关键上下文 |
+每个主流程和底层操作各占一个目录，`__init__.py` 是可执行接口，`README.md` 是该流程的信息组织文档。主流程各自拥有请求类型、输出类型绑定、必需/可选上游和上下文键；公共契约和版本校验只实现一次。
+
+```text
+process/
+  README.md                 架构、流程导航、使用方式
+  CONTEXT.md                文件读取、LLM 上下文与输出映射的公共约定
+  requirements/             以下九个目录：__init__.py + README.md
+  appearance/
+  hardware_selection/
+  spatial_layout/
+  logical_layout/
+  enclosure_detail/
+  motion_detail/
+  assembly_detail/
+  print_optimization/
+  selection/                以下七个目录：原有底层操作 + README.md
+  placement/
+  connection/
+  motion/
+  mechanical_detail/
+  circuit_detail/
+  logic_detail/
+  _workflow.py              主流程共用的 prepare/submit、依赖闭包、校验、视图
+  workflows.py              兼容导出与九流程注册；SPECS 从各目录定义汇总
+  artifacts.py              版本化产物与原生输出契约
+  base.py / contracts.py    共用运行协议、检查和提案
+  context.py / proposal.py  注入只读资源；构造候选设计
+  registry.py / __main__.py 白名单分发与 CLI
+  tests/                    回归测试和人工流程样例
+```
+
+原有 `from process import SpatialLayoutProcess`、`from process.workflows import SpatialLayoutProcess` 和 `from process.selection import SelectionProcess` 继续可用；也可以直接从 `process.spatial_layout` 导入主流程。
+
+## 九个主流程
+
+各目录文档分别给出：任务与信息源、Agent 上下文顺序、输出字段、案例文件目标、校验与能力边界。公共的来源/版本管理和接入设计见 [CONTEXT.md](CONTEXT.md)。
+
+| 流程文档 | 必需上游 | 主要结果 | 目录 v2 的文件目标（由宿主映射） |
 | --- | --- | --- | --- |
-| `requirements` | 原始文档 `source_documents` | 需求文档、功能文档，支持 Markdown / 文档资产引用 | 原始文档版本、使用场景、边界和约束 |
-| `appearance` | 需求与功能文档 | 一组带视角和说明的图像引用 | 功能、外观约束、参考资料 |
-| `hardware_selection` | 需求与功能文档 | 硬件库精确版本引用、实例清单、选型理由 | 注入的只读硬件库或设计中嵌入的库定义、参数、证据 |
-| `spatial_layout` | 文档、选型、外观 | 每个硬件实例的世界坐标位姿 | 元件几何、外观图、空间边界、坐标系 |
-| `logical_layout` | 文档、选型 | 电路逻辑网络、显式未连接端子 | 原生硬件端子、额定参数、电气需求；不依赖空间布线 |
-| `enclosure_detail` | 文档、空间布局、外观 | 多个 CAD 组件，各自包含材料和位姿 | 硬件包络、空间位姿、外观、材料、间隙和加工约束 |
-| `motion_detail` | 文档、空间布局 | 跨元件关节、运动范围、初始配置 | 原生刚体、锚点、轴向、范围和初始姿态；连续转动无有限上下限 |
-| `assembly_detail` | 文档、空间布局、外壳 CAD；运动设计可选 | 深化后的 CAD 组件、固定/随动/关节装配关系 | 原外壳组件、硬件安装接口、相对位姿、可选运动关节 |
-| `print_optimization` | 装配深化 CAD、打印机约束 | 优化后 CAD、打印位姿、支撑策略、特征修改说明 | 工艺、成形空间、最小特征尺寸、分辨率、悬空角度 |
+| [需求与功能](requirements/README.md) | 原始 source_documents | requirements/functions 文档 | doc/requirements/ |
+| [外观](appearance/README.md) | requirements | 图像资产与视角说明 | doc/appearance/ |
+| [硬件选型](hardware_selection/README.md) | requirements + 元件库/嵌入定义 | 固定元件引用和实例清单 | element/index.json、元件包/库引用 |
+| [空间布局](spatial_layout/README.md) | requirements、hardware_selection、appearance | 实例世界位姿 | design/structure.json |
+| [电路逻辑布局](logical_layout/README.md) | requirements、hardware_selection | 网络与显式未连接端子 | design/circuit-logic.json、阶段说明 |
+| [外壳深化](enclosure_detail/README.md) | requirements、spatial_layout、appearance | 带材料与位姿的 CAD 组件 | 定制元件包、索引、结构位姿 |
+| [运动深化](motion_detail/README.md) | requirements、spatial_layout | 跨元件关节与范围、初值 | design/motion.json |
+| [装配深化](assembly_detail/README.md) | requirements、spatial_layout、enclosure_detail | 深化组件与装配关系 | 元件包、motion/structure、阶段说明 |
+| [打印优化](print_optimization/README.md) | assembly_detail + printer | 打印件、姿态、支撑与修改说明 | 派生元件资产、doc/print_optimization/ |
 
-装配深化显式输入 `enclosure_detail`，以明确“深化哪一版外壳”。这补齐了只给文档和空间布局无法定位待修改 CAD 的依赖。打印阶段的每个结果用 `source_component_id` 回溯装配组件，允许一个原组件拆成多个打印件，但要求覆盖全部原组件。
+assembly_detail 可选依赖 motion_detail；引用运动关节时必须提供它。依赖是图，并非固定九步流水线。外观与选型可独立进行；电路逻辑不依赖空间布局；外壳和运动深化也可分别进行。
 
-流程是依赖图：外观与选型可独立进行；空间布局与电路逻辑布局具有不同的依赖；外壳与运动深化可独立进行。九个流程不等于 `engine` 的九个存储层：需求与功能仍对应 analysis/function，空间/外壳/装配共用原生 structure 表征，电路逻辑对应 circuit_energy，运动对应 motion。这里的逻辑布局指电路连接关系，固件和行为程序仍由底层 `logic_detail` 操作处理。
+```mermaid
+flowchart LR
+  R[requirements] --> A[appearance]
+  R --> H[hardware_selection]
+  R --> S[spatial_layout]
+  A --> S
+  H --> S
+  R --> L[logical_layout]
+  H --> L
+  R --> E[enclosure_detail]
+  A --> E
+  S --> E
+  R --> M[motion_detail]
+  S --> M
+  R --> D[assembly_detail]
+  S --> D
+  E --> D
+  M -. 可选 .-> D
+  D --> P[print_optimization]
+```
 
-## 统一接口
+## 设计文件与产物协议
 
-`workflows.py` 导出九套 `…Input`、`…Request`、`…Process`，如 `SpatialLayoutInput`、`SpatialLayoutRequest`、`SpatialLayoutProcess`；原生输出模型位于 `artifacts.py`。每个流程提供：
+[examples/project_1](../examples/project_1/README.md) 使用项目目录 v2：project.json、element/、design/、doc/。`load_project` 解析为 layout_project；它不读取阶段文档正文或执行代码。
 
-- `describe()`：真实 JSON Schema、必需/可选上游、上下文键和能力边界。
-- `inspect(request, context)`：检查快照、缺失上下文、版本冲突与输出引用，不写入任何存储。
-- `run(request, context)`：`prepare` 返回 `ContextPack`；`submit` 接受显式编写的产物并返回 `DesignArtifact`；`generate` 当前返回 `unsupported`。
-- `project_artifact(artifact)`：返回绑定产物版本的 JSON 视图，包含文档、图集、硬件表、空间场景、电路图、CAD 组件、运动图、装配场景或打印场景数据。
+现有流程 Request 则接受八层 DesignPackage，上游是固定版本的 DesignArtifact。二者没有自动转换/写回接口。阶段文档的文件目标是宿主接入约定，不能把产物 JSON 直接写入同名项目文件。尤其需要区分项目短引用、ObjectRef、打印姿态与世界位姿，以及项目电路网络和行为程序。
 
-视图是供宿主渲染的数据接口，本次没有新增浏览器编辑器。图像以 `AssetRef` 传入；材料直接使用 `CADHousing.cad_housing.material`，允许物性显式未知。空间位置使用米和 `[x,y,z,w]` 四元数。打印 `build_pose` 表示组件坐标到打印机坐标的变换，打印机 +Z 为成形方向。所有几何和材料仍由 `element` 原生契约表达。
+读取完整对象优先复用 [engine.language](../engine/language/README.md) 与 [element.language](../element/language/README.md) 的结构化 Markdown。按流程保留相关资料、稳定引用、单位、证据和未知项；按需读取和预算裁剪策略详见公共协议。
 
-请求包含固定的 `base` 设计快照、`input.upstream` 精确依赖引用，以及 `artifacts` 中的完整上游闭包。`ContextPack.upstream` 包含解析后的传递依赖；空间布局之后的流程可由此取得原始选型。`ContextPack.elements` 提供所选元件的完整原生定义；选型准备阶段提供已嵌入的库定义，`library_search_available` 指示是否注入了只读搜索接口。库搜索复用 `SelectionProcess(action='search')` 与 `ProcessContext(elements=...)`。
+## 运行接口
 
-产物引用为 `{artifact_id, revision, content_hash}`；哈希覆盖产物内容、依赖和上下文。新 revision 必须提供前一版精确 pin，并在请求中携带该版本。产物保存 `previous`、源设计快照、输入文档、约束、打印机参数和上游引用。宿主负责保存产物和选择当前版本，本层不维护隐藏的“最新版本”。
-
-检查会拒绝缺失闭包、错误哈希、错误设计、不同快照、依赖环、重复身份，以及同一链路混用不同版本的上游产物。保守策略是：设计快照变化后，需要在新快照上重新提交流程产物。无关历史产物无需加入请求。
-
-`submit` 还会检查：每个已选硬件恰好有一个空间位姿；选型必须能从库/嵌入定义精确解析；硬件端子恰好出现在一个网络或未连接清单中；关节连接有效刚体且具有所需范围与初始值；装配对象存在；打印结果覆盖原组件。这些是契约和上下文检查，**不是几何、结构、电气或制造验证**。资产引用的接受也不表示文件字节已被读取或哈希核验。
+- `describe()`：真实 JSON Schema、依赖、上下文键、能力边界。
+- `inspect(request, context)`：只读检查快照、缺失信息、版本、引用及输出契约。
+- `run(action='prepare')`：返回 ContextPack，包含上游传递闭包、元件定义与约束。
+- `run(action='submit')`：接收显式编写的 deliverable，返回 DesignArtifact 和绑定版本的视图数据。
+- `run(action='generate')`：目前返回 unsupported，宿主需自行连接 Agent/模型执行器。
 
 ```python
 from process import AppearanceInput, AppearanceRequest, AppearanceProcess, artifact_ref
 
-# design: engine 的 DesignPackage；requirements: requirements 阶段返回的 DesignArtifact
+# design 是有效 DesignPackage，requirements 是同一基线快照的需求 DesignArtifact。
 request = AppearanceRequest.for_design(
     design,
     artifacts=(requirements,),
     input=AppearanceInput(
-        action='prepare',
+        action='prepare', artifact_id='appearance',
         upstream={'requirements': artifact_ref(requirements)},
     ),
 )
-report = AppearanceProcess().inspect(request)
 result = AppearanceProcess().run(request)
-# result.output.context 提供文档和约束，交给宿主展示或后续人工设计。
-# 完成设计后，用 action='submit' 与 AppearanceOutput(images=...) 提交图像引用。
+# 宿主将 result.output.context 和阶段文档交给 Agent。
+# 取得真实图像引用后，以 submit + AppearanceOutput 提交；不会自动保存文件。
 ```
+
+引用为 `{artifact_id, revision, content_hash}`；请求必须带齐依赖闭包。禁止混用设计、快照、依赖版本或同一 ID 的多个版本；新 revision 需提供上一版精确 pin。宿主选择当前版本；process 不维护隐藏的 latest。
+
+主流程 submit 不修改 DesignPackage，结果标记 `validation='contract_only'`。project_artifact 返回文档/图集/硬件表/场景等 JSON 视图，不新增编辑器。资产引用被接受不代表字节已读取或哈希核验。
+
+## 七个底层操作
+
+| 文档 | 已有能力 | 明确边界 |
+| --- | --- | --- |
+| [selection](selection/README.md) | 搜索、比较、选择/替换为 selection 记录 | 不自动采购，不把未知需求标为满足 |
+| [placement](placement/README.md) | 显式世界/相对位姿 | 无自动布局求解器 |
+| [connection](connection/README.md) | 跨元件挂点、网络、物料/信息/能量关系 | 不推断安装孔或改写本征拓扑 |
+| [motion](motion/README.md) | 关节、传动、驱动和初值 | 无逆运动学求解器 |
+| [mechanical_detail](mechanical_detail/README.md) | 准备条件、集成已编写 CADHousing | 无通用 CAD 生成、配合/强度验证 |
+| [circuit_detail](circuit_detail/README.md) | 显式 wiring 网络 | 无 EDA/ERC/模拟电路/PCB 后端 |
+| [logic_detail](logic_detail/README.md) | LogicData 行为与绑定、惰性程序/固件引用 | 不执行、不编译或刷写 |
+
+底层修改返回 DesignProposal，经 `build_candidate` 检查基线、记录版本与写范围后得到候选；checks 绑定候选快照，宿主显式持久化。审批只在经过认证的应用路由中完成。
+
+## 验证与执行证据
 
 ```powershell
 .\python.cmd -m process list
 .\python.cmd -m process schema spatial_layout
-.\python.cmd -m unittest process.tests.test_workflows -v
+.\npm.cmd run check
+.\npm.cmd test
+.\npm.cmd run build
 ```
 
-`list` 优先列出九个 `category=workflow` 流程，随后列出七个 `category=operation` 底层操作。`schema` 导出每个具体流程的精确输入类型；`request` 仍从 stdin 接收一个有大小限制的 JSON 请求。九阶段回归数据位于 [`process/tests/fixtures/design_pipeline.py`](tests/fixtures/design_pipeline.py)：使用人工定义的简单几何和未读取的图像引用演示数据流，不生成图片或优化几何。
+CLI 只分发注册的 kind，从 stdin 读取有界 JSON，不动态加载任意模块。completed 返回退出码 0，其他流程状态/无效输入返回 2。
 
-## 与现有 engine 检查的关系
-
-流程产物独立于持久化的 `DesignPackage`：提交产物不会静默覆盖方案。宿主明确整合时，可用下述底层操作创建 `DesignProposal`，经 `build_candidate()` 得到新快照，再调用 `engine.design.project_design()` / `check_design()` 做已有的连通性、碰撞或运动检查。检查证据绑定整合后的快照，不能转用于未整合的产物。新流程请求直接携带 `requested_checks` 会返回 `unsupported`，防止误把基线设计的检查当成新产物的检查。
-
-所有新流程结果标记 `validation='contract_only'`，不产生模拟执行证据；没有图像生成器、CAD 求解器、切片器或 agent 的隐式调用。审批仍只在经过认证的应用路由执行。
-
-## 保留的底层操作 — 0.1.0-draft
-
-`element/` defines reusable objects. `engine/` defines designs and performs parsing, projection and checks. This top-level `process/` package describes the information needed for a design operation and produces typed results and reviewable changes to those existing objects.
-
-The dependency direction is `process → engine → element`, with direct read access from process to element. No agent runtime, approval decision or project-storage writer is included.
-
-## Implemented classes
-
-Each module exports an `Input`, `Output`, `Request`, `Result` and a process class with `describe()`, `inspect(request, context)` and `run(request, context)`.
-
-| Class | Implemented operations | Explicit limits |
-| --- | --- | --- |
-| `SelectionProcess` | Library search, pinned candidate comparison, choose/replace into a selection record | No automatic commercial selection; unknown/assumed requirements remain unknown |
-| `PlacementProcess` | Explicit discrete-instance poses in world coordinates or relative to a placed body | No automatic layout; conflicting existing body pose overrides must be reconciled |
-| `ConnectionProcess` | Explicit mechanical mounts, electrical nets, external material/information edges, energy transfers and required paths | Does not infer holes or interfaces; preserves intrinsic element topology |
-| `MotionProcess` | Cross-element joints/transmissions/drives and explicit moving-joint initial values | No inverse kinematics; inherited-address changes with existing references need explicit reconciliation |
-| `MechanicalDetailProcess` | Snapshot-bound material/subject information; integrate an authored `CADHousing` as a new pinned selection and instance | No general CAD generator, attachment solver, fit/strength/manufacturing check |
-| `CircuitDetailProcess` | Explicit wiring nets using the same connection helpers | No EDA/analog/ERC/PCB generation or verification backend |
-| `LogicDetailProcess` | Typed logic authoring/binding using `LogicData`, including inert code or firmware references | Saves source without execution; no Python sandbox or firmware compiler |
-
-This is the first executable subset of the plan in `agent/代码计划/设计流程工具适配与输入输出接口.md`. Its schemas are exported from the actual models. Some planned actions and fields are deliberately not accepted yet; the returned JSON Schema, rather than a future plan, defines what this implementation accepts.
-
-## Python usage
-
-```python
-from element.io.components import load_component
-from element.schema.library import ElementDefinition
-from element.io.records import element_ref
-from engine.design import make_package, project_design
-from engine.design.contracts import DiscreteUsage, Instance
-from process import (
-    SelectionProcess, SelectionRequest, SelectionInput, build_candidate,
-)
-
-model = load_component("D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_gripper/component.json")
-definition = ElementDefinition(
-    library_id="examples", element_id=model.id, revision=model.revision,
-    name=model.name, category=model.category, origin="template", model=model,
-)
-design = make_package(design_id="demo", title="Demo", elements=(definition,))
-request = SelectionRequest.for_design(
-    design,
-    input=SelectionInput(
-        action="choose", chosen_ref=element_ref(definition),
-        usage=DiscreteUsage(planned_count=1, instances={"gripper": Instance(label="Gripper")}),
-    ),
-    write_record_ids=("selection",),
-)
-process = SelectionProcess()
-needs = process.inspect(request)
-result = process.run(request)
-if result.status == "completed" and result.proposals:
-    candidate = build_candidate(
-        design, result.proposals[0], write_record_ids=request.scope.write_record_ids,
-    )
-    views = project_design(candidate)
-```
-
-Python constructors use immutable tuples and strict existing models; JSON requests use arrays. `Request.for_design()` fills the fixed snapshot and expected revision. Requests are revalidated before execution, including callers that used unchecked `model_copy()`.
-
-`ProcessContext(elements=...)` can provide an `ElementLibrary` or compatible read-only reader. Exact pins may instead be embedded in `DesignPackage.elements`. Asset reads for actual engine checks require an injected resolver and an explicit request allowlist; bytes are checked against their SHA-256.
-
-## Results and persistence
-
-`inspect()` reports missing/conflicting information or unsupported operations without changing a design. `run()` returns `completed`, `needs_input`, `unsupported` or `failed`. Completed means the operation produced a result; inspect `checks`, their outcomes and coverage before interpreting engineering validity.
-
-Mutation operations produce a `DesignProposal`, containing whole-record upserts and pinned definitions to embed. `build_candidate()` checks the baseline snapshot, write scope, previous record pin, revision increments and immutable element identity, then constructs a new `DesignPackage`. It does not persist it. Incomplete engineering references remain draft diagnostics, as in the engine authoring protocol.
-
-Actual checks run on the candidate snapshot, not the baseline. All previous check results become stale with respect to that new snapshot. A host may explicitly commit the candidate with `DesignStore.commit(..., expected_manifest_revision=...)`; process code never silently writes the store or publishes definitions into a library. Two-phase library publication and host authorization remain host responsibilities.
-
-## CLI and examples
-
-```powershell
-.\python.cmd -m process list
-.\python.cmd -m process schema selection
-```
-
-The CLI reads one bounded JSON object from stdin and returns one JSON result. It dispatches only explicitly registered process kinds, never arbitrary modules or code. Status `completed` exits with 0; other process statuses and invalid input exit with 2. It does not open arbitrary library paths; embed pinned definitions for offline CLI use.
-
-The housing regression in `process/tests/test_processes.py` uses a real JSCAD-produced STL with explicit millimeter units and unknown physical material properties. Geometry execution and STL readback do not certify manufacturing or physical performance.
-
-Run `npm test` for the TypeScript, element, engine and process suites. On this Windows checkout use `.\npm.cmd test`. The optional real mesh regression is skipped when its dependency is unavailable.
+[九阶段回归数据](tests/fixtures/design_pipeline.py) 使用人工编写的简单几何与图像引用演示闭包和产物，不生成图像、不优化实体。工程结论必须来自实际执行并绑定候选快照的检查；几何执行不等于制造成功，代码存储不等于固件编译成功。
