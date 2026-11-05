@@ -30,6 +30,35 @@ header select {
   margin-left: auto;
   max-width: 38vw;
 }
+.workspace-status {
+  color: #c3dedc;
+  font-size: 13px;
+}
+.workspace-status strong, .workspace-status span { display: block; }
+.workspace-status span { margin-top: 6px; }
+.target-picker { margin-left: auto; display: grid; gap: 6px; font-size: 12px; color: #c3dedc; min-width: 300px; }
+.target-picker select { margin-left: 0; width: 100%; }
+.project-location { display: flex; align-items: center; gap: 10px; padding: 14px 30px; background: #f8fafa; border-bottom: 1px solid #cedcde; }
+.project-location label { font-weight: 600; white-space: nowrap; }
+.project-location input { min-width: 80px; flex: 1; }
+.project-location button { white-space: nowrap; }
+.selection-heading { display: flex; justify-content: space-between; gap: 12px; padding: 12px 30px; border-bottom: 1px solid #dce5e5; font-size: 12px; color: #547277; }
+.project-empty, .preview-empty { padding: 50px; color: #647d81; }
+.muted { color: #647d81; font-size: 12px; }
+button:disabled { opacity: .55; cursor: wait; }
+.entity-key {
+  display: block;
+  color: #167c73;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #167c73;
+  outline-offset: 3px;
+}
 nav {
   display: flex;
   gap: 8px;
@@ -64,12 +93,12 @@ h3 {
 .workspace {
   display: grid;
   grid-template-columns: 230px minmax(300px, 1fr) 280px;
-  min-height: calc(100vh - 160px);
+  min-height: calc(100vh - 270px);
 }
 aside {
   padding: 18px;
   overflow: auto;
-  max-height: calc(100vh - 160px);
+  max-height: calc(100vh - 270px);
   background: #f8fafa;
 }
 details {
@@ -239,4 +268,40 @@ a {
 .viewer-error {
   padding: 20px;
   color: #ab3328;
+}
+.source-workspace { display: grid; grid-template-columns: 310px minmax(0, 1fr); min-height: calc(100vh - 270px); }
+.source-tree { padding: 20px; max-height: calc(100vh - 270px); }
+.source-folder { margin-top: 9px; }
+.source-folder summary { font-size: 13px; font-weight: 600; padding: 5px 0; }
+.folder-children { padding-left: 16px; border-left: 1px solid #d6e3e3; margin-left: 3px; }
+.source-file, details .source-file { display: flex; align-items: baseline; gap: 8px; width: 100%; border: 1px solid transparent; background: transparent; font-size: 12px; text-align: left; padding: 8px; margin: 3px 0; }
+.source-file[aria-pressed="true"] { background: #d2eeee; border-color: #85b5af; }
+.file-kind { font-size: 9px; color: #64817f; width: 30px; flex-shrink: 0; }
+.source-preview { min-width: 0; background: #fff; }
+.preview-heading { display: flex; justify-content: space-between; gap: 12px; padding: 18px 24px; border-bottom: 1px solid #e1e9e9; color: #64817f; }
+.json-preview, .text-preview { margin: 0; padding: 28px; line-height: 1.8; max-height: calc(100vh - 330px); overflow: auto; }
+.json-preview { background: #f9fbfb; white-space: pre; }
+.document-preview { max-width: 920px; padding: 30px 44px; line-height: 1.9; overflow-wrap: anywhere; }
+.document-preview h1 { font-size: 26px; margin: 0 0 24px; }
+.document-preview h2 { margin-top: 28px; font-size: 20px; }
+.document-preview code { background: #eff5f4; padding: 2px 5px; border-radius: 3px; }
+.document-preview pre { background: #f4f7f7; line-height: 1.7; overflow: auto; }
+.document-preview pre code { background: transparent; padding: 0; }
+.markdown-list { margin: 7px 0; }
+.image-preview { padding: 28px; display: grid; place-items: center; min-height: 450px; background-color: #f2f5f5; }
+.image-preview img { max-width: 100%; max-height: 65vh; object-fit: contain; }
+.pdf-preview { width: 100%; height: calc(100vh - 330px); min-height: 500px; border: 0; }
+@media (max-width: 1000px) { .target-picker { min-width: 220px; } .source-workspace { grid-template-columns: 250px minmax(0, 1fr); } }
+@media (max-width: 700px) {
+  header { flex-wrap: wrap; }
+  header select { max-width: 100%; width: 100%; margin-left: 0; }
+  .workspace { grid-template-columns: minmax(0, 1fr); }
+  .workspace > aside { max-height: 300px; }
+  .target-picker { width: 100%; min-width: 0; }
+  .project-location { flex-wrap: wrap; padding: 12px 16px; }
+  .project-location input { width: calc(100% - 100px); }
+  .selection-heading { padding: 12px 16px; }
+  .source-workspace { grid-template-columns: minmax(0, 1fr); }
+  .source-tree { max-height: 320px; }
+  .document-preview { padding: 24px; }
 }

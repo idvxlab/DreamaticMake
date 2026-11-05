@@ -16,7 +16,8 @@ def main():
     args = parser.parse_args()
     try:
         if args.command == 'list':
-            output = [{'process_kind': k, 'title': get_process(k).title} for k in PROCESSES]
+            output = [{'process_kind': k, 'title': get_process(k).title,
+                'category': get_process(k).describe().category} for k in PROCESSES]
         elif args.command == 'schema':
             output = get_process(args.kind).describe().model_dump(mode='json')
         else:

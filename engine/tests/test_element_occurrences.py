@@ -1,4 +1,5 @@
 """Integration contract: element owns the unit; engine owns occurrence and relations."""
+from element.io.package import template_path, template_paths, scenario_path
 import json
 from pathlib import Path
 import tempfile
@@ -15,7 +16,7 @@ from engine.design.documents import export_documents, import_documents
 
 
 def definition(name='servo'):
-    model = load_component(Path('examples/element') / (name + '.json'))
+    model = load_component(template_path(name))
     return ElementDefinition(library_id='test', element_id=model.id, revision=model.revision,
         name=model.name, category=model.category, model=model)
 
@@ -33,10 +34,9 @@ def declaration(kind, collection, binding, overrides=None):
 class OccurrenceTests(unittest.TestCase):
     def test_selection_alone_resolves_all_templates_without_legacy_lowering(self):
         with patch('engine.adapters.elements.to_bundle', side_effect=AssertionError('legacy adapter used')):
-            for path in Path('examples/element').glob('*.json'):
-                if path.name.endswith('.scenario.json'): continue
+            for template_name, path in template_paths().items():
                 with self.subTest(path=path):
-                    d = definition(path.stem)
+                    d = definition(template_name)
                     result = instantiate_element(d, design_id='demo')
                     p = parse_package(result['package'])
                     self.assertEqual([r.kind for r in p.records], ['selection'])

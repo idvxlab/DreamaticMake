@@ -63,15 +63,19 @@ def to_markdown(value) -> str:
         doc = Document('设计清单 · ' + model.title, kind)
         doc.section('快照', {'snapshot_id': snapshot_id(model)})
     elif kind == 'layout_project':
-        from engine.layout_project import LayoutProject
-        model = LayoutProject.model_validate_json(json.dumps(data, allow_nan=False))
+        from engine.layout_project import parse_project, LegacyLayoutProject
+        model = parse_project(data)
         # LayoutProject's components are raw dicts: validate each native definition.
+        field = 'components' if isinstance(model, LegacyLayoutProject) else 'elements'
         components = {key: parse_component(component).model_dump(mode='json')
-                      for key, component in model.components.items()}
-        for instance in model.structure.instances.values():
-            if instance.definition not in components:
-                raise ValueError('Unknown component definition: ' + instance.definition)
-        data = {**model.model_dump(mode='json'), 'components': components}
+                      for key, component in getattr(model, field).items()}
+        if isinstance(model, LegacyLayoutProject):
+            for instance in model.structure.instances.values():
+                if instance.definition not in components:
+                    raise ValueError('Unknown component definition: ' + instance.definition)
+        elif set(model.structure.placements) - components.keys():
+            raise ValueError('Placement references an unknown element key')
+        data = {**model.model_dump(mode='json'), field: components}
         doc = Document('设计项目 · layout_project', kind)
     elif kind == 'layout_draft':
         from engine.layout import parse_layout

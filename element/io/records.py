@@ -17,6 +17,8 @@ def element_ref(value):
                       revision=definition.revision, content_hash=record_hash(definition))
 
 def export_schema(kind='element_definition'):
+    from element.schema.retrieval import RetrievalQuery, RetrievalRef, RetrievalResult
     model = {'element_definition': ElementDefinition, 'element_ref': ElementRef, 'catalog_entry': CatalogEntry}.get(kind)
+    model = model or {'retrieval_query': RetrievalQuery, 'retrieval_ref': RetrievalRef, 'retrieval_result': RetrievalResult}.get(kind)
     if model is None: raise ValueError('Unknown element schema')
     return {'$schema': 'https://json-schema.org/draft/2020-12/schema', **model.model_json_schema()}

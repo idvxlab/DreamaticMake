@@ -1,0 +1,21 @@
+{
+  "nets": {
+    "power": {
+      "kind": "power",
+      "members": ["supply/positive", "controller/vcc", "yaw/vcc", "shoulder/vcc", "elbow/vcc"]
+    },
+    "ground": {
+      "kind": "ground",
+      "members": ["supply/ground", "controller/ground", "yaw/ground", "shoulder/ground", "elbow/ground"]
+    },
+    "yaw_pwm": {
+      "members": ["controller/yaw_pwm", "yaw/pwm"]
+    },
+    "shoulder_pwm": {
+      "members": ["controller/shoulder_pwm", "shoulder/pwm"]
+    },
+    "elbow_pwm": {
+      "members": ["controller/elbow_pwm", "elbow/pwm"]
+    }
+  }
+}

@@ -2,6 +2,8 @@
 
 This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
 
+Read-only [element discovery tools](../element/library/README.md) in `engine.element_search` expose category discovery, natural-language/parameter candidate search and exact-pin inspection. A host injects an `ElementRetriever`; JSON CLI requests explicitly configure the source with `--element-pool`. Retrieval does not connect an agent, publish elements or approve selections.
+
 Structured Markdown output for LLM context is available through [`engine.language`](language/README.md): `to_markdown(value)`, `to_document(value)`, or `python -m engine language path/to/project.json`. This covers eight-layer design packages and existing project/layout/bundle records without changing their storage contracts.
 
 The [standalone interface](interface/README.md) also includes **深化设计 — 定制化模型**, backed by the [custom model module](custom_model/README.md): view/import condition packs, enter modeling commands, select materials, preview local JSCAD geometry, and export individual STL parts. This browser module does not execute engineering constraint checks or publish parts into an authoritative design.
@@ -27,10 +29,10 @@ python -m pip install -r requirements.txt
 python -B -m unittest discover -s element/tests -v
 python -B -m unittest discover -s engine/tests -v
 
-python -m engine validate examples/engine/actuator.bundle.json
-python -m engine simulate examples/engine/actuator.bundle.json --scenario examples/engine/actuator.scenario.json
-python -m engine simulate examples/engine/fan.bundle.json --scenario examples/engine/fan.scenario.json
-python -m engine simulate examples/engine/lamp.bundle.json --scenario examples/engine/lamp.scenario.json
+python -m engine validate engine/tests/fixtures/data/actuator.bundle.json
+python -m engine simulate engine/tests/fixtures/data/actuator.bundle.json --scenario engine/tests/fixtures/data/actuator.scenario.json
+python -m engine simulate engine/tests/fixtures/data/fan.bundle.json --scenario engine/tests/fixtures/data/fan.scenario.json
+python -m engine simulate engine/tests/fixtures/data/lamp.bundle.json --scenario engine/tests/fixtures/data/lamp.scenario.json
 ```
 
 The CLI entry point is `python -m engine`; this repository does not currently define an installed console command. All test cases are offline and use `unittest`; no paid models or network calls are involved. Installation may fetch the declared Python dependencies.
@@ -70,14 +72,20 @@ checks report missing geometry and optional mesh support explicitly. Connectivit
 does not solve currents, energy, flow or protocols.
 
 The standalone interface previews the example design layers. Notebook sources in
-`examples/project_1/logic` remain design-case data and are not executed by the bridge.
+`examples/project_1/doc/logical_layout` remain design-case data and are not executed by the bridge.
 Executable contracts, immutable snapshots and verification remain available through
 the Python API and CLI.
+
+Project folders use the [v2 folder contract](project_io.md): `element/index.json`
+resolves project keys to pinned library references or local element packages;
+`design/structure.json`, `motion.json`, and `circuit-logic.json` contain assembly
+information only. `doc/` organizes process-stage documents. Read folders with
+`engine.project_io.load_project` or `python -m engine project examples/project_1`.
 
 ### Executable component API
 
 For category-specific authoring, start with [the component design API](../element/categories/README.md)
-and [the component examples](../examples/element/README.md). `element.categories` provides
+and [the component examples](D:/【项目】设计引擎/DreamaticMaker/element_pool_2/README.md). `element.categories` provides
 strict, immutable types for structure, transmission, actuators, light, displays, sound, human
 input, sensors, controllers, drivers, power, transport and mechanical energy storage. Python
 constructors, mappings, JSON and TOML all lower into the existing execution contracts; structure
@@ -97,10 +105,8 @@ bundle = to_bundle(led)  # Use in the existing application/assembly contract.
 
 ```bash
 python -m engine schema component_design
-python -m engine compile examples/element/indicator.toml
-python -m engine simulate examples/element/servo.json --scenario examples/element/servo.scenario.json
-python -m examples.engine.component_assembly
-python -m examples.engine.import_structure
+python -m engine compile D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_indicator/input.toml
+python -m engine simulate D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_servo/component.json --scenario "D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_servo/scenario.json"
 ```
 
 TOML requires Python 3.11+; the STL example requires the optional mesh stack. Control functions
@@ -127,7 +133,7 @@ are inferred. The application reviewer rejects unsupported coverage. Existing sc
 can execute with the new acceleration/magnetic units. Added protocol names are descriptive only.
 
 See [typed descriptions and circuit parts](../element/categories/README.md#7-紧凑描述接口与基础电路器件)
-and run `python -m examples.engine.described_components` to compile the synthetic templates.
+and run `python -m unittest engine.tests.test_component_descriptions -v` to compile the synthetic templates.
 
 ```python
 from engine.io.load import load
@@ -136,8 +142,8 @@ from engine.simulator.engine import simulate
 from engine.projection.scene import project_scene
 from engine.projection.circuit import project_circuit
 
-bundle = load("examples/engine/actuator.bundle.json")
-scenario = load("examples/engine/actuator.scenario.json")
+bundle = load("engine/tests/fixtures/data/actuator.bundle.json")
+scenario = load("engine/tests/fixtures/data/actuator.scenario.json")
 ir = compile_model(bundle)
 result = simulate(ir, scenario)
 scene = project_scene(ir, result)
@@ -248,10 +254,10 @@ This integration performs **discrete collision detection**, not bouncing, fricti
 
 ```bash
 python -m engine schema model_bundle
-python -m engine compile examples/engine/actuator.bundle.json
-python -m engine scene examples/engine/actuator.bundle.json
-python -m engine circuit examples/engine/actuator.bundle.json
-python -m engine flow examples/engine/fan.bundle.json
+python -m engine compile engine/tests/fixtures/data/actuator.bundle.json
+python -m engine scene engine/tests/fixtures/data/actuator.bundle.json
+python -m engine circuit engine/tests/fixtures/data/actuator.bundle.json
+python -m engine flow engine/tests/fixtures/data/fan.bundle.json
 python -m engine request
 ```
 
@@ -270,12 +276,12 @@ The empty objects above are placeholders for complete validated records. Methods
 
 The request protocol also accepts `inspect_stl` (`data` as base64, explicit `unit`) and `mesh_bundle` (`meshes` as explicit IDs, shapes and world poses). Model requests may carry an `assets` map from SHA-256 to base64 bytes. Such references must use host-owned Artifact IDs; relative paths are refused in this protocol. `validate`/`compile` verify referenced STL bytes as well as the model contracts.
 
-The standalone interface invokes `engine.interface.bridge` in a separate Python process. It accepts enumerated example IDs and read/compute operations, and keeps generated library data under ignored `workspace/`. See [the interface guide](interface/README.md) for local startup and browser verification.
+The standalone interface invokes `engine.interface.bridge` in a separate Python process. It loads an explicitly selected project folder, resolves its custom/library elements, and provides four project/element views plus scoped, read-only file previews. See [the interface guide](interface/README.md) for local startup and browser verification.
 
 To regenerate the committed synthetic fixtures after an intentional contract change:
 
 ```bash
-python -m examples.engine.build_examples
+python -m engine.tests.fixtures.build_examples
 python -B -m unittest discover -s engine/tests -v
 ```
 

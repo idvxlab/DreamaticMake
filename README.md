@@ -6,10 +6,10 @@
 
 - [element/](element/README.md)：可复用元件定义、14 类元件、版本化契约、接口、元件库与检索。元件自身的几何、端口、内部运动和行为由这一层持有。
 - [engine/](engine/README.md)：选择和组合元件，管理设计方案、实例布局、跨元件连接、编译、投影、仿真与检查。方案通过固定版本引用元件。
-- [engine/interface/](engine/interface/README.md)：独立设计界面、3D 与拓扑视图、运动预览、元件库检索。
+- [engine/interface/](engine/interface/README.md)：指定项目文件夹，在项目/元件层级查看结构、运动、电路逻辑及源文件目录与预览。
 - [engine/custom_model/](engine/custom_model/README.md)：条件包、命令建模、JSCAD 几何预览及逐零件 STL 导出。
-- [examples/](examples/README.md)：元件、装配和迷你机械臂案例，以及案例生成脚本。
-- [process/](process/README.md)：七类设计流程的类型化输入输出、信息检查和设计提案；直接复用元件及方案对象。
+- [examples/](examples/README.md)：迷你机械臂项目案例；元件从统一库或项目自定义目录读取，回归数据归各模块 tests/fixtures。
+- [process/](process/README.md)：九个关键设计流程的输入输出、上下文依赖、版本化产物与展示投影；保留七类底层方案操作，直接复用元件及方案对象。
 
 本分支不包含 agent 编排、模型提供商配置、阶段审批、应用服务端或固件流水线。Python 核心与本地界面不需要 API 密钥。
 
@@ -29,8 +29,8 @@ Windows 本地环境集中存放在 `.runtime/`，使用仓库内的启动入口
 ```sh
 .\python.cmd -m element schema element_definition
 .\python.cmd -m engine schema design_package
-.\python.cmd -m engine validate examples/engine/actuator.bundle.json
-.\python.cmd -m engine simulate examples/engine/actuator.bundle.json --scenario examples/engine/actuator.scenario.json
+.\python.cmd -m engine project examples/project_1
+.\python.cmd -m engine language examples/project_1
 ```
 
 ## 验证

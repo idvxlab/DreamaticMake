@@ -21,6 +21,13 @@ def parse_component(data: Mapping | ComponentDesign) -> ComponentDesign:
 def load_component(path: str | Path) -> ComponentDesign:
     from element.io.load import read_record, _record_object
     path = Path(path)
+    if path.is_dir():
+        from element.io.package import read_package, package_file
+        manifest = read_package(path)
+        relative = manifest.get('component_path') or manifest.get('element_path')
+        if relative is None:
+            raise ValueError('Element package has no admitted component model')
+        path = package_file(path, relative)
     if path.suffix.lower() not in (".json", ".toml"):
         raise ValueError("Component files must be JSON or TOML; Python scripts are never loaded")
     text = read_record(path)
@@ -29,4 +36,7 @@ def load_component(path: str | Path) -> ComponentDesign:
         record = tomllib.loads(text)
     else:
         record = _record_object(text)
+    if record.get('record_kind') == 'element_definition':
+        from element.io.records import parse_element
+        return parse_element(record).model
     return parse_component(record)

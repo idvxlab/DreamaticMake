@@ -17,6 +17,9 @@ def loads(text: str, record_type: type[T] | None = None) -> T | BaseModel:
     data = _record_object(text)
     if record_type is None:
         kind = data.get('record_kind')
+        if kind == 'layout_project':
+            from engine.layout_project import parse_project
+            return parse_project(data)
         if kind == 'element_definition':
             from element.io.records import parse_element
             return parse_element(data)
@@ -52,14 +55,19 @@ def loads_model(text: str):
 
 
 def load_model(path: str | Path):
-    if Path(path).suffix.lower() == ".toml":
+    if Path(path).is_dir() or Path(path).suffix.lower() == ".toml":
         from element.io.components import load_component
         return load_component(path)
     return loads_model(read_record(path))
 
 
 def load(path: str | Path, record_type: type[T] | None = None):
-    if record_type is None and Path(path).suffix.lower() == ".toml":
+    path = Path(path)
+    if record_type is None and ((path.is_dir() and (path / 'project.json').is_file()) or path.name == 'project.json'):
+        from engine.project_io import load_project
+        from engine.layout_project import parse_project
+        return parse_project(load_project(path))
+    if record_type is None and (Path(path).is_dir() or Path(path).suffix.lower() == ".toml"):
         from element.io.components import load_component
         return load_component(path)
     return loads(read_record(path), record_type)

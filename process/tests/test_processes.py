@@ -1,3 +1,4 @@
+from element.io.package import template_path, template_paths, scenario_path
 import ast
 import importlib.util
 import json
@@ -169,7 +170,7 @@ class ProcessTests(unittest.TestCase):
         self.assertEqual(LogicDetailProcess().run(build).status, 'unsupported')
 
     def test_cli_schemas_contracts_and_dependency_direction(self):
-        self.assertEqual(len(PROCESSES), 7)
+        self.assertEqual(len(PROCESSES), 16)
         for kind in PROCESSES:
             descriptor = get_process(kind).describe()
             self.assertEqual(descriptor.input_schema['properties']['process_kind']['const'], kind)
@@ -187,7 +188,7 @@ class ProcessTests(unittest.TestCase):
         self.assertEqual(json.loads(malformed.stdout)['type'], 'error')
         listed = subprocess.run([sys.executable, '-B', '-m', 'process', 'list'],
             capture_output=True, timeout=20)
-        self.assertEqual(json.loads(listed.stdout)[0]['title'], '元件选型')
+        self.assertEqual(json.loads(listed.stdout)[0]['title'], '需求与功能文档')
         for folder in ('element', 'engine'):
             for path in Path(folder).rglob('*.py'):
                 tree = ast.parse(path.read_text(encoding='utf-8-sig'))
@@ -217,7 +218,7 @@ class ProcessTests(unittest.TestCase):
         self.assertEqual(SelectionProcess().run(comparison).status, 'needs_input')
 
     def test_inherited_motion_initials_preserve_element_and_block_dangling_aliases(self):
-        servo = load_component('examples/element/servo.json')
+        servo = load_component(template_path('servo'))
         definition = ElementDefinition(library_id='test', element_id=servo.id, name=servo.name,
             category=servo.category, model=servo)
         package = select(empty(), definition, names=('servo',))
@@ -278,11 +279,11 @@ class ProcessTests(unittest.TestCase):
     def test_real_cad_fixture_has_readable_watertight_mesh(self):
         from element.io.mesh import resolve_stl
         from element.io.load import read_asset
-        housing = load_component('examples/element/custom_cad_housing.json')
+        housing = load_component(template_path('custom_cad_housing'))
         self.assertEqual(housing.structural_role, 'housing')
         self.assertEqual(housing.cad_housing.material.name, 'PETG')
         shape = next(iter(housing.geometry.envelopes.values())).shape
-        mesh = resolve_stl(shape, lambda ref: read_asset(ref, Path('examples/element'), 5_000_000))
+        mesh = resolve_stl(shape, lambda ref: read_asset(ref, template_path('custom_cad_housing').parent, 5_000_000))
         self.assertIsNotNone(mesh)
 
 

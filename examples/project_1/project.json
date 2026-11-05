@@ -1,11 +1,14 @@
 {
-  "version": 1,
+  "record_kind": "project_manifest",
+  "project_version": 2,
   "id": "mini-robot-arm",
   "title": "迷你机械臂",
   "summary": "三关节＋双指夹爪，观察空间布局、运动及 5V/PWM 连接。尺寸为概念假设。",
-  "focus": [
-    "结构",
-    "运动",
-    "电路与能源"
-  ]
+  "element_index": "element/index.json",
+  "design": {
+    "structure": "design/structure.json",
+    "motion": "design/motion.json",
+    "circuit_logic": "design/circuit-logic.json"
+  },
+  "documents": "doc/index.json"
 }

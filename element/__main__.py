@@ -8,16 +8,31 @@ from element.library import ElementLibrary
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Reusable element library')
-    parser.add_argument('method', choices=['schema', 'validate', 'publish', 'get', 'search', 'rebuild-index', 'seed', 'language'])
+    parser.add_argument('method', choices=['schema', 'validate', 'publish', 'get', 'search', 'rebuild-index', 'seed', 'language', 'retrieve', 'inspect-candidate', 'categories'])
     parser.add_argument('input', nargs='?')
     parser.add_argument('--root')
     args = parser.parse_args(argv)
+    sys.stdout.reconfigure(encoding='utf-8')
     try:
+        if args.method in ('retrieve', 'inspect-candidate', 'categories'):
+            from element.library.pool import load_element_pool
+            from element.io.package import pool_root
+            retriever = load_element_pool(args.root or pool_root())
+            if args.method == 'categories': result = retriever.describe()
+            else:
+                if args.input:
+                    with open(args.input, 'rb') as stream: raw = stream.read(MAX_BYTES+1)
+                else: raw = sys.stdin.buffer.read(MAX_BYTES+1)
+                if len(raw) > MAX_BYTES: raise ValueError('Input exceeds size limit')
+                data = _record_object(raw.decode('utf-8'))
+                result = retriever.search(data).model_dump(mode='json') if args.method == 'retrieve' else retriever.get(data)
+            print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+            return 0
         if args.method == 'language':
             from pathlib import Path
             from element.language import to_markdown
             from element.io.load import read_record
-            if args.input and Path(args.input).suffix.lower() == '.toml':
+            if args.input and (Path(args.input).is_dir() or Path(args.input).suffix.lower() == '.toml'):
                 from element.io.components import load_component
                 value = load_component(args.input)
             elif args.input:
@@ -47,8 +62,8 @@ def main(argv=None):
                     from element.io.components import load_component
                     from element.schema.library import ElementDefinition
                     definitions = []
-                    for path in sorted(Path(args.input).glob('*.json')):
-                        if path.name.endswith('.scenario.json'): continue
+                    from element.io.package import template_paths
+                    for path in template_paths(args.input).values():
                         model = load_component(path)
                         definitions.append(ElementDefinition(library_id='templates', element_id=model.id,
                             revision=model.revision, name=model.name, category=model.category, origin='template', model=model))
@@ -60,7 +75,7 @@ def main(argv=None):
         if hasattr(result, 'model_dump'): result = result.model_dump(mode='json')
         print(json.dumps(result, ensure_ascii=False, allow_nan=False))
         return 0
-    except (ValueError, OSError) as exc:
+    except (ValueError, OSError, KeyError, TypeError) as exc:
         print(json.dumps({'error': getattr(exc, 'code', 'invalid_input'), 'message': str(exc)}, ensure_ascii=False))
         return 2
 

@@ -1,4 +1,4 @@
-from examples.engine.build_examples import parse, definition_ref
+from engine.tests.fixtures.build_examples import parse, definition_ref
 from engine.schema.component import ComponentDefinition
 from engine.schema.assembly import ModelBundle
 from engine.schema.scenario import Scenario

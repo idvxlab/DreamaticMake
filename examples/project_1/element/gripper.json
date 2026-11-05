@@ -1,0 +1,12 @@
+{
+  "record_kind": "project_library_element",
+  "schema_version": "1",
+  "pool": "default",
+  "folder": "template_gripper",
+  "ref": {
+    "library_id": "templates",
+    "element_id": "demo.gripper",
+    "revision": 1,
+    "content_hash": "b4b9d170220acc8d7be4cbbccaa5e66611728204490efdacce64b81ead052612"
+  }
+}

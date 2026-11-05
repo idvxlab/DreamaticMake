@@ -58,19 +58,27 @@ def dispatch(method, bundle, scenario=None, *, asset_resolver=None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline product design engine tools")
-    parser.add_argument("method", choices=["validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language"])
+    parser.add_argument("method", choices=["validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language", "project"])
     parser.add_argument("input", nargs="?")
     parser.add_argument("--scenario")
     parser.add_argument("--asset-root", help="Explicit confined asset library for relative STL references")
     parser.add_argument("--unit", choices=["m", "cm", "mm"])
+    parser.add_argument('--element-pool', help='Explicit read-only element_pool_2 root for element_* request tools')
     args = parser.parse_args(argv)
     request_id = None
     try:
-        if args.method == "language":
+        if args.method == 'project':
+            if not args.input: raise ValueError('project requires a project folder or project.json')
+            from engine.project_io import load_project
+            from engine.layout import import_layout, dispatch_layout
+            source = load_project(args.input, element_pool=args.element_pool)
+            output = dispatch_layout('layout_motion', {'draft': import_layout(source)})
+        elif args.method == "language":
             from engine.language import to_markdown
             from element.io.load import read_record
             if args.input:
-                value = read_record(args.input)
+                path = Path(args.input)
+                value = load(path) if path.is_dir() or path.name == 'project.json' else read_record(path)
             else:
                 raw = sys.stdin.buffer.read(MAX_BYTES + 1)
                 if len(raw) > MAX_BYTES: raise ValueError('Input exceeds size limit')
@@ -86,12 +94,17 @@ def main(argv=None):
             if len(text) > MAX_BYTES:
                 raise ValueError("Request exceeds size limit")
             request = json.loads(text, object_pairs_hook=_unique, parse_constant=_nonfinite)
-            if not isinstance(request, dict) or set(request) - {"request_id", "method", "bundle", "scenario", "assets", "data", "unit", "meshes", "design", "record_kind", "draft", "source", "joint_inputs", "check_kind", "target"}:
+            if not isinstance(request, dict) or set(request) - {"request_id", "method", "bundle", "scenario", "assets", "data", "unit", "meshes", "design", "record_kind", "draft", "source", "joint_inputs", "check_kind", "target", "arguments"}:
                 raise ValueError("Unexpected request fields")
             request_id = request.get("request_id")
             if not isinstance(request_id, str) or len(request_id) > 128:
                 raise ValueError("request_id must be a short string")
-            if request['method'] == 'language':
+            if request['method'] in ('element_search', 'element_inspect', 'element_categories'):
+                if not args.element_pool: raise ValueError('Element tools require a host-supplied --element-pool')
+                from element.library.pool import load_element_pool
+                from engine.element_search import dispatch_element_search
+                payload = dispatch_element_search(request['method'], request.get('arguments', {}), load_element_pool(args.element_pool))
+            elif request['method'] == 'language':
                 from engine.language import to_document
                 payload = to_document(request['source'])
             elif request["method"].startswith("design_"):

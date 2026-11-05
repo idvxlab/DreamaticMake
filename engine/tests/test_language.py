@@ -60,12 +60,12 @@ class EngineLanguageTests(unittest.TestCase):
 
     def test_legacy_project_bundle_and_draft_keep_native_data(self):
         for filename in ('gripper.project.json', 'actuator.bundle.json'):
-            source = Path('examples/engine', filename).read_text(encoding='utf-8')
+            source = Path('engine/tests/fixtures/data', filename).read_text(encoding='utf-8')
             text = to_markdown(source)
             self.assertTrue(text.startswith('# 设计'))
             self.assertNotIn('```json', text)
         self.assertIn('entities', to_markdown({'record_kind': 'layout_draft', 'entities': {'part': {'name': 'Part'}}}))
-        bad = json.loads(Path('examples/engine/gripper.project.json').read_text(encoding='utf-8'))
+        bad = json.loads(Path('engine/tests/fixtures/data/gripper.project.json').read_text(encoding='utf-8'))
         bad['components']['gripper']['unknown'] = True
         with self.assertRaises(ValueError): to_markdown(bad)
 
@@ -85,7 +85,7 @@ class EngineLanguageTests(unittest.TestCase):
                                 input=package.model_dump_json(), capture_output=True, text=True, encoding='utf-8', env=env)
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
         self.assertEqual(result.stdout, to_markdown(package))
-        result = subprocess.run([sys.executable, '-B', '-m', 'engine', 'language', 'examples/engine/gripper.project.json'],
+        result = subprocess.run([sys.executable, '-B', '-m', 'engine', 'language', 'engine/tests/fixtures/data/gripper.project.json'],
                                 capture_output=True, text=True, encoding='utf-8', env=env)
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
         self.assertTrue(result.stdout.startswith('# 设计项目'))

@@ -1,69 +1,61 @@
-"""Read-only example browser bridge; receives bounded JSON from the local UI server."""
+"""Read-only project workbench bridge; receives bounded JSON from the local UI server."""
 import json
 import sys
-from pathlib import Path
-from element.io.components import load_component
-from element.library import ElementLibrary
-from element.schema.library import ElementDefinition, ElementQuery
 from engine.layout import import_layout, dispatch_layout
-
-ROOT = Path(__file__).resolve().parents[2]
-EXAMPLES = ROOT / 'examples'
-
-
-def catalog():
-    library = ElementLibrary(ROOT / 'workspace/element-library')
-    for path in sorted((EXAMPLES / 'element').glob('*.json')):
-        if path.name.endswith('.scenario.json'): continue
-        model = load_component(path)
-        definition = ElementDefinition(library_id='templates', element_id=model.id,
-            revision=model.revision, name=model.name, category=model.category, origin='template', model=model)
-        from element.io.records import element_ref
-        if element_ref(definition) not in library.versions('templates', model.id):
-            library.publish(definition)
-    return library
-
-
-def designs():
-    result = {'gripper': {'title': '双指机械夹爪', 'level': 'engine', 'path': EXAMPLES / 'engine/gripper.project.json'},
-              'project_1': {'title': '项目 1 · 迷你机械臂与夹爪', 'level': 'project', 'path': EXAMPLES / 'project_1'}}
-    for path in sorted((EXAMPLES / 'engine').glob('*.bundle.json')):
-        result['engine.' + path.stem.split('.')[0]] = {'title': path.stem.split('.')[0], 'level': 'engine', 'path': path}
-    for path in sorted((EXAMPLES / 'element').glob('*.json')):
-        if path.name.endswith('.scenario.json'): continue
-        result['element.' + path.stem] = {'title': json.loads(path.read_text(encoding='utf-8'))['name'], 'level': 'element', 'path': path}
-    return result
-
-
-def read(path):
-    return json.loads(path.read_text(encoding='utf-8'))
+from engine.interface.project_browser import context, project_info, selection_key, source_files, preview
 
 
 def handle(request):
-    if request['method'] == 'list':
-        return [{'id': key, 'title': value['title'], 'level': value['level']} for key, value in designs().items()]
-    if request['method'] == 'search':
-        library = catalog()
-        result = library.search(ElementQuery(text=request.get('text', ''), categories=tuple(request.get('categories', [])), limit=100))
-        for hit in result['items']:
-            hit['definition'] = library.get(hit['ref']).model_dump(mode='json')
-        return result
-    if request['method'] != 'view': raise ValueError('Unknown operation')
-    item = designs()[request['id']]
-    path = item['path']
-    scenario = None
-    if path.is_dir():
-        source = {'record_kind': 'layout_project', 'project_version': 1,
-                  'components': {p.stem: read(p) for p in (path / 'components').glob('*.json')}}
-        for key, filename in [('structure', 'structure'), ('motion', 'motion'), ('circuit_energy', 'circuit-energy'), ('flow', 'flow')]:
-            source[key] = read(path / 'design' / (filename + '.json'))
-    else:
-        source = read(path)
-        scenario_path = path.with_name(path.name.replace('.bundle.json', '.scenario.json') if '.bundle.' in path.name else path.stem + '.scenario.json')
-        if scenario_path.exists(): scenario = read(scenario_path)
-    draft = import_layout(source, scenario)
-    result = dispatch_layout('layout_motion', {'draft': draft, 'joint_inputs': request.get('joint_inputs', {})})
-    return {'source': source, **result}
+    method = request.get('method')
+    if method not in ('open_project', 'view', 'files', 'preview'): raise ValueError('Unknown operation')
+    root, source, manifest = context(request.get('project_path'))
+    info = project_info(root, source, manifest)
+    if method == 'open_project': return info
+    target = selection_key(source, request.get('target'))
+    if method == 'files': return {'files': source_files(root, source, manifest, target)[1]}
+    if method == 'preview': return preview(root, source, manifest, target, request.get('path'))
+    mode = request.get('mode', 'structure')
+    if mode not in ('structure', 'motion', 'circuit'): raise ValueError('Unknown view mode')
+    # Preserve declared project connectivity even when external nodes are hidden in an element view.
+    from engine.layout_project import expand_ref
+    connections = {}
+    for name, net in source['circuit_logic']['nets'].items():
+        members = [expand_ref(member, 'terminals') for member in net['members']]
+        for ref in members:
+            connections.setdefault(ref, []).append({'net_ref': 'nets/' + name, 'kind': net['kind'],
+                'peers': [member for member in members if member != ref]})
+    elements = source['elements']
+    if target is not None: source = focused_element(source, target)
+    draft = import_layout(source)
+    inputs = request.get('joint_inputs', {}) if mode == 'motion' else {}
+    result = dispatch_layout('layout_motion', {'draft': draft, 'joint_inputs': inputs})
+    for ref, port in result['circuit']['ports'].items():
+        port['connections'] = connections.get(ref, [])
+        parts = ref.split('/')
+        if len(parts) == 3 and parts[1] == 'terminals':
+            terminal = elements.get(parts[0], {}).get('wiring', {}).get('terminals', {}).get(parts[2], {})
+            if number := terminal.get('physical_pin_number'):
+                port['physical_pin_number'] = number
+    return {'project': info, 'selection': {'key': target, 'level': 'element' if target is not None else 'project'}, **result}
+
+
+def focused_element(source, key):
+    """A focused project view reuses the project's definition and assembly constraints."""
+    prefix = key + '/'
+    belongs = lambda ref: ref.startswith(prefix)
+    joints = {name: joint for name, joint in source['motion']['joints'].items()
+        if belongs(joint['parent']) and belongs(joint['child'])}
+    from engine.layout_project import expand_ref
+    joint_refs = set(joints) | {expand_ref(ref, 'joints') for ref in source['motion']['configuration'] if belongs(ref)}
+    return {**source, 'elements': {key: source['elements'][key]},
+        'element_sources': {key: source['element_sources'][key]},
+        'structure': {'placements': {}},
+        'motion': {'joints': joints,
+            'configuration': {k: v for k, v in source['motion']['configuration'].items() if belongs(k)},
+            'transmissions': {k: v for k, v in source['motion']['transmissions'].items()
+                if expand_ref(v['driver'], 'joints') in joint_refs and expand_ref(v['follower'], 'joints') in joint_refs}},
+        'circuit_logic': {'nets': {k: v for k, v in source['circuit_logic']['nets'].items()
+            if all(belongs(ref) for ref in v['members'])}}}
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+from element.io.package import template_path, template_paths, scenario_path
 import json
 import os
 from pathlib import Path
@@ -30,7 +31,7 @@ class ElementLanguageTests(unittest.TestCase):
 
     def test_all_category_examples_render_without_lowering(self):
         categories = set()
-        for path in Path('examples/element').glob('*'):
+        for path in template_paths().values():
             if path.suffix not in ('.json', '.toml') or path.name.endswith('.scenario.json'):
                 continue
             model = load_component(path)
@@ -79,7 +80,7 @@ class ElementLanguageTests(unittest.TestCase):
                                 text=True, encoding='utf-8', env=env)
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
         self.assertEqual(result.stdout, to_markdown(fixture()))
-        path = 'examples/element/indicator.toml'
+        path = template_path('indicator').with_name('input.toml')
         result = subprocess.run([sys.executable, '-B', '-m', 'element', 'language', path],
                                 capture_output=True, text=True, encoding='utf-8', env=env)
         self.assertEqual(result.returncode, 0, result.stderr + result.stdout)

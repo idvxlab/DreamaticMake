@@ -1,4 +1,5 @@
 """Category authoring, executable outcomes, format boundaries and old-DSL compatibility."""
+from element.io.package import template_path, template_paths, scenario_path
 from engine.adapters.elements import to_bundle, to_definition
 from engine.adapters.commands import move_to, set_speed
 import importlib.util
@@ -15,7 +16,7 @@ from element.base.signal import SignalType
 from element.categories import Structure, ControlFunction
 from engine.adapters.assembly import assemble_components
 from engine.compiler.lower import compile_model
-from examples.engine.build_components import examples, scenario_for
+from engine.tests.fixtures.build_components import examples, scenario_for
 from element.interfaces.behavior import BehaviorSpec, InputBinding
 from element.interfaces.mechanical import MechanicalSpec, MechanicalPort
 from engine.schema.connections import MechanicalConnection
@@ -29,7 +30,7 @@ from engine.schema.scenario import Scenario, RootPlacement, FixtureChannel, Stim
 from engine.simulator.engine import simulate
 from engine.projection.flow import project_flow
 
-EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "element"
+
 MESH = all(importlib.util.find_spec(name) for name in ("trimesh", "fcl", "rtree"))
 
 
@@ -43,11 +44,11 @@ class ComponentTests(unittest.TestCase):
         for name, design in self.examples.items():
             with self.subTest(name=name):
                 self.assertEqual(parse_component(design.model_dump(mode="json")), design)
-                loaded = load(EXAMPLES / f"{name}.json")
+                loaded = load(template_path(name))
                 self.assertEqual(loaded, design)
                 ir = compile_model(loaded)
                 self.assertEqual(ir.snapshot_id, compile_model(to_bundle(design)).snapshot_id)
-                result = simulate(ir, load(EXAMPLES / f"{name}.scenario.json"))
+                result = simulate(ir, load(scenario_path(name)))
                 self.assertEqual(result.status, "completed", result.diagnostics)
                 self.assertEqual(result.actual_end_s, 0.5)
                 self.assertTrue(any(d.code == "component.design_contract" for d in result.diagnostics))
@@ -181,7 +182,7 @@ class ComponentTests(unittest.TestCase):
             assemble_components(id="bad", name="Bad", components={"a": pointer, "b": pointer.replace(name="Changed")})
 
     def test_formats_and_schema(self):
-        toml = load(EXAMPLES / "indicator.toml")
+        toml = load(template_path('indicator').with_name('input.toml'))
         self.assertEqual(toml.channels["brightness"].value, 0.5)
         self.assertEqual(len(export_schema("component_design")["oneOf"]), 14)
         self.assertEqual(loads(self.examples["servo"].model_dump_json()), self.examples["servo"])
@@ -205,7 +206,7 @@ class ComponentTests(unittest.TestCase):
             self.assertEqual(load_component(path), toml)
 
     def test_cli_component_toml_and_inline_request(self):
-        for args in (["compile", str(EXAMPLES / "indicator.toml")], ["schema", "component_design"]):
+        for args in (["compile", str(template_path('indicator').with_name('input.toml'))], ["schema", "component_design"]):
             run = subprocess.run([sys.executable, "-m", "engine", *args], capture_output=True, text=True, timeout=20)
             self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
             json.loads(run.stdout)

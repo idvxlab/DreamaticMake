@@ -2,7 +2,7 @@ import json
 import subprocess
 import sys
 import unittest
-from examples.engine.build_examples import actuator_example, fan_example
+from engine.tests.fixtures.build_examples import actuator_example, fan_example
 from engine.compiler.lower import compile_model
 from engine.simulator.engine import simulate
 from engine.projection.scene import project_scene

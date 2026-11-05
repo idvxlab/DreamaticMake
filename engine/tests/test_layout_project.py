@@ -44,4 +44,4 @@ class LayoutProjectTests(unittest.TestCase):
         with self.assertRaises(ValueError): import_layout(source)
         source = fixture(); source["flow"] = {"ports": {"a/bodies/body": {"entity": "a", "domain": "information"}}}
         with self.assertRaises(ValueError): import_layout(source)
-        self.assertIn("components", export_schema("layout_project")["properties"])
+        self.assertIn("elements", export_schema("layout_project")["properties"])

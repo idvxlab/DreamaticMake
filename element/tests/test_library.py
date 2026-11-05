@@ -1,3 +1,4 @@
+from element.io.package import template_path, template_paths, scenario_path
 from pathlib import Path
 import subprocess
 import sys
@@ -30,7 +31,7 @@ class LibraryTests(unittest.TestCase):
     def test_all_existing_templates_can_be_library_records(self):
         from element.io.components import load_component
         count = 0
-        for path in Path('examples/element').glob('*.json'):
+        for path in template_paths().values():
             if path.name.endswith('.scenario.json'): continue
             model = load_component(path)
             definition = ElementDefinition(library_id='templates', element_id=model.id, revision=model.revision,

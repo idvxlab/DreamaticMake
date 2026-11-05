@@ -1,9 +1,11 @@
 """Explicit registry, never module names supplied by a request."""
 from process import (SelectionProcess, PlacementProcess, ConnectionProcess, MotionProcess,
     MechanicalDetailProcess, CircuitDetailProcess, LogicDetailProcess)
+from process.workflows import WORKFLOWS
 
-PROCESSES = {cls.kind: cls for cls in (SelectionProcess, PlacementProcess, ConnectionProcess,
+OPERATIONS = {cls.kind: cls for cls in (SelectionProcess, PlacementProcess, ConnectionProcess,
     MotionProcess, MechanicalDetailProcess, CircuitDetailProcess, LogicDetailProcess)}
+PROCESSES = {**WORKFLOWS, **OPERATIONS}
 
 
 def get_process(kind):

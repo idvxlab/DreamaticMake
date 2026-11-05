@@ -6,7 +6,7 @@
 from element.io.components import load_component
 from element.language import to_markdown, to_document
 
-part = load_component("examples/element/servo.json")
+part = load_component("D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_servo/component.json")
 markdown = to_markdown(part)
 # 如需保存，由调用方显式选择路径并使用 UTF-8 写入。
 document = to_document(part)
@@ -17,8 +17,8 @@ assert document["markdown"] == markdown
 输入可以是 `ElementDefinition`、14 类 `ComponentDesign` 中任意一种、对应的字典，或 JSON 对象字符串。入口重新进行现有契约校验，拒绝未知字段、无效类型、重复 JSON 键和非有限数；不会接受文件路径字符串为隐式文件请求。
 
 ```sh
-python -m element language examples/element/servo.json
-python -m element language examples/element/indicator.toml
+python -m element language D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_servo/component.json
+python -m element language D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_indicator/input.toml
 # 不传路径时，从 stdin 读取一个 JSON 对象。
 ```
 

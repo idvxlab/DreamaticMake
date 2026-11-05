@@ -19,17 +19,19 @@ When dependencies are already installed at the repository root, the existing sho
 npm run engine:dev
 ```
 
-Open http://127.0.0.1:4322. The default design is the two-finger gripper. No application server, application project, API credentials or approval routes are needed. Set `MAKE_ENGINE_PYTHON` if your Python environment is elsewhere; otherwise the launcher tries `.runtime/python`, `.venv-engine`, then `python`. Python requires the engine's existing dependencies (including Pydantic). The Windows repository environment uses `.\npm.cmd run engine:dev` from the root; see [runtime setup](../../RUNTIME.md).
+Open http://127.0.0.1:4322. The initial example is project_1; use **选择文件夹** or enter a project folder path and **打开项目** to load any project following the v2 folder contract. Successful paths are remembered locally. Set `MAKE_ENGINE_PYTHON` if your Python environment is elsewhere; otherwise the launcher tries `.runtime/python`, `.venv-engine`, then `python`. The Windows repository environment uses `.\npm.cmd run engine:dev`; see [runtime setup](../../RUNTIME.md).
 
 `npm run build` here (or `npm run engine:build` at the repository root) writes `engine/interface/dist`. `npm run engine:preview` serves that build with the local Python bridge. Opening `index.html` via `file://` is not supported because projections require the local engine.
 
-Views: structure/3D, motion, circuit/energy, material/information, source JSON, and searchable element library. The tree selects entities and bodies, the 3D view supports orbit/zoom/fit/wireframe, and sliders call the real engine's kinematics. Missing geometry is not invented. This is conceptual geometry and kinematics, not manufactured or physically validated output.
+The four views are **结构 / 3D**, **运动视图**, **电路逻辑**, and **设计源文件**. Structure uses the authored initial configuration and has no pose sliders. Motion has the existing joint controls. Circuit displays actual electrical interfaces and connections. The top-right selector chooses the whole project or any project element key, including local custom parts and pinned library parts. The same four views apply at both levels; an element retains its project-defined internal joints, with external assembly nodes hidden.
 
-The **深化设计 — 定制化模型** view adds condition-pack browsing/import/editing, command-driven JSCAD modeling, material selection, local project persistence and per-part STL export. It does not run engineering constraint checks. See [custom model authoring](../custom_model/README.md) for commands and boundaries.
+Circuit ports are drawn on both sides of each component box, including terminals without declared nets. Labels include physical pin numbers when supplied by the element definition. Inputs/power/ground and outputs are grouped visually; bidirectional/passive terminals are balanced between sides. This arrangement is schematic and does not assert physical pin placement. Clicking or keyboard-selecting a port shows its role, pin number and declared project nets/peers. Element scope retains project connection metadata even though the other component boxes are hidden. Nodes grow with the number of ports and support scrolling and dragging.
 
-Data comes from `examples/element`, `examples/engine` and `examples/project_1`. The default gripper engine example retains the project's finger joints. The raw gripper element contains geometry; its motion constraints are owned by the engine/project design layer.
+Source browsing has a folder tree and preview pane. Project scope lists root metadata plus `design/` and `doc/`, excluding `element/`. Element scope reads only the selected element package, resolved from the project or the configured library with its exact pin. JSON, UTF-8 Markdown/text, PDF and common image formats are supported. Markdown is rendered as escaped React text, images are displayed as images, and Python/HTML files are never executed. Text previews are limited to 2 MiB, images/PDF to 8 MiB. The workbench has no standalone library or custom-modeling tab.
 
-The Python bridge accepts only enumerated example IDs and read/compute operations. It does not execute the project's Python notebook. The server binds to localhost. Search creates a replaceable SQLite index and immutable definitions under ignored `workspace/element-library`.
+Project folders use `project.json`, `element/index.json`, per-element packages, three design JSON layers and `doc/index.json`; see [the project contract](../project_io.md). No test fixture or copied element-property file is used to populate the selector. Folder loading and previews do not modify the project or library.
+
+The local bridge exposes `open_project`, `view`, `files` and `preview`; requests carry an explicit `project_path` and optional element `target`. Preview paths must be in the current scope's allowlist and remain inside its root, including after symlink resolution. Hidden files and executable source are excluded. The Windows-only `pick_project` route opens a native folder dialog; other systems can use the path field. The server binds to localhost and rejects mismatched browser origins. It does not execute notebooks or source documents.
 
 Run browser verification with `MAKE_TEST_BROWSER` pointing to a Chromium browser and `npm run test:ui:standalone-engine`.
 
@@ -41,7 +43,7 @@ Keep these domain modules and example data beside each other; the application fo
 standalone/
   engine/                 # Python engine, including interface/
   element/                # Explicit engine dependency: element contracts/library
-  examples/               # Example data for the browser
+  examples/project_1/     # Optional initial example; another folder can be selected
   workspace/              # Created at runtime; do not distribute runtime contents
 ```
 
@@ -49,10 +51,11 @@ Install frontend dependencies inside `engine/interface` using its own `package.j
 
 Files owned here:
 
-- `main.tsx`, `style.css`: standalone shell and its styles.
+- `main.tsx`, `Workbench.tsx`, `api.ts`, `style.css`: workbench shell, project selection and wire types.
+- `components/SourceExplorer.tsx`, `project_browser.py`: folder trees, scoped preview and safe file reads.
 - `components/EngineScene.tsx`: 3D renderer with an optional injected asset loader.
 - `components/TopologyGraph.tsx`, `components/TopologyGraph.css`: topology renderer and all its styles.
 - `contracts.ts`: engine projection wire types consumed by the interface.
 - `package.json`, `tsconfig.json`, `vite.config.ts`: independent frontend package, checks, build and local bridge.
 
-Current standalone examples use analytic geometry; external STL loading requires an explicit asset loader. Custom models use local JSCAD meshes.
+Current project examples use analytic geometry; external STL loading still requires an explicit asset loader. The reusable custom-model components remain separate from the workbench tabs.

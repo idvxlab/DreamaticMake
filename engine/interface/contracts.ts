@@ -145,7 +145,10 @@ export type GraphProjection = {
     id: string;
     endpoints: { node: string; port: string }[];
   })[];
-  ports: LayoutDraft["ports"];
+  ports: Record<string, LayoutDraft["ports"][string] & {
+    physical_pin_number?: string;
+    connections?: { net_ref: string; kind: string; peers: string[] }[];
+  }>;
 };
 export type LayoutReport = {
   kind: string;

@@ -21,7 +21,7 @@ document = to_document(project)
 | `design_package` | 项目版本/快照、固定版本清单、八层原始记录、嵌入零件和引用诊断 |
 | `design_record` | 单条完整记录及原有版本引用 |
 | `design_manifest` | 项目清单及原有快照 ID |
-| `layout_project` | 当前示例项目的零件原生定义、结构、运动、电路/能量、流；校验嵌入零件与实例 definition |
+| `layout_project` | v2 元件、结构位姿、运动、电路逻辑；保留 v1 项目读取兼容 |
 | `layout_draft` | 可编辑布局的全部原生字段 |
 | `model_bundle` | 旧执行快照的全部原生字段；不编译或仿真 |
 
@@ -30,8 +30,8 @@ document = to_document(project)
 零件固有信息来自嵌入的完整定义，出现位置、选型、连接保留在设计记录中。导出不会把派生 occurrence 复制成新的权威记录，不会从执行布局反推零件。未嵌入的库定义不从磁盘自动读取；完整项目的相关诊断会显示不可用引用。
 
 ```sh
-python -m engine language examples/engine/gripper.project.json
-python -m engine language examples/engine/actuator.bundle.json
+python -m engine language engine/tests/fixtures/data/gripper.project.json
+python -m engine language engine/tests/fixtures/data/actuator.bundle.json
 # 也可不传路径，从 stdin 接收 JSON。
 ```
 

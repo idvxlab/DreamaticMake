@@ -8,7 +8,10 @@ from engine.design.contracts import DesignPackage, Record, RecordRef, ObjectRef,
 from engine.design.io import parse_package, snapshot_id
 
 ProcessKind = Literal['selection', 'placement', 'connection', 'motion',
-                      'mechanical_detail', 'circuit_detail', 'logic_detail']
+                      'mechanical_detail', 'circuit_detail', 'logic_detail',
+                      'requirements', 'appearance', 'hardware_selection', 'spatial_layout',
+                      'logical_layout', 'enclosure_detail', 'motion_detail', 'assembly_detail',
+                      'print_optimization']
 I = TypeVar('I', bound=Contract)
 O = TypeVar('O', bound=Contract)
 
@@ -115,3 +118,8 @@ class ProcessDescriptor(Contract):
     actions: tuple[str, ...]
     input_schema: dict[str, JsonValue]
     output_schema: dict[str, JsonValue]
+    category: Literal['operation', 'workflow'] = 'operation'
+    required_upstream: tuple[str, ...] = ()
+    optional_upstream: tuple[str, ...] = ()
+    context_keys: tuple[str, ...] = ()
+    limitations: tuple[str, ...] = ()

@@ -1,6 +1,12 @@
 # Reusable element library
 
+元件输入和存储已统一为 D 盘 `element_pool_2` 的逐元件目录，见[目录输入规范](library/packages.md)。
+
 `element/` owns reusable component descriptions. It has no dependency on `engine`, application Context, Pi, or model providers. `engine/` owns assembly, design records, projections, compilation and simulation.
+
+## Natural-language candidate retrieval
+
+The [retrieval guide](library/README.md) documents read-only discovery over `element_pool_2` and existing native libraries, including incomplete records, native model parameters, evidence-backed comparisons and engine tool schemas. `ElementSearchTool` exposes `element_categories`, `element_search` and `element_inspect` for host registration with an LLM. Natural-language parsing uses bounded bilingual rules with explicit warnings and structured refinement; no model provider is called. Incomplete records remain discoverable without becoming selectable native elements.
 
 ## Custom CAD housings
 
@@ -19,7 +25,7 @@ housing = CADHousing.from_shape(
 
 Geometry uses the existing bodies, envelopes, local transforms, visual assets and explicit mesh units. `CADHousing.from_stl(...)` verifies an explicit STL asset using the existing optional mesh backend. Material supports density (`kg/m3`), elastic modulus/yield strength (`Pa` or compatible units), and dimensionless isotropic Poisson ratio as existing `Parameter` values with known/assumed/unknown status and model-local evidence references. Missing properties stay unknown; selecting a material name supplies no physical constants or strength proof. Material and CAD metadata participate in the immutable element hash.
 
-Source CAD/command assets and exchange assets use hashed `AssetRef` values. There is no new B-rep parser or manufacturing solver. The [custom housing example](../examples/element/custom_cad_housing.json) includes a real JSCAD STL and authoring source. Integration into a scheme is provided by [process/](../process/README.md).
+Source CAD/command assets and exchange assets use hashed `AssetRef` values. There is no new B-rep parser or manufacturing solver. The [custom housing example](D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_custom_cad_housing/component.json) includes a real JSCAD STL and authoring source. Integration into a scheme is provided by [process/](../process/README.md).
 
 Structured Markdown output for LLM context is available through [`element.language`](language/README.md): `to_markdown(value)`, `to_document(value)`, or `python -m element language path/to/element.json`. Existing JSON storage and CLI methods retain their contracts.
 
@@ -76,10 +82,10 @@ python -m element publish path/to/element.json --root workspace/element-library
 python -m element search path/to/query.json --root workspace/element-library
 python -m element get path/to/reference.json --root workspace/element-library
 python -m element rebuild-index --root workspace/element-library
-python -m element seed examples/element --root workspace/element-library
+python -m element seed D:/【项目】设计引擎/DreamaticMaker/element_pool_2 --root workspace/element-library
 ```
 
-`seed` explicitly imports the existing synthetic fixtures as `origin=template` records. Authoring examples live in `examples/element`; engine bundles and generators live in `examples/engine`. `import_catalog_part(part, model)` in `element.io.catalog` imports procurement metadata only with an explicit typed model; it preserves unknown dimensions and does not promote descriptions to measured geometry.
+`seed` explicitly imports the existing synthetic fixtures as `origin=template` records. Authoring examples live in `D:/【项目】设计引擎/DreamaticMaker/element_pool_2`; engine regression bundles and builders live in `engine/tests/fixtures`. `import_catalog_part(part, model)` in `element.io.catalog` imports procurement metadata only with an explicit typed model; it preserves unknown dimensions and does not promote descriptions to measured geometry.
 
 ## Engine execution boundary
 
@@ -138,7 +144,7 @@ Purchase URLs must use HTTP(S), prices must be finite and nonnegative, and curre
 Library identity is `(library_id, element_id, revision, content_hash)`. JSON definitions are the source of truth; SQLite stores the composite identity, category/status index, normalized search text and token table. Search supports category, capability, protocol, numeric ranges, version policy and cursor pagination. Text uses NFKC/case normalization, Chinese bigrams, and substring matching across ID, name, aliases, category, tags, roles, description, manufacturer, model and SKU. Substring matching scans the filtered candidates; the token table remains available for future large-library optimization. Index rebuilds preserve source definitions and invalidate old cursors explicitly.
 
 ```sh
-python -m element seed examples/element --root workspace/element-library
+python -m element seed D:/【项目】设计引擎/DreamaticMaker/element_pool_2 --root workspace/element-library
 python -m element search query.json --root workspace/element-library
 python -m element rebuild-index --root workspace/element-library
 ```

@@ -8,11 +8,9 @@
   npm/           npm 11.6.2
   node_modules/  package-lock.json 对应的前端及测试依赖
   python/        Python 虚拟环境，包含现有可选 mesh 依赖
-  tools/         可选 CAD 素材、报告处理工具及 Corepack
-  cache/         npm、pip、Vite 等缓存，及迁移前的缓存
+  tools/pool2-tools/  元件 STEP 生成脚本使用的可选 OpenCascade 工具
+  cache/         按需再生成的 npm、pip、Vite 缓存
   tmp/           Python 测试临时目录
-  downloads/     环境安装包
-  legacy/        迁入的旧 npm 工具副本
 ```
 
 源码、案例、元件素材、项目数据和调研文档仍放在各自目录。`workspace/` 不是环境目录，不能整体替换或删除。
@@ -36,7 +34,9 @@
 
 根目录 `node_modules/` 是指向 `.runtime/node_modules/` 的 Windows Junction，供 Node、TypeScript、Vite 和编辑器正常查找依赖。
 
-迁移后的 `.venv-engine/` 也是 Junction，指向 `.runtime/python/`。旧环境的 pip 等入口和激活脚本可能记录原绝对路径，因此保留这个入口。旧 npm、CAD 工具路径同样保留目录链接，供此前的本地素材脚本使用。它们不占用另一份环境空间。
+迁移后的 `.venv-engine/` 也是 Junction，指向 `.runtime/python/`。现有 pip.exe 和激活脚本仍记录这个路径，因此保留兼容入口；它不占用另一份环境空间。`node_modules/` 链接是 Node、TypeScript 和 Vite 查找真实依赖所需的入口。
+
+旧 npm 副本、安装包、Corepack、历史报告依赖和旧缓存已移出工作区。安装脚本需要时会重新创建 `downloads/`，缓存和测试临时目录也会按需生成。`engine/interface/dist/` 为构建产物，`npm run build` 可以重建；`npm run preview` 使用它。
 
 Vite 已显式允许访问真实依赖目录。`MAKE_ENGINE_PYTHON` 仍可覆盖默认 Python 路径。
 

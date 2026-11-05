@@ -1,0 +1,106 @@
+{
+  "record_kind": "project_documents",
+  "schema_version": "1",
+  "stages": {
+    "requirements": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/requirements/README.md",
+          "media_type": "text/markdown",
+          "title": "需求与功能"
+        }
+      ]
+    },
+    "appearance": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/appearance/README.md",
+          "media_type": "text/markdown",
+          "title": "外观设计"
+        }
+      ]
+    },
+    "hardware_selection": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/hardware_selection/README.md",
+          "media_type": "text/markdown",
+          "title": "硬件选型"
+        }
+      ]
+    },
+    "spatial_layout": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/spatial_layout/README.md",
+          "media_type": "text/markdown",
+          "title": "空间布局"
+        }
+      ]
+    },
+    "logical_layout": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/logical_layout/README.md",
+          "media_type": "text/markdown",
+          "title": "电路逻辑布局"
+        },
+        {
+          "path": "doc/logical_layout/control.py",
+          "media_type": "text/x-python",
+          "title": "控制参考 · control.py"
+        },
+        {
+          "path": "doc/logical_layout/notebook.json",
+          "media_type": "application/json",
+          "title": "控制参考 · notebook.json"
+        }
+      ]
+    },
+    "enclosure_detail": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/enclosure_detail/README.md",
+          "media_type": "text/markdown",
+          "title": "外壳组件深化"
+        }
+      ]
+    },
+    "motion_detail": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/motion_detail/README.md",
+          "media_type": "text/markdown",
+          "title": "运动深化"
+        }
+      ]
+    },
+    "assembly_detail": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/assembly_detail/README.md",
+          "media_type": "text/markdown",
+          "title": "装配与连接深化"
+        }
+      ]
+    },
+    "print_optimization": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/print_optimization/README.md",
+          "media_type": "text/markdown",
+          "title": "打印件优化"
+        }
+      ]
+    }
+  }
+}

@@ -1,3 +1,4 @@
+from element.io.package import template_path, template_paths, scenario_path
 import json
 import unittest
 from pathlib import Path
@@ -71,8 +72,8 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("b/bodies/body", result["missing_bodies"])
 
     def test_snapshot_and_pose_identity_change_separately(self):
-        source = json.loads(Path("examples/engine/actuator.bundle.json").read_text())
-        scenario = json.loads(Path("examples/engine/actuator.scenario.json").read_text())
+        source = json.loads(Path("engine/tests/fixtures/data/actuator.bundle.json").read_text())
+        scenario = json.loads(Path("engine/tests/fixtures/data/actuator.scenario.json").read_text())
         d = import_layout(source, scenario)
         a = dispatch_layout("layout_motion", {"draft": d, "joint_inputs": {"servo/joints/axis": 0}})
         b = dispatch_layout("layout_motion", {"draft": d, "joint_inputs": {"servo/joints/axis": .5}})
@@ -82,16 +83,16 @@ class LayoutTests(unittest.TestCase):
     def test_legacy_examples_import_without_full_simulation(self):
         for name in ("actuator", "fan", "lamp"):
             with self.subTest(name=name):
-                d = parse_layout(import_layout(json.loads(Path(f"examples/engine/{name}.bundle.json").read_text()), json.loads(Path(f"examples/engine/{name}.scenario.json").read_text())))
+                d = parse_layout(import_layout(json.loads(Path(f"engine/tests/fixtures/data/{name}.bundle.json").read_text()), json.loads(Path(f"engine/tests/fixtures/data/{name}.scenario.json").read_text())))
                 self.assertTrue(project_layout(d)["snapshot_id"])
                 self.assertTrue(d.ports)
 
     def test_single_component_import_and_default_root_pose(self):
-        source = json.loads(Path("examples/element/servo.json").read_text())
+        source = json.loads(Path(template_path('servo')).read_text())
         d = parse_layout(import_layout(source))
         self.assertTrue(d.entities)
         self.assertTrue(d.bodies)
-        source = json.loads(Path("examples/engine/actuator.bundle.json").read_text())
+        source = json.loads(Path("engine/tests/fixtures/data/actuator.bundle.json").read_text())
         scenario = {"roots": [{"body_ref": {"instance_path": ["servo"], "object_id": "case"}}]}
         self.assertTrue(import_layout(source, scenario)["bodies"])
 

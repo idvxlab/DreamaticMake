@@ -1,0 +1,7 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "上臂连杆",
+  "category": "structure",
+  "component_path": "component.json"
+}

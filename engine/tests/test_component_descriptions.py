@@ -1,4 +1,5 @@
 """Typed descriptions, provenance compatibility and honest circuit/stream coverage."""
+from element.io.package import template_path, template_paths, scenario_path
 from engine.adapters.elements import to_definition
 import json
 from pathlib import Path
@@ -14,8 +15,8 @@ from element.categories import Sensor, Driver
 from engine.adapters.assembly import assemble_components
 from element.categories.specs import InertialDescription, PowerDescription, DisplayDescription
 from element.categories.circuit import ResistorSpec
-from examples.engine.build_components import examples as legacy_examples, scenario_for
-from examples.engine.described_components import examples
+from engine.tests.fixtures.build_components import examples as legacy_examples, scenario_for
+from engine.tests.fixtures.described_components import examples
 from element.interfaces.behavior import BehaviorSpec, InputBinding
 from element.interfaces.electrical import ElectricalSpec, Terminal
 from element.io.components import parse_component, load_component
@@ -37,11 +38,11 @@ class DescriptionTests(unittest.TestCase):
         cls.examples = examples()
 
     def test_legacy_records_keep_their_pinned_scenarios(self):
-        directory = Path(__file__).resolve().parents[2] / "examples" / "element"
+
         for name, design in legacy_examples().items():
             with self.subTest(name=name):
                 self.assertNotIn("spec", design.model_dump(mode="json"))
-                scenario = loads((directory / f"{name}.scenario.json").read_text(encoding="utf-8"))
+                scenario = loads((scenario_path(name)).read_text(encoding="utf-8"))
                 self.assertEqual(compile_model(design).snapshot_id, scenario.snapshot_id)
         self.assertNotIn("wiring", legacy_examples()["usb_supply"].model_dump(mode="json"))
 
@@ -53,7 +54,7 @@ class DescriptionTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertEqual(parse_component(design.model_dump(mode="json")), design)
                 self.assertEqual(loads_model(design.model_dump_json()), design)
-                path = Path(__file__).resolve().parents[2] / "examples" / "element" / f"described_{name}.json"
+                path = template_path(f"described_{name}")
                 self.assertEqual(load_component(path), design)
                 compile_model(design)
         data = self.examples["screen"].model_dump(mode="json")
