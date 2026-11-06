@@ -12,6 +12,10 @@
 
 目录文件目标是 motion.joints/transmissions/configuration；drives 不可直接写入该目录协议。超范围配置由原生契约和 engine 校验；本操作无逆解或动力学后端。
 
+## 执行 prompt
+
+应用公共规则，先解析父子刚体与本征关节，再设置本次授权的方案关节、传动或初值。明确 m/rad、轴向和有限范围，检查配置短引用的展开结果；小按键也需要核对按压、限位和复位边界。实际检查初值、极限及必要中间姿态、根体随动；文件任务与 motion_detail 共用 motion.json 和阶段说明，不复制本征数据或另建运动说明。
+
 ## 调用与验收
 
 从 `process.motion` 或原有 `process` 顶层导入 Input/Output/Request/Result/Process。`python -m process schema motion` 是实际字段的依据；先 inspect，再 run。需要修改记录的请求通过 for_design 指定 write_record_ids。

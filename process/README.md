@@ -41,6 +41,8 @@ process/
 
 各目录文档分别给出：任务与信息源、Agent 上下文顺序、输出字段、案例文件目标、校验与能力边界。公共的来源/版本管理和接入设计见 [CONTEXT.md](CONTEXT.md)。
 
+各流程 README 同时是执行 prompt：先应用 [共用执行规则](CONTEXT.md#各阶段共用的执行-prompt)，再执行该阶段的具体要求。文件任务的文档最小集与本次案例审计见 [examples 文档规则](DOCUMENTATION.md)；九流程代表能力与依赖，不要求每个项目预建九份空白说明。现有 Python 接口和产物字段保持各自契约。
+
 | 流程文档 | 必需上游 | 主要结果 | 目录 v2 的文件目标（由宿主映射） |
 | --- | --- | --- | --- |
 | [需求与功能](requirements/README.md) | 原始 source_documents | requirements/functions 文档 | doc/requirements/ |

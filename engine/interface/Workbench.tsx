@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api, type ProjectInfo, type View } from "./api";
 import { EngineScene } from "./components/EngineScene";
 import { TopologyGraph } from "./components/TopologyGraph";
 import { SourceExplorer } from "./components/SourceExplorer";
+import { createProjectMeshLoader } from "./meshAssets";
 
 type Layer = "structure" | "motion" | "circuit" | "source";
 const layers: [Layer, string][] = [["structure", "结构 / 3D"], ["motion", "运动视图"], ["circuit", "电路逻辑"], ["source", "设计源文件"]];
@@ -21,6 +22,9 @@ export function Workbench() {
   const [projectError, setProjectError] = useState("");
   const [viewError, setViewError] = useState("");
   const [revision, setRevision] = useState(0);
+  const meshProject = view?.project.path;
+  const meshTarget = view?.selection.key;
+  const loadMesh = useMemo(() => createProjectMeshLoader(meshProject, meshTarget), [meshProject, meshTarget]);
 
   const accept = (info: ProjectInfo) => {
     setProject(info); setPath(info.path); setTarget(null); setInputs({}); setSelected(""); setView(null); setRevision((r) => r + 1);
@@ -101,7 +105,7 @@ export function Workbench() {
         <section className="viewport" aria-label="设计预览" aria-busy={busy}>
           {busy && <div className="loading" role="status">正在计算设计投影…</div>}
           {viewError && <p role="alert">{viewError}</p>}
-          {view && (layer === "structure" || layer === "motion") && <EngineScene scene={view.scene} selected={selected} onSelect={setSelected} highlighted={view.bindings[selected] || []} />}
+          {view && (layer === "structure" || layer === "motion") && <EngineScene scene={view.scene} selected={selected} onSelect={setSelected} highlighted={view.bindings[selected] || []} loadMesh={loadMesh} />}
           {view && layer === "circuit" && <TopologyGraph graph={view.circuit} selected={selected} onSelect={setSelected} onHover={() => {}} />}
         </section>
         <aside className="inspector"><h2>{layer === "motion" ? "关节控制" : layer === "circuit" ? "电路详情" : "结构详情"}</h2>

@@ -12,6 +12,10 @@
 
 文件目标是定制元件包、元件索引和结构位姿，但转换/写盘需宿主实现。几何存在不表示完成配合、结构强度或制造验证；CAD 执行需独立证据。
 
+## 执行 prompt
+
+应用公共规则，先确定本次是准备 CAD 条件还是集成已有 CADHousing。对文件任务，用可用工具完成已授权的建模/导出并核对真实输出，不因该 API 没有生成器就把整件工作停在文字建议。每件定制结构成为项目原生元件包，包含材料、局部坐标、接口、STEP 和配套预览 STL；更新索引/位姿后实际加载和查看。执行证据与共用复现入口归机械阶段，不为每件生成模板 README。
+
 ## 调用与验收
 
 从 `process.mechanical_detail` 或原有 `process` 顶层导入 Input/Output/Request/Result/Process。`python -m process schema mechanical_detail` 是实际字段的依据；先 inspect，再 run。需要修改记录的请求通过 for_design 指定 write_record_ids。

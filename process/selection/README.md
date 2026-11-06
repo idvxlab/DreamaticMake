@@ -12,6 +12,10 @@
 
 文件目标由宿主映射到元件索引及固定库引用；本操作不会发布库或写项目文件。
 
+## 执行 prompt
+
+应用公共规则，读取当前需求、指定元件池和精确版本，完成本次 search/compare/choose/replace。按有依据的满足、不满足、未知比较，不把“命中关键词”当作适配结论。选中后保留实例数量与共享定义；替换时列明端子、几何、布局、运动及 BOM 的影响并协调引用。文件任务结果并入选型阶段和原生索引，不另写一份搜索过程报告。
+
 ## 调用与验收
 
 从 `process.selection` 或原有 `process` 顶层导入 Input/Output/Request/Result/Process。`python -m process schema selection` 是实际字段的依据；先 inspect，再 run。需要修改记录的请求通过 for_design 指定 write_record_ids。

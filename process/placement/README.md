@@ -12,6 +12,10 @@
 
 项目目录 v2 的目标是 structure.placements，但本操作使用八层 selection 记录，不会自动写该文件。碰撞必须在候选设计上另行检查。
 
+## 执行 prompt
+
+应用公共规则，先解析实例、局部坐标和参考体，将显式相对位姿转换为世界位姿；保留已锁定对象，不猜测缺失安装尺寸。文件任务只更新原生 structure.placements；实际加载检查方向、单位与受影响的装配，必要时重查干涉。说明并入空间布局阶段，不再生成 Markdown 坐标清单或平行布局文件。
+
 ## 调用与验收
 
 从 `process.placement` 或原有 `process` 顶层导入 Input/Output/Request/Result/Process。`python -m process schema placement` 是实际字段的依据；先 inspect，再 run。需要修改记录的请求通过 for_design 指定 write_record_ids。

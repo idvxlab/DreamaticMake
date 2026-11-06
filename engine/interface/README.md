@@ -31,7 +31,7 @@ Source browsing has a folder tree and preview pane. Project scope lists root met
 
 Project folders use `project.json`, `element/index.json`, per-element packages, three design JSON layers and `doc/index.json`; see [the project contract](../project_io.md). No test fixture or copied element-property file is used to populate the selector. Folder loading and previews do not modify the project or library.
 
-The local bridge exposes `open_project`, `view`, `files` and `preview`; requests carry an explicit `project_path` and optional element `target`. Preview paths must be in the current scope's allowlist and remain inside its root, including after symlink resolution. Hidden files and executable source are excluded. The Windows-only `pick_project` route opens a native folder dialog; other systems can use the path field. The server binds to localhost and rejects mismatched browser origins. It does not execute notebooks or source documents.
+The local bridge exposes `open_project`, `view`, `files`, `preview` and `mesh`; requests carry an explicit `project_path` and optional element `target`. Preview paths must be in the current scope's allowlist and remain inside its root, including after symlink resolution. Mesh requests additionally identify the owning element and must match a declared STL envelope asset reference. Reads are confined to that element's custom or pinned library package, limited to 5 MB and SHA-256 checked. Hidden files and executable source are excluded. The Windows-only `pick_project` route opens a native folder dialog; other systems can use the path field. The server binds to localhost and rejects mismatched browser origins. It does not execute notebooks or source documents.
 
 Run browser verification with `MAKE_TEST_BROWSER` pointing to a Chromium browser and `npm run test:ui:standalone-engine`.
 
@@ -58,4 +58,4 @@ Files owned here:
 - `contracts.ts`: engine projection wire types consumed by the interface.
 - `package.json`, `tsconfig.json`, `vite.config.ts`: independent frontend package, checks, build and local bridge.
 
-Current project examples use analytic geometry; external STL loading still requires an explicit asset loader. The reusable custom-model components remain separate from the workbench tabs.
+The workbench injects `meshAssets.ts` into the 3D renderer for both project and element scope. It loads the declared STL, checks its hash again in the browser, and respects the envelope's length unit and body pose. Repeated instances share cached bytes; different meshes with the same relative filename are distinguished by hash. STEP remains the editable CAD exchange deliverable; the browser displays its authored STL counterpart rather than parsing STEP. The reusable custom-model components remain separate from the workbench tabs.

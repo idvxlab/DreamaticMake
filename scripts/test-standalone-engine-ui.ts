@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { cp, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 import { join, resolve } from "node:path";
+import { createHash } from "node:crypto";
 
 const interfaceRoot = process.env.MAKE_ENGINE_UI_ROOT || resolve("engine/interface");
 const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js",
@@ -32,6 +33,24 @@ try {
     physical_pin_number: `T${pin}`, label: `IO${pin}`, electrical_role: "bidirectional", body_ref: "body",
   };
   await writeFile(boardPath, JSON.stringify(board), "utf8");
+  // Different packages intentionally use the same relative mesh filename.
+  for (const [owner, size] of [["base", 20], ["controller", 10]] as const) {
+    const packageRoot = join(folder, "element", owner);
+    const path = join(packageRoot, "component.json");
+    const component = JSON.parse(await readFile(path, "utf8"));
+    const vertices = [[0, 0, 0], [size, 0, 0], [0, size, 0], [0, 0, size]];
+    const facets = [[0, 2, 1], [0, 1, 3], [0, 3, 2], [1, 2, 3]].map((face) =>
+      `facet normal 0 0 0\nouter loop\n${face.map((i) => `vertex ${vertices[i].join(" ")}`).join("\n")}\nendloop\nendfacet`).join("\n");
+    const data = Buffer.from(`solid ${owner}\n${facets}\nendsolid ${owner}\n`);
+    await mkdir(join(packageRoot, "assets"), { recursive: true });
+    await writeFile(join(packageRoot, "assets/part.stl"), data);
+    Object.values(component.geometry.envelopes).forEach((envelope: any) => {
+      envelope.shape = { kind: "triangle_mesh", unit: "mm", asset_ref: {
+        relative_path: "assets/part.stl", sha256: createHash("sha256").update(data).digest("hex"), media_type: "model/stl",
+      } };
+    });
+    await writeFile(path, JSON.stringify(component), "utf8");
+  }
   const imageName = "doc/appearance/preview.png";
   await writeFile(join(folder, imageName), Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64"));
   browser = await chromium.launch({ executablePath: process.env.MAKE_TEST_BROWSER,
@@ -124,9 +143,14 @@ try {
   await page.getByRole("region", { name: "接口详情" }).getByText("未声明项目接线", { exact: true }).waitFor();
   await page.getByRole("region", { name: "接口详情" }).getByText("物理脚号：T40", { exact: true }).waitFor();
   await page.screenshot({ path: "test-results/workbench-many-ports.png", fullPage: true });
+  await page.getByRole("button", { name: "结构 / 3D", exact: true }).click();
+  await page.locator('.engine-scene[data-loaded-meshes="1"]').waitFor();
+  await page.getByRole("button", { name: "运动视图", exact: true }).click();
+  await page.locator('.engine-scene[data-loaded-meshes="1"]').waitFor();
   await page.getByLabel("查看范围").selectOption("");
   await page.getByRole("button", { name: "结构 / 3D", exact: true }).click();
   await page.locator('.engine-scene[data-body-count="14"]').waitFor();
+  await page.locator('.engine-scene[data-loaded-meshes="2"]').waitFor();
   await mkdir("test-results", { recursive: true });
   await page.screenshot({ path: "test-results/workbench-structure.png", fullPage: true });
   await page.getByLabel("项目文件夹", { exact: true }).fill(join(folder, "missing"));
@@ -142,7 +166,7 @@ try {
   await page.locator(".document-preview h1").waitFor();
   await page.screenshot({ path: "test-results/workbench-source.png", fullPage: true });
   assert.deepEqual(errors, []);
-  console.log("PASS: four views, project/element edge ports, pin and net details, many-port boards, motion isolation, scoped previews and folder selection");
+  console.log("PASS: four views, project/element STL meshes with shared filenames, ports, motion isolation, scoped previews and folder selection");
 } catch (error) {
   console.error(logs);
   throw error;

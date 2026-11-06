@@ -12,6 +12,10 @@
 
 目录案例只有运动与电路的对应目标，没有通用 flow 文件。机械挂点连接与目录的刚体关节格式也不等价；宿主需显式映射支持的内容。资料写相关阶段 Markdown，禁止直接添加未经 schema 支持的字段。
 
+## 执行 prompt
+
+应用公共规则，明确每条连接的领域、实际端点、接口 ID 和连接目的，再写支持的原生关系。固定连接、运动副与电气网络各归对应契约，不能用“贴在一起”代替 Mount，也不能为接线发明 Terminal。新 CAD 挂点先集成到元件，再引用到候选设计；检查双端坐标和随动。独有接线/安装操作并入对应阶段，结构化关系只维护一份。
+
 ## 调用与验收
 
 从 `process.connection` 或原有 `process` 顶层导入 Input/Output/Request/Result/Process。`python -m process schema connection` 是实际字段的依据；先 inspect，再 run。需要修改记录的请求通过 for_design 指定 write_record_ids。

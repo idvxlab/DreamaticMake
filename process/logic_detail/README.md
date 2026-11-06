@@ -12,6 +12,10 @@
 
 目录案例的 control.py 与 notebook.json 位于 doc/logical_layout/，只是惰性参考资料；项目目录 v2 没有独立 logic 存储层。不把 LogicData 写入 circuit-logic.json，也不以代码保存成功声称固件工作。
 
+## 执行 prompt
+
+应用公共规则，从确认的功能和实际引脚/接口编写本次授权的行为或绑定，保留状态切换、去抖、计时、断电/恢复与失败路径的必要说明。原生内部行为不重复实现；目录网络文件不混入 LogicData。用户要求程序实现时交付实际源码和可复现构建入口，能执行就执行验证；只存源码时准确说明尚未构建。行为说明复用需求/逻辑阶段，不同时维护第二套状态机、占位 notebook 和每轮总结。
+
 ## 调用与验收
 
 从 `process.logic_detail` 或原有 `process` 顶层导入 Input/Output/Request/Result/Process。`python -m process schema logic_detail` 是实际字段的依据；先 inspect，再 run。需要修改记录的请求通过 for_design 指定 write_record_ids。

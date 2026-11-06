@@ -7,6 +7,9 @@ from pathlib import Path
 from element.io.load import _unique, _nonfinite, read_record
 from element.io.package import package_file, pool_root
 from engine.project_io import load_project, ProjectManifest
+from element.base.reference import AssetRef
+from element.io.load import read_asset
+from element.io.mesh import MAX_STL_BYTES
 
 DEFAULT_PROJECT = Path(__file__).resolve().parents[2] / 'examples/project_1'
 PREVIEW_TYPES = {'.json': ('json', 'application/json'), '.md': ('markdown', 'text/markdown'),
@@ -45,6 +48,27 @@ def element_root(root, source, key):
         return package_file(root / 'element', location['path'] + '/manifest.json').parent
     library = pool_root().resolve(strict=True)
     return package_file(library, location['folder'] + '/manifest.json').parent
+
+
+def mesh_asset(root, source, selected, owner, value):
+    """Serve only a pinned mesh declared by the owning project element, never a file URL."""
+    if not isinstance(owner, str): raise ValueError('Mesh requires an owning element')
+    selection_key(source, owner)
+    if selected is not None and owner != selected:
+        raise ValueError('Mesh owner is outside the current element selection')
+    ref = AssetRef.model_validate_json(json.dumps(value, allow_nan=False))
+    if (not ref.relative_path or Path(ref.relative_path).suffix.lower() != '.stl'
+            or any(p.startswith('.') for p in Path(ref.relative_path).parts)
+            or ref.media_type not in ('model/stl', 'application/sla', 'application/vnd.ms-pki.stl')):
+        raise ValueError('Only local declared STL meshes are supported')
+    geometry = source['elements'][owner].get('geometry', {})
+    declared = [e['shape'].get('asset_ref') for e in geometry.get('envelopes', {}).values()
+        if e['shape']['kind'] == 'triangle_mesh']
+    if not any(AssetRef.model_validate_json(json.dumps(item)) == ref for item in declared):
+        raise ValueError('Mesh reference is not declared by this element')
+    data = read_asset(ref, element_root(root, source, owner), MAX_STL_BYTES)
+    return {'sha256': ref.sha256, 'media_type': ref.media_type,
+        'data_base64': base64.b64encode(data).decode('ascii')}
 
 
 def source_files(root, source, manifest, key=None):

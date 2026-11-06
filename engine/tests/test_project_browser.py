@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -7,7 +8,52 @@ from engine.interface.bridge import handle
 from engine.tests.test_project_io import project_fixture, write
 
 
+def mesh_fixture(root):
+    project_fixture(root)
+    refs = {}
+    for owner, size in (('a', 1), ('b', 2)):
+        data = f'solid {owner}\nendsolid {owner}\n'.encode() * size
+        ref = {'relative_path': 'assets/part.stl', 'sha256': hashlib.sha256(data).hexdigest(),
+            'media_type': 'model/stl'}
+        package = root / 'element' / owner
+        write(package / 'manifest.json', {'record_kind': 'element_package', 'package_version': '1', 'component_path': 'component.json'})
+        write(package / 'component.json', {'id': owner, 'name': owner, 'category': 'structure',
+            'geometry': {'root_body': 'body', 'bodies': {'body': {}}, 'envelopes': {
+                'solid': {'body_ref': 'body', 'shape': {'kind': 'triangle_mesh', 'asset_ref': ref, 'unit': 'mm'}}}}})
+        (package / 'assets').mkdir()
+        (package / 'assets/part.stl').write_bytes(data)
+        refs[owner] = ref
+    write(root / 'element/index.json', {'elements': {key: {'kind': 'custom', 'path': key} for key in refs}})
+    return refs
+
+
 class ProjectBrowserTests(unittest.TestCase):
+    def test_meshes_are_scoped_to_owner_and_hash_checked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            refs = mesh_fixture(root)
+            request = {'method': 'mesh', 'project_path': str(root), 'element_key': 'a', 'asset_ref': refs['a']}
+            for owner in refs:
+                result = handle({**request, 'element_key': owner, 'asset_ref': refs[owner]})
+                self.assertEqual(base64.b64decode(result['data_base64']), (root / f'element/{owner}/assets/part.stl').read_bytes())
+            self.assertEqual(handle({**request, 'target': 'a'})['sha256'], refs['a']['sha256'])
+            for change in ({'target': 'b'}, {'element_key': 'missing'}, {'asset_ref': refs['b']},
+                    {'asset_ref': {**refs['a'], 'relative_path': '../b/assets/part.stl'}},
+                    {'asset_ref': {**refs['a'], 'relative_path': 'manifest.json'}}):
+                with self.subTest(change=change), self.assertRaises(ValueError):
+                    handle({**request, **change})
+            (root / 'element/a/assets/part.stl').write_bytes(b'tampered')
+            with self.assertRaisesRegex(ValueError, 'SHA-256|hash|checksum'):
+                handle(request)
+
+    def test_mesh_size_limit(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            refs = mesh_fixture(root)
+            with patch('engine.interface.project_browser.MAX_STL_BYTES', 1), self.assertRaises(ValueError):
+                handle({'method': 'mesh', 'project_path': str(root), 'element_key': 'a', 'asset_ref': refs['a']})
+
     def test_arbitrary_project_directory_and_scoped_previews(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / 'my-project'

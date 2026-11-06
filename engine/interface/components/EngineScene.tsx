@@ -15,6 +15,7 @@ export type MeshLoader = (
     { kind: "triangle_mesh" }
   >["asset_ref"],
   signal: AbortSignal,
+  envelope: SceneData["envelopes"][number],
 ) => Promise<ArrayBuffer>;
 
 function pose(object: THREE.Object3D, value: EnginePose) {
@@ -171,7 +172,7 @@ export function EngineScene({
           (async () => {
             try {
               if (!loadMesh) throw new Error(t("未配置 STL 资产加载器"));
-              const buffer = await loadMesh(shape.asset_ref, abort.signal);
+              const buffer = await loadMesh(shape.asset_ref, abort.signal, envelope);
               const digest = Array.from(
                 new Uint8Array(await crypto.subtle.digest("SHA-256", buffer)),
               )
@@ -179,6 +180,7 @@ export function EngineScene({
                 .join("");
               if (digest !== shape.asset_ref.sha256)
                 throw new Error(t("STL 资产哈希不匹配"));
+              if (disposed || abort.signal.aborted) return;
               const geometry = new STLLoader().parse(buffer);
               const factor = { m: 1, cm: 0.01, mm: 0.001 }[shape.unit];
               geometry.scale(factor, factor, factor);
@@ -233,8 +235,10 @@ export function EngineScene({
     refit.current = () => {
       world.updateMatrixWorld(true);
       const box = new THREE.Box3();
-      for (const mesh of meshes)
-        if (mesh.parent?.visible) box.expandByObject(mesh);
+      const visible = meshes.filter((mesh) => mesh.parent?.visible);
+      // Service placeholders can be laid out far away from the physical assembly.
+      const solids = visible.filter((mesh) => mesh.userData.purpose === "solid");
+      for (const mesh of solids.length ? solids : visible) box.expandByObject(mesh);
       const center = box.isEmpty()
         ? new THREE.Vector3()
         : box.getCenter(new THREE.Vector3());

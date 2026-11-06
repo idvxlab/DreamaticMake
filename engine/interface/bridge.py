@@ -2,16 +2,17 @@
 import json
 import sys
 from engine.layout import import_layout, dispatch_layout
-from engine.interface.project_browser import context, project_info, selection_key, source_files, preview
+from engine.interface.project_browser import context, project_info, selection_key, source_files, preview, mesh_asset
 
 
 def handle(request):
     method = request.get('method')
-    if method not in ('open_project', 'view', 'files', 'preview'): raise ValueError('Unknown operation')
+    if method not in ('open_project', 'view', 'files', 'preview', 'mesh'): raise ValueError('Unknown operation')
     root, source, manifest = context(request.get('project_path'))
     info = project_info(root, source, manifest)
     if method == 'open_project': return info
     target = selection_key(source, request.get('target'))
+    if method == 'mesh': return mesh_asset(root, source, target, request.get('element_key'), request.get('asset_ref'))
     if method == 'files': return {'files': source_files(root, source, manifest, target)[1]}
     if method == 'preview': return preview(root, source, manifest, target, request.get('path'))
     mode = request.get('mode', 'structure')
