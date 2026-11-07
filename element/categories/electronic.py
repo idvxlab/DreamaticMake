@@ -8,6 +8,7 @@ from element.interfaces.behavior import BehaviorSpec, InputBinding
 from element.interfaces.electrical import ElectricalSpec
 from element.interfaces.electronic import ElectricalInterface
 from element.interfaces.sensing import SensorInput
+from element.interfaces.software import SoftwareProject
 from element.categories.base import ComponentDesign
 from element.categories.specs import (LightDescription, DisplayDescription, SoundDescription,
     SensorDescription, InertialDescription, CameraDescription, MicrophoneDescription)
@@ -163,6 +164,8 @@ class Controller(ElectricalDesign):
     control_functions: dict[Id, ControlFunction] = Field(default_factory=dict)
     interfaces: dict[Id, ElectricalInterface] = Field(default_factory=dict)
     firmware: FirmwareSource | None = None
+    # A project-relative authoring link, separate from immutable firmware assets.
+    software: SoftwareProject | None = None
 
     def define_function(self, name: str, function: ControlFunction):
         if name in self.control_functions:

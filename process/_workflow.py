@@ -1,4 +1,4 @@
-"""Nine artifact-oriented workflows, with no agent/provider or persistence dependency."""
+"""Artifact-oriented workflows, with no agent/provider or persistence dependency."""
 from typing import Generic, Literal, TypeVar
 from pydantic import Field, JsonValue, model_validator
 from element.base.contract import Contract, Id
@@ -119,6 +119,7 @@ def project_artifact(artifact: DesignArtifact) -> dict:
         'spatial_layout': 'spatial_scene', 'logical_layout': 'circuit_graph',
         'enclosure_detail': 'cad_components', 'motion_detail': 'motion_graph',
         'assembly_detail': 'assembly_scene', 'print_optimization': 'print_scene',
+        'software_design': 'software_projects',
     }[stage]
     return {'schema_version': '0.2.0-draft', 'view_kind': view_kind,
         'artifact_ref': artifact_ref(artifact).model_dump(mode='json'),
@@ -232,6 +233,12 @@ class WorkflowProcess(DesignProcess):
             terminals = {key for key, value in native.items() if isinstance(value, Terminal)}
             if len(used + unconnected) != len(set(used + unconnected)) or set(used + unconnected) != terminals:
                 items.append(conflict('nets', 'Every hardware terminal must belong to one net or be explicitly unconnected'))
+        elif self.kind == 'software_design':
+            for project in data.projects:
+                choice = instances.get(project.instance_ref.key())
+                definition = definitions.get(choice.selection_record_id) if choice else None
+                if definition is None or definition.category != 'controller':
+                    items.append(conflict('projects', 'Software must reference a selected controller instance'))
         elif self.kind == 'motion_detail':
             from engine.design.contracts import Body
             bodies = {k for k, v in native.items() if isinstance(v, Body)}

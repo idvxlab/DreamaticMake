@@ -15,7 +15,13 @@ const python = process.env.MAKE_ENGINE_PYTHON || local || "python";
 const temp = resolve(root, ".runtime/tmp/python-tests");
 mkdirSync(temp, { recursive: true });
 
-for (const suite of ["element/tests", "engine/tests", "process/tests"]) {
+const requiredSuites = ["element/tests", "engine/tests", "process/tests"];
+// Optional local examples are not part of every source checkout.
+const exampleSuites = [
+  "examples/project_2/software/Feather_RP2040_1/tests",
+  "examples/project_4/software/Pico_1/tests",
+].filter((suite) => existsSync(resolve(root, suite)));
+for (const suite of [...requiredSuites, ...exampleSuites]) {
   console.log(`\nPython suite: ${suite}`);
   const result = spawnSync(
     python,

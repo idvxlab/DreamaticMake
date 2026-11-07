@@ -56,7 +56,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(self.run_with('print_optimization', printer=None).status, 'needs_input')
 
     def test_generation_and_simulation_do_not_claim_execution(self):
-        for stage in WORKFLOWS:
+        for stage in self.requests:
             result = self.run_with(stage, action='generate', deliverable=None)
             self.assertEqual(result.status, 'unsupported')
             self.assertIsNone(result.output)
@@ -154,6 +154,34 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(run(LogicalLayoutOutput()).status, 'needs_input')
         self.assertEqual(run(LogicalLayoutOutput(nets={'signal': Net(kind='signal', members=terminals)},
             unconnected_terminals=terminals)).status, 'needs_input')
+
+        # Software consumes the exact hardware + wiring artifacts and controller identities.
+        from process import SoftwareDesign, SoftwareDesignOutput
+        from element.interfaces.software import SoftwareProject
+        wiring = run(LogicalLayoutOutput(nets={'signal': Net(kind='signal', members=terminals)})).output.artifact
+        software_process = get_process('software_design')
+        project = SoftwareDesign(instance_ref=ObjectRef(record_id='controllers', collection='instances', object_id='a'),
+            software=SoftwareProject(relative_path='software/ESP32_1', language='cpp', entrypoint='app_main'),
+            architecture=Markdown(text='Separate IO drivers and control state machine.'),
+            control_logic=Markdown(text='Boot into safe state; debounce commands and stop on timeout.'),
+            test_plan=Markdown(text='Test startup, valid commands and timeout recovery.'))
+        software_request = software_process.request_model.for_design(design, artifacts=(requirements, selected, wiring), input={
+            'action': 'submit', 'artifact_id': 'software', 'upstream': {
+                'requirements': artifact_ref(requirements), 'hardware_selection': artifact_ref(selected),
+                'logical_layout': artifact_ref(wiring)}, 'deliverable': SoftwareDesignOutput(projects=(project,))})
+        result = software_process.run(software_request)
+        self.assertEqual(result.status, 'completed')
+        self.assertEqual(result.output.view['view_kind'], 'software_projects')
+        self.assertEqual(result.output.artifact.validation, 'contract_only')
+        self.assertEqual(result.checks, ())
+        for changes in ({'action': 'prepare', 'deliverable': None}, {'action': 'generate', 'deliverable': None},
+                {'upstream': {}}, {'deliverable': SoftwareDesignOutput(projects=(project.model_copy(update={
+                    'instance_ref': ObjectRef(record_id='controllers', collection='instances', object_id='missing')}),))}):
+            changed = software_request.model_copy(update={'input': software_request.input.model_copy(update=changes)})
+            status = software_process.run(changed).status
+            self.assertEqual(status, 'completed' if changes.get('action') == 'prepare' else
+                'unsupported' if changes.get('action') == 'generate' else 'needs_input')
+        with self.assertRaises(ValidationError): SoftwareDesignOutput(projects=(project, project))
 
     def test_assembly_print_coverage_and_motion_bounds(self):
         assembly = self.artifacts['assembly_detail'].payload

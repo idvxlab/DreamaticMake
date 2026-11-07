@@ -10,11 +10,12 @@
 process/
   README.md                 架构、流程导航、使用方式
   CONTEXT.md                文件读取、LLM 上下文与输出映射的公共约定
-  requirements/             以下九个目录：__init__.py + README.md
+  requirements/             以下十个目录：__init__.py + README.md
   appearance/
   hardware_selection/
   spatial_layout/
   logical_layout/
+  software_design/
   enclosure_detail/
   motion_detail/
   assembly_detail/
@@ -27,7 +28,7 @@ process/
   circuit_detail/
   logic_detail/
   _workflow.py              主流程共用的 prepare/submit、依赖闭包、校验、视图
-  workflows.py              兼容导出与九流程注册；SPECS 从各目录定义汇总
+  workflows.py              兼容导出与流程注册；SPECS 从各目录定义汇总
   artifacts.py              版本化产物与原生输出契约
   base.py / contracts.py    共用运行协议、检查和提案
   context.py / proposal.py  注入只读资源；构造候选设计
@@ -37,7 +38,11 @@ process/
 
 原有 `from process import SpatialLayoutProcess`、`from process.workflows import SpatialLayoutProcess` 和 `from process.selection import SelectionProcess` 继续可用；也可以直接从 `process.spatial_layout` 导入主流程。
 
-## 九个主流程
+## 主流程（含软件工程设计）
+
+新增 [software_design：软件工程设计](software_design/README.md)，在需求、硬件选型和电路逻辑之后，
+为主控实例组织代码工程、模块接口、控制逻辑与测试计划；可选依赖运动详细设计。
+代码存储和元件关联见 [项目软件工程协议](../engine/project_io.md#软件工程)。
 
 各目录文档分别给出：任务与信息源、Agent 上下文顺序、输出字段、案例文件目标、校验与能力边界。公共的来源/版本管理和接入设计见 [CONTEXT.md](CONTEXT.md)。
 
@@ -46,16 +51,19 @@ process/
 | 流程文档 | 必需上游 | 主要结果 | 目录 v2 的文件目标（由宿主映射） |
 | --- | --- | --- | --- |
 | [需求与功能](requirements/README.md) | 原始 source_documents | requirements/functions 文档 | doc/requirements/ |
-| [外观](appearance/README.md) | requirements | 图像资产与视角说明 | doc/appearance/ |
+| [外观与效果图生成](appearance/README.md) | requirements | 实际产品效果图、多视角、生成元数据与检查说明 | doc/appearance/ |
 | [硬件选型](hardware_selection/README.md) | requirements + 元件库/嵌入定义 | 固定元件引用和实例清单 | element/index.json、元件包/库引用 |
 | [空间布局](spatial_layout/README.md) | requirements、hardware_selection、appearance | 实例世界位姿 | design/structure.json |
 | [电路逻辑布局](logical_layout/README.md) | requirements、hardware_selection | 网络与显式未连接端子 | design/circuit-logic.json、阶段说明 |
+| [软件工程设计](software_design/README.md) | requirements、hardware_selection、logical_layout | 主控软件路径、模块架构、控制逻辑和测试计划 | software/、元件 software 字段、doc/software_design/ |
 | [外壳深化](enclosure_detail/README.md) | requirements、spatial_layout、appearance | 带材料与位姿的 CAD 组件 | 定制元件包、索引、结构位姿 |
 | [运动深化](motion_detail/README.md) | requirements、spatial_layout | 跨元件关节与范围、初值 | design/motion.json |
 | [装配深化](assembly_detail/README.md) | requirements、spatial_layout、enclosure_detail | 深化组件与装配关系 | 元件包、motion/structure、阶段说明 |
 | [打印优化](print_optimization/README.md) | assembly_detail + printer | 打印件、姿态、支撑与修改说明 | 派生元件资产、doc/print_optimization/ |
 
 assembly_detail 可选依赖 motion_detail；引用运动关节时必须提供它。依赖是图，并非固定九步流水线。外观与选型可独立进行；电路逻辑不依赖空间布局；外壳和运动深化也可分别进行。
+
+完整产品设计默认包含效果图生成：需求后先生成概念效果图，供选型、布局和 CAD 参考；工程深化使外形变化后，再更新效果图。主效果图和多视角附件必须实际生成、保存并查看，不能仅以 CAD 截图或工程投影代替。具体工具调用、元数据和验收要求见 [外观阶段](appearance/README.md)。图像生成由宿主调用可用工具执行，Python 流程 API 继续负责上下文与产物契约。
 
 ```mermaid
 flowchart LR
@@ -66,6 +74,10 @@ flowchart LR
   H --> S
   R --> L[logical_layout]
   H --> L
+  R --> SW[software_design]
+  H --> SW
+  L --> SW
+  M -. 可选 .-> SW
   R --> E[enclosure_detail]
   A --> E
   S --> E

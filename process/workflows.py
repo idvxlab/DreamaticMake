@@ -14,6 +14,7 @@ from process.enclosure_detail import EnclosureDetailInput, EnclosureDetailReques
 from process.motion_detail import MotionDetailInput, MotionDetailRequest, MotionDetailProcess
 from process.assembly_detail import AssemblyDetailInput, AssemblyDetailRequest, AssemblyDetailProcess
 from process.print_optimization import PrintOptimizationInput, PrintOptimizationRequest, PrintOptimizationProcess
+from process.software_design import SoftwareDesignInput, SoftwareDesignRequest, SoftwareDesignProcess
 
 WORKFLOWS = {cls.kind: cls for cls in (
     RequirementsProcess,
@@ -25,6 +26,7 @@ WORKFLOWS = {cls.kind: cls for cls in (
     MotionDetailProcess,
     AssemblyDetailProcess,
     PrintOptimizationProcess,
+    SoftwareDesignProcess,
 )}
 SPECS = {kind: cls.spec for kind, cls in WORKFLOWS.items()}
 

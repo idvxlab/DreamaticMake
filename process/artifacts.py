@@ -6,13 +6,14 @@ from element.base.contract import Contract, Id, Sha256
 from element.base.frame import Pose
 from element.base.reference import AssetRef
 from element.categories.housing import CADHousing
+from element.interfaces.software import SoftwareProject
 from element.schema.library import ElementRef
 from element.io.save import canonical_json
 from engine.design.contracts import Markdown, ObjectRef, Net, Joint, StructureConnection
 
 Stage = Literal['requirements', 'appearance', 'hardware_selection', 'spatial_layout',
                 'logical_layout', 'enclosure_detail', 'motion_detail', 'assembly_detail',
-                'print_optimization']
+                'print_optimization', 'software_design']
 
 
 class Document(Contract):
@@ -111,6 +112,35 @@ class LogicalLayoutOutput(Contract):
     notes: Markdown = Markdown()
 
 
+class SoftwareDesign(Contract):
+    instance_ref: ObjectRef
+    software: SoftwareProject
+    architecture: Markdown
+    control_logic: Markdown
+    test_plan: Markdown
+
+    @model_validator(mode='after')
+    def authored(self):
+        if not all(v and v.strip() for v in (self.software.relative_path, self.software.language, self.software.entrypoint)):
+            raise ValueError('Software deliverables require path, language and entrypoint')
+        if not all(v.text.strip() for v in (self.architecture, self.control_logic, self.test_plan)):
+            raise ValueError('Describe architecture, control logic and test plan')
+        return self
+
+
+class SoftwareDesignOutput(Contract):
+    kind: Literal['software_design'] = 'software_design'
+    projects: tuple[SoftwareDesign, ...] = Field(min_length=1, max_length=1000)
+
+    @model_validator(mode='after')
+    def unique(self):
+        refs = [p.instance_ref.key() for p in self.projects]
+        if len(set(refs)) != len(refs): raise ValueError('Duplicate software controller instance')
+        paths = [p.software.relative_path for p in self.projects]
+        if len(set(paths)) != len(paths): raise ValueError('Use separate software paths for controller instances')
+        return self
+
+
 class CADComponent(Contract):
     component_id: Id
     model: CADHousing
@@ -201,7 +231,7 @@ class PrintOptimizationOutput(Contract):
 
 Deliverable = Annotated[RequirementsOutput | AppearanceOutput | HardwareSelectionOutput |
     SpatialLayoutOutput | LogicalLayoutOutput | EnclosureDetailOutput | MotionDetailOutput |
-    AssemblyDetailOutput | PrintOptimizationOutput, Field(discriminator='kind')]
+    AssemblyDetailOutput | PrintOptimizationOutput | SoftwareDesignOutput, Field(discriminator='kind')]
 
 
 class ArtifactRef(Contract):

@@ -3,17 +3,21 @@ import { api, type ProjectInfo, type View } from "./api";
 import { EngineScene } from "./components/EngineScene";
 import { TopologyGraph } from "./components/TopologyGraph";
 import { SourceExplorer } from "./components/SourceExplorer";
+import { SoftwareExplorer } from "./components/SoftwareExplorer";
 import { createProjectMeshLoader } from "./meshAssets";
 
-type Layer = "structure" | "motion" | "circuit" | "source";
-const layers: [Layer, string][] = [["structure", "结构 / 3D"], ["motion", "运动视图"], ["circuit", "电路逻辑"], ["source", "设计源文件"]];
+type Layer = "structure" | "motion" | "circuit" | "software" | "source";
+const layers: [Layer, string][] = [["structure", "结构 / 3D"], ["motion", "运动视图"], ["circuit", "电路逻辑"], ["software", "软件工程"], ["source", "设计源文件"]];
 const storageKey = "dreamatic.workbench.project-path";
 
 export function Workbench() {
   const [project, setProject] = useState<ProjectInfo | null>(null);
-  const [path, setPath] = useState(() => { try { return localStorage.getItem(storageKey) ?? ""; } catch { return ""; } });
+  const [path, setPath] = useState(() => { try { return new URLSearchParams(location.search).get("project") ?? localStorage.getItem(storageKey) ?? ""; } catch { return ""; } });
   const [target, setTarget] = useState<string | null>(null);
-  const [layer, setLayer] = useState<Layer>("structure");
+  const [layer, setLayer] = useState<Layer>(() => {
+    const requested = new URLSearchParams(location.search).get("view");
+    return layers.find(([key]) => key === requested)?.[0] ?? "structure";
+  });
   const [view, setView] = useState<View | null>(null);
   const [inputs, setInputs] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState("");
@@ -54,7 +58,7 @@ export function Workbench() {
     finally { setOpening(false); }
   };
   useEffect(() => {
-    if (!project || layer === "source") { setBusy(false); return; }
+    if (!project || layer === "source" || layer === "software") { setBusy(false); return; }
     const controller = new AbortController();
     setBusy(true); setViewError("");
     const timer = setTimeout(() => {
@@ -91,9 +95,10 @@ export function Workbench() {
     <nav aria-label="设计视图">{layers.map(([key, label]) => <button key={key} aria-pressed={layer === key}
       onClick={() => setLayer(key)}>{label}</button>)}</nav>
     <div className="selection-heading"><span>{project?.title ?? "尚未打开项目"} / {target === null ? "整个项目" : `${target} · ${chosen?.name ?? ""}`}</span>
-      <span>{view && layer !== "source" ? `${Object.keys(view.draft.entities).length} 个元件 · ${view.scene.bodies.length} 个刚体` : ""}</span></div>
+      <span>{view && layer !== "source" && layer !== "software" ? `${Object.keys(view.draft.entities).length} 个元件 · ${view.scene.bodies.length} 个刚体` : ""}</span></div>
     {!project ? <main className="project-empty">{opening ? "正在读取项目…" : "选择一个项目文件夹，开始查看结构、运动、电路和源文件。"}</main>
       : layer === "source" ? <SourceExplorer key={`${project.path}:${target}:${revision}`} projectPath={project.path} target={target} />
+      : layer === "software" ? <SoftwareExplorer key={`${project.path}:${target}:${revision}`} projectPath={project.path} target={target} />
       : <main className="workspace">
         <aside aria-label="设计层级"><h2>{target === null ? "项目元件" : "元件刚体"}</h2>
           {view && Object.entries(view.draft.entities).map(([key, entity]) => <details key={key} open>

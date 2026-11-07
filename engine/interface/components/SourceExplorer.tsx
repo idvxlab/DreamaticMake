@@ -3,7 +3,7 @@ import { api, type Preview, type SourceFile } from "../api";
 
 type Tree = { folders: Record<string, Tree>; files: SourceFile[] };
 const emptyTree = (): Tree => ({ folders: Object.create(null), files: [] });
-function tree(files: SourceFile[]): Tree {
+export function tree(files: SourceFile[]): Tree {
   const root = emptyTree();
   for (const file of files) {
     const parts = file.path.split("/");
@@ -13,7 +13,7 @@ function tree(files: SourceFile[]): Tree {
   }
   return root;
 }
-function Folder({ node, selected, onSelect, depth = 0 }: {
+export function Folder({ node, selected, onSelect, depth = 0 }: {
   node: Tree; selected: string; onSelect: (path: string) => void; depth?: number;
 }) {
   return <>

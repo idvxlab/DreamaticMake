@@ -21,7 +21,7 @@ class ComponentDesign(Definition):
     def omit_absent_extensions(self, handler):
         # Optional additions must not change legacy design provenance or snapshots.
         record = handler(self)
-        for name in ("spec", "wiring", "procurement", "cad_housing"):
+        for name in ("spec", "wiring", "procurement", "cad_housing", "software"):
             if getattr(self, name, None) is None:
                 record.pop(name, None)
         return record

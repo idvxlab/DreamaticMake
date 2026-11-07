@@ -291,6 +291,9 @@ a {
 .image-preview { padding: 28px; display: grid; place-items: center; min-height: 450px; background-color: #f2f5f5; }
 .image-preview img { max-width: 100%; max-height: 65vh; object-fit: contain; }
 .pdf-preview { width: 100%; height: calc(100vh - 330px); min-height: 500px; border: 0; }
+.software-project { margin-bottom: 20px; overflow-wrap: anywhere; }
+.software-metadata { padding: 0 24px; color: #64817f; font-size: 13px; }
+.software-code { tab-size: 4; white-space: pre; background: #f9fbfb; }
 @media (max-width: 1000px) { .target-picker { min-width: 220px; } .source-workspace { grid-template-columns: 250px minmax(0, 1fr); } }
 @media (max-width: 700px) {
   header { flex-wrap: wrap; }

@@ -170,7 +170,7 @@ class ProcessTests(unittest.TestCase):
         self.assertEqual(LogicDetailProcess().run(build).status, 'unsupported')
 
     def test_cli_schemas_contracts_and_dependency_direction(self):
-        self.assertEqual(len(PROCESSES), 16)
+        self.assertEqual(len(PROCESSES), 17)
         for kind in PROCESSES:
             descriptor = get_process(kind).describe()
             self.assertEqual(descriptor.input_schema['properties']['process_kind']['const'], kind)

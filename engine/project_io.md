@@ -38,6 +38,56 @@
 项目源文件树只列出 `design/`、`doc/` 和根说明/清单；元件源文件树则以对应自定义目录
 或已固定引用的库目录为根。预览为只读操作，文件路径和符号链接仍受各自根目录约束。
 
+## 软件工程
+
+代码与构建/测试配置统一保存在项目根目录 `software/` 下，每个主控可拥有独立目录：
+
+```text
+project/
+  element/index.json
+  software/
+    ESP32_1/src/main.cpp
+    ESP32_2/main.py
+  doc/software_design/README.md
+```
+
+自定义 controller 的 `component.json` 可添加字段：
+
+```json
+"software": {
+  "schema_version": "1",
+  "relative_path": "software/ESP32_1",
+  "language": "cpp",
+  "entrypoint": "app_main"
+}
+```
+
+字段默认可省略或为 `null`，内部字段也允许留空。路径相对于项目根目录，
+支持软件目录或单个代码文件，不允许绝对路径、`..`、隐藏路径或 Windows 替代数据流。
+语言是开放字符串，可填写 `cpp`、`micropython`、`rust` 等；入口记录函数名称。
+
+对库元件或同型号多实例，推荐在 `element/index.json` 的实例条目绑定：
+
+```json
+"ESP32_1": {
+  "kind": "library",
+  "path": "esp32.json",
+  "software": {
+    "relative_path": "software/ESP32_1",
+    "language": "cpp",
+    "entrypoint": "app_main"
+  }
+}
+```
+
+只允许 controller 绑定；实例字段优先于元件默认字段。原库记录和 ElementRef 哈希不变，
+解析时在内存元件上应用绑定，并在 `element_sources` 保留该覆盖信息。
+未绑定路径的主控不出现在软件树；路径缺失会显示提示，不阻止其他工程设计视图加载。
+工作台左侧按主控列出关联文件树，右侧只读显示 UTF-8 源码、语言和入口。
+支持 C/C++、Arduino、Python、Rust、JS/TS 及常用配置；排除隐藏文件、依赖/构建目录和链接。
+每个工程最多遍历 5000 个条目、列出 1000 个文件，单文件预览上限 2 MiB。
+流程接口见 [软件工程设计](../process/software_design/README.md)。
+
 ```powershell
 .\python.cmd -m engine project examples/project_1
 .\python.cmd -m engine language examples/project_1

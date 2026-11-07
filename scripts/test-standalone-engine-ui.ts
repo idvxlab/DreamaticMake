@@ -33,6 +33,15 @@ try {
     physical_pin_number: `T${pin}`, label: `IO${pin}`, electrical_role: "bidirectional", body_ref: "body",
   };
   await writeFile(boardPath, JSON.stringify(board), "utf8");
+  // Build software fixtures here so the regression does not depend on published examples.
+  const elementIndexPath = join(folder, "element/index.json");
+  const elementIndex = JSON.parse(await readFile(elementIndexPath, "utf8"));
+  elementIndex.elements.controller.software = {
+    schema_version: "1", relative_path: "software/controller_1", language: "cpp", entrypoint: "main",
+  };
+  await writeFile(elementIndexPath, JSON.stringify(elementIndex), "utf8");
+  await mkdir(join(folder, "software/controller_1/src"), { recursive: true });
+  await writeFile(join(folder, "software/controller_1/src/main.cpp"), "int main() { return 0; }\n", "utf8");
   // Different packages intentionally use the same relative mesh filename.
   for (const [owner, size] of [["base", 20], ["controller", 10]] as const) {
     const packageRoot = join(folder, "element", owner);
@@ -60,7 +69,7 @@ try {
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("http://127.0.0.1:4323");
   await page.locator('.engine-scene[data-body-count="14"]').waitFor();
-  assert.equal(await page.getByRole("navigation", { name: "设计视图" }).getByRole("button").count(), 4);
+  assert.equal(await page.getByRole("navigation", { name: "设计视图" }).getByRole("button").count(), 5);
   assert.equal(await page.getByRole("button", { name: "元件库", exact: true }).count(), 0);
   assert.equal(await page.getByRole("button", { name: "深化设计 — 定制化模型", exact: true }).count(), 0);
   assert.equal(await page.locator(".joint input").count(), 0);
@@ -165,8 +174,20 @@ try {
   await page.getByRole("button", { name: "预览 doc/requirements/README.md", exact: true }).click();
   await page.locator(".document-preview h1").waitFor();
   await page.screenshot({ path: "test-results/workbench-source.png", fullPage: true });
+  await page.getByRole("button", { name: "软件工程", exact: true }).click();
+  await page.getByLabel("软件工程目录").getByText("controller · 控制板（概念接口）", { exact: true }).waitFor();
+  await page.getByLabel("软件工程目录").locator("summary").filter({ hasText: /^▱\s*controller_1$/ }).click();
+  await page.getByLabel("软件工程目录").locator("summary").filter({ hasText: /^▱\s*src$/ }).click();
+  await page.getByRole("button", { name: "预览 software/controller_1/src/main.cpp", exact: true }).click();
+  await page.locator(".software-code").filter({ hasText: "int main()" }).waitFor();
+  await page.screenshot({ path: "test-results/workbench-software.png", fullPage: true });
+  await page.getByLabel("查看范围").selectOption("base");
+  await page.getByText("当前范围没有关联的软件工程。", { exact: false }).waitFor();
+  assert.equal(await page.locator(".software-code").count(), 0);
+  await page.getByLabel("查看范围").selectOption("controller");
+  await page.getByLabel("软件工程目录").getByText("controller · 控制板（概念接口）", { exact: true }).waitFor();
   assert.deepEqual(errors, []);
-  console.log("PASS: four views, project/element STL meshes with shared filenames, ports, motion isolation, scoped previews and folder selection");
+  console.log("PASS: five views, software files and scope isolation, project/element STL meshes, ports, motion, scoped previews and folder selection");
 } catch (error) {
   console.error(logs);
   throw error;

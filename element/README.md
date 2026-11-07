@@ -4,6 +4,15 @@
 
 `element/` owns reusable component descriptions. It has no dependency on `engine`, application Context, Pi, or model providers. `engine/` owns assembly, design records, projections, compilation and simulation.
 
+## 控制元件的软件工程接口
+
+控制类元件新增可选 `software` 接口，定义见 [`SoftwareProject`](interfaces/software.py)。
+默认 `null`，也可用 `{"schema_version":"1","relative_path":null,"language":null,"entrypoint":null}` 保留空草稿。
+例如 `{"relative_path":"software/ESP32_1","language":"cpp","entrypoint":"app_main"}`。
+`relative_path` 相对于项目根目录，可指向 `software/` 内的文件或文件夹；
+不从元件库目录解析，也不替代已有带哈希的 `firmware` 资产引用。
+项目实例绑定与存储规范见 [项目目录输入](../engine/project_io.md#软件工程)。
+
 ## Natural-language candidate retrieval
 
 The [retrieval guide](library/README.md) documents read-only discovery over `element_pool_2` and existing native libraries, including incomplete records, native model parameters, evidence-backed comparisons and engine tool schemas. `ElementSearchTool` exposes `element_categories`, `element_search` and `element_inspect` for host registration with an LLM. Natural-language parsing uses bounded bilingual rules with explicit warnings and structured refinement; no model provider is called. Incomplete records remain discoverable without becoming selectable native elements.

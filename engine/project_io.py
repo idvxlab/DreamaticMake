@@ -10,6 +10,7 @@ from element.io.components import load_component
 from element.io.records import record_hash
 from element.schema.library import ElementRef
 from engine.layout_project import LayoutProject
+from element.interfaces.software import SoftwareProject
 
 
 class DesignFiles(Contract):
@@ -32,6 +33,7 @@ class ProjectManifest(Contract):
 class ElementLocation(Contract):
     kind: Literal['library', 'custom']
     path: str
+    software: SoftwareProject | None = None
 
 
 class ProjectElementIndex(Contract):
@@ -113,6 +115,11 @@ def load_project(path, *, element_pool=None):
             sources[key] = {'kind': 'custom', 'path': location.path,
                 'content_hash': record_hash(model.model_dump(mode='json'), 'project-component-v1')}
         components[key] = model.model_dump(mode='json')
+        if location.software is not None:
+            if model.category != 'controller':
+                raise ValueError('Only controller instances may bind software: ' + key)
+            components[key]['software'] = location.software.model_dump(mode='json')
+            sources[key]['software'] = location.software.model_dump(mode='json')
     documents = ProjectDocuments.model_validate_json(json.dumps(_read(root, manifest.documents)))
     for stage in documents.stages.values():
         for file in stage.files:
