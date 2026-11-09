@@ -4,6 +4,7 @@ from pydantic import Field, model_validator
 from element.base.contract import Contract, Id, Positive
 from element.base.frame import LocalFrame
 from element.base.quantity import Quantity
+from element.interfaces.appearance import ColorHex
 
 
 def require_positive(value: Quantity | None, dimension: str, *, zero=False):
@@ -19,6 +20,7 @@ class MechanicalDescription(Contract):
     standard: str | None = None
     dimensions: dict[Id, Quantity] = Field(default_factory=dict)
     material: str | None = None
+    color: ColorHex | None = Field(default=None, exclude_if=lambda value: value is None)
 
     @model_validator(mode="after")
     def sizes(self):

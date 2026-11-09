@@ -116,7 +116,7 @@ def compose_project(source):
         put("entities", instance, {**entity, "name": placement.name or entity["name"]})
         for key, body in component["bodies"].items():
             pose = placement.pose.compose(Pose.model_validate_json(json.dumps(body["pose"])))
-            put("bodies", ref(key), {"entity": instance, "pose": pose.model_dump(mode="json")})
+            put("bodies", ref(key), {**body, "entity": instance, "pose": pose.model_dump(mode="json")})
         for key, env in component["envelopes"].items():
             put("envelopes", ref(key), {**env, "body": ref(env["body"])})
         for key, port in component["ports"].items():

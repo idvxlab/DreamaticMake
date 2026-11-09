@@ -161,6 +161,7 @@ export function EngineScene({
         id: envelope.entity_ref,
         body: envelope.body_ref,
         purpose: envelope.purpose,
+        color: scene.bodies.find((body) => body.entity_ref === envelope.body_ref)?.color,
       };
       bodies.get(envelope.body_ref)?.add(mesh);
       meshes.push(mesh);
@@ -320,7 +321,7 @@ export function EngineScene({
           pose(group, placement);
       }
       for (const mesh of meshes) {
-        const { id, body, purpose } = mesh.userData;
+        const { id, body, purpose, color } = mesh.userData;
         const auxiliary = purpose !== "solid";
         mesh.visible = !auxiliary || state.spaces;
         mesh.material.color.set(
@@ -332,7 +333,7 @@ export function EngineScene({
                 ? 0xd9a461
                 : purpose === "service"
                   ? 0x76a4b1
-                  : state.bodyColors[body] || 0x839375,
+                  : state.bodyColors[body] || color || 0x839375,
         );
         mesh.material.wireframe = state.wire || auxiliary;
         mesh.material.transparent = auxiliary;

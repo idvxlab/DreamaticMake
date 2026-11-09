@@ -28,7 +28,7 @@ from element.interfaces.geometry import Box
 housing = CADHousing.from_shape(
     id="housing", name="Housing envelope",
     shape=Box(size_m=(0.08, 0.06, 0.03)),
-    cad_housing=CADHousingSpec(material=HousingMaterial(name="PETG")),
+    cad_housing=CADHousingSpec(material=HousingMaterial(name="PETG", color="#327F90")),
 )
 ```
 
@@ -37,6 +37,18 @@ Geometry uses the existing bodies, envelopes, local transforms, visual assets an
 Source CAD/command assets and exchange assets use hashed `AssetRef` values. There is no new B-rep parser or manufacturing solver. The [custom housing example](D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_custom_cad_housing/component.json) includes a real JSCAD STL and authoring source. Integration into a scheme is provided by [process/](../process/README.md).
 
 Structured Markdown output for LLM context is available through [`element.language`](language/README.md): `to_markdown(value)`, `to_document(value)`, or `python -m element language path/to/element.json`. Existing JSON storage and CLI methods retain their contracts.
+
+### Preview color
+
+CAD housings accept `cad_housing.material.color`; other mechanical parts accept
+`spec.color` beside `spec.material`. Both are optional sRGB `#RRGGBB` strings.
+For example: `"spec": {"kind": "bracket", "material": "PETG", "color": "#F5A94D"}`.
+Category lowering applies this color to each rigid body; `geometry.bodies.<id>.color`
+can override it for individual bodies. Housing material color takes precedence over
+the mechanical description color. Both simulation scenes and project layout scenes
+preserve these colors, including STL meshes. Missing colors retain the viewer default;
+selection, collision and keepout/service overlays retain their existing priority.
+Colors participate in content hashes but imply no physical material properties.
 
 ## Structure
 

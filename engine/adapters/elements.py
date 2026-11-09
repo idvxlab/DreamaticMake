@@ -33,7 +33,16 @@ def _definition(self, *, motion=None, material=None, electrical=None,
         if key in capabilities:
             raise ValueError(f"Duplicate function ID: {key}")
         capabilities[key] = value
-    physical = {"geometry": self.geometry, "mechanical": self.mounts}
+    # Lower authoring material colors into geometry so projections need no category metadata.
+    housing = getattr(self, "cad_housing", None)
+    color = (housing.material.color if housing else None) or getattr(spec, "color", None)
+    geometry = self.geometry
+    if color:
+        geometry = geometry.model_copy(update={"bodies": {
+            key: body.model_copy(update={"color": body.color or color})
+            for key, body in geometry.bodies.items()
+        }})
+    physical = {"geometry": geometry, "mechanical": self.mounts}
     if motion is not None:
         physical["motion"] = motion
     if material is not None:

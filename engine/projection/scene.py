@@ -21,6 +21,7 @@ def project_scene(ir, result=None, frame_index=-1):
     for key, obj in sorted(ir.collection("bodies").items()):
         pose = frame.body_poses.get(key) if frame else None
         bodies.append({"entity_ref": key, "source_ref": source_ref(ir, obj),
+                       "color": obj.spec.color,
                        "world_pose": pose.model_dump(mode="json") if pose else None})
     envelopes = []
     for key, obj in sorted(ir.collection("envelopes").items()):

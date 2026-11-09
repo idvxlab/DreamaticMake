@@ -4,10 +4,12 @@ from pydantic import Field, model_validator
 from element.base.contract import Contract
 from element.base.quantity import Parameter
 from element.base.reference import AssetRef
+from element.interfaces.appearance import ColorHex
 
 
 class HousingMaterial(Contract):
     name: str = Field(min_length=1, max_length=200)
+    color: ColorHex | None = Field(default=None, exclude_if=lambda value: value is None)
     density: Parameter | None = None
     elastic_modulus: Parameter | None = None
     yield_strength: Parameter | None = None

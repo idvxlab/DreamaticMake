@@ -10,6 +10,7 @@ from element.base.contract import Contract
 from element.base.frame import Pose, Vec3
 from element.base.quantity import Quantity
 from element.interfaces.geometry import Shape, Envelope
+from element.interfaces.appearance import ColorHex
 from engine.compiler.ir import BoundObject
 from element.io.save import content_hash
 
@@ -22,6 +23,7 @@ class Entity(Contract):
 class Body(Contract):
     entity: str
     pose: Pose = Pose()
+    color: ColorHex | None = Field(default=None, exclude_if=lambda value: value is None)
 
 
 class Geometry(Contract):
@@ -161,7 +163,7 @@ def project_layout(draft):
             edges.append({"id": key, **edge.model_dump(mode="json"), "endpoints": members})
         graphs[name] = {"nodes": list(nodes.values()), "edges": edges, "ports": ports}
     snapshot = content_hash(d)
-    bodies = [{"entity_ref": key, "world_pose": body.pose.model_dump(mode="json")} for key, body in d.bodies.items()]
+    bodies = [{"entity_ref": key, "world_pose": body.pose.model_dump(mode="json"), "color": body.color} for key, body in d.bodies.items()]
     for key in d.bodies:
         if not any(e.body == key for e in d.envelopes.values()):
             envelopes.append({"entity_ref": f"{key}/__placeholder", "body_ref": key, "pose": Pose().model_dump(mode="json"),
@@ -441,7 +443,7 @@ def import_layout(source, scenario=None):
         for key, obj in r.objects.items():
             if obj.scope != scope: continue
             collection = key.split("/")[-2]; spec = obj.spec
-            if collection == "bodies": result["bodies"][key] = {"entity": owner, "pose": roots.get(key, Pose(translation_m=(index * .06, 0., 0.)).model_dump(mode="json"))}
+            if collection == "bodies": result["bodies"][key] = {"entity": owner, "color": spec.color, "pose": roots.get(key, Pose(translation_m=(index * .06, 0., 0.)).model_dump(mode="json"))}
             elif collection == "envelopes": result["envelopes"][key] = {**spec.model_dump(mode="json", exclude={"body_ref", "evidence_refs"}), "body": "/".join((*scope, "bodies", spec.body_ref))}
             elif collection in ("terminals", "material_ports", "sensors", "behaviors", "effects", "interfaces"):
                 domain = "electrical" if collection == "terminals" else "material" if collection == "material_ports" else "information"

@@ -55,7 +55,7 @@ export type EngineShape =
     };
 export type EngineScene = {
   snapshot_id: string;
-  bodies: { entity_ref: string; world_pose: EnginePose | null }[];
+  bodies: { entity_ref: string; world_pose: EnginePose | null; color?: string | null }[];
   envelopes: {
     entity_ref: string;
     body_ref: string;
@@ -73,7 +73,7 @@ export type LayoutDraft = {
   record_kind: "layout_draft";
   layout_version: 1;
   entities: Record<string, { name: string; part_id?: string | null }>;
-  bodies: Record<string, { entity: string; pose: EnginePose }>;
+  bodies: Record<string, { entity: string; pose: EnginePose; color?: string | null }>;
   envelopes: Record<
     string,
     {

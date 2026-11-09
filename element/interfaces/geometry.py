@@ -4,6 +4,7 @@ from element.base.contract import Contract, Id, Positive, NonNegative
 from element.base.frame import Pose
 from element.base.quantity import Parameter
 from element.base.reference import AssetRef
+from element.interfaces.appearance import ColorHex
 
 
 class Box(Contract):
@@ -46,6 +47,7 @@ Shape = Annotated[Box | Sphere | Cylinder | Capsule | ConvexAsset | TriangleMesh
 
 class RigidBody(Contract):
     description: str = ""
+    color: ColorHex | None = Field(default=None, exclude_if=lambda value: value is None)
     mass: Parameter | None = None
     inertia_ref: AssetRef | None = None
 
