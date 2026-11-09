@@ -7,9 +7,13 @@ from engine.interface.project_browser import context, project_info, selection_ke
 
 def handle(request):
     method = request.get('method')
-    if method not in ('open_project', 'view', 'files', 'preview', 'mesh', 'software', 'software_preview'): raise ValueError('Unknown operation')
+    if method not in ('open_project', 'view', 'files', 'preview', 'mesh', 'software', 'software_preview', 'professional_views'): raise ValueError('Unknown operation')
     root, source, manifest = context(request.get('project_path'))
     info = project_info(root, source, manifest)
+    if method == 'professional_views':
+        from engine.project_io import load_design_package
+        from engine.design.professional import project_views
+        return project_views(load_design_package(root))
     if method == 'open_project': return info
     target = selection_key(source, request.get('target'))
     if method == 'software':

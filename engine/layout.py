@@ -409,6 +409,13 @@ def dispatch_layout(method, data, resolver=None):
 
 def import_layout(source, scenario=None):
     """Import strict legacy definitions without compiling electrical/kinematic semantics."""
+    if source.get('record_kind') == 'design_package' and source.get('schema_version') == '3.0.0-draft':
+        from engine.design.professional import parse_package, layout_project, resolved_poses
+        p = parse_package(source)
+        result = import_layout(layout_project(p))
+        for ref, pose in resolved_poses(p).items():
+            result['bodies'][ref.replace('/links/', '/bodies/')]['pose'] = pose.model_dump(mode='json')
+        return result
     if source.get("record_kind") == "layout_project":
         from engine.layout_project import compose_project
         return compose_project(source)

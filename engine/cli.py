@@ -58,16 +58,34 @@ def dispatch(method, bundle, scenario=None, *, asset_resolver=None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline product design engine tools")
-    parser.add_argument("method", choices=["validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language", "project"])
+    parser.add_argument("method", choices=["validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language", "project", "project-views", "project-check", "project-simulate", "project-urdf"])
     parser.add_argument("input", nargs="?")
     parser.add_argument("--scenario")
     parser.add_argument("--asset-root", help="Explicit confined asset library for relative STL references")
     parser.add_argument("--unit", choices=["m", "cm", "mm"])
     parser.add_argument('--element-pool', help='Explicit read-only element_pool_2 root for element_* request tools')
+    parser.add_argument('--backend', default='kinematics')
     args = parser.parse_args(argv)
     request_id = None
     try:
-        if args.method == 'project':
+        if args.method in ('project-views', 'project-check', 'project-simulate', 'project-urdf'):
+            from engine.project_io import load_design_package
+            package = load_design_package(args.input, element_pool=args.element_pool)
+            if args.method == 'project-views':
+                from engine.design.professional import project_views
+                output = project_views(package)
+            elif args.method == 'project-check':
+                from engine.execution import run_check
+                output = run_check(package, args.backend).model_dump(mode='json')
+            elif args.method == 'project-urdf':
+                from engine.urdf import export_urdf
+                output = export_urdf(package)
+            else:
+                from engine.execution import run_project_scenario
+                if not args.scenario: raise ValueError('project-simulate requires --scenario relative to project root')
+                path = Path(args.input)
+                output = run_project_scenario(package, path if path.is_dir() else path.parent, args.scenario)
+        elif args.method == 'project':
             if not args.input: raise ValueError('project requires a project folder or project.json')
             from engine.project_io import load_project
             from engine.layout import import_layout, dispatch_layout

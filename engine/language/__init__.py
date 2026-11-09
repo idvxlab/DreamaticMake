@@ -27,6 +27,13 @@ def to_markdown(value) -> str:
     """
     data = record_data(value)
     kind = data.get('record_kind')
+    if kind == 'design_package' and data.get('schema_version') == '3.0.0-draft':
+        from engine.design.professional import parse_package
+        package = parse_package(data)
+        doc = Document('设计项目 · ' + package.manifest.title, kind)
+        doc.section('快照', {'snapshot_id': package.snapshot_id})
+        for field, value in package.model_dump(mode='json').items(): doc.section(field, {field: value})
+        return doc.finish()
     if kind == 'design_package':
         resolved = resolve_design(data)
         package = resolved.package

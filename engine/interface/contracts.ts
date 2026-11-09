@@ -1,4 +1,62 @@
-/** Engine projection wire contracts: layout v1 and DSL 0.2.0-proposal. */
+/** Legacy layout and the professional v2 projection boundary. */
+export type DomainObjectRef = {
+  domain: "mechanical" | "electrical" | "behavior" | "flow";
+  collection: string;
+  id: string;
+};
+export type OccurrenceObjectRef = DomainObjectRef & { instance: string };
+export type ProjectObjectRef = { record_id: string; collection: string; id: string };
+export type PinnedElementRef = {
+  library_id: string;
+  element_id: string;
+  revision: number;
+  content_hash: string;
+};
+export type ProfessionalSource = {
+  pointer: string;
+  element_ref?: PinnedElementRef;
+  record_id?: string;
+  revision?: number;
+  path?: string;
+};
+export type ProfessionalView = {
+  snapshot_id: string;
+  object_refs: Record<string, OccurrenceObjectRef | ProjectObjectRef>;
+  source_map: Record<string, ProfessionalSource>;
+  capabilities: string[];
+  diagnostics: EngineDiagnostic[];
+};
+export type ProfessionalProjection = ProfessionalView & {
+  projection_version: 2;
+  scene: ProfessionalView & Record<string, unknown>;
+  motion: ProfessionalView & Record<string, unknown>;
+  schematic: ProfessionalView & Record<string, unknown>;
+  logic: ProfessionalView & Record<string, unknown>;
+  bom: { element_ref: PinnedElementRef; instances: string[]; quantity: number }[];
+};
+export type ExecutionEvidence = {
+  schema_version: "execution_contract/1.0.0-draft";
+  run_id: string;
+  subject_snapshot_id: string;
+  scenario_hash: string | null;
+  input_asset_hashes: Record<string, string>;
+  backend_versions: Record<string, string>;
+  model_versions: Record<string, string>;
+  options_hash: string;
+  execution: "completed" | "failed" | "unsupported" | "cancelled";
+  outcome: "pass" | "fail" | "unknown";
+  coverage: string[];
+  diagnostics: Record<string, unknown>[];
+  trace_refs: string[];
+};
+export type ProfessionalSample = {
+  value: string | number | boolean | null;
+  unit?: string;
+  sampled_at_s: number;
+  delivered_at_s: number;
+  quality: "valid" | "unknown" | "stale" | "fault";
+  origin: string;
+};
 export type EngineDiagnostic = {
   message: string;
   code?: string;

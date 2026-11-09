@@ -139,7 +139,8 @@ LOWERERS = {
 def to_definition(design):
     from element.categories import COMPONENT_ADAPTER
     from element.schema.library import ElementDefinition
-    if isinstance(design, ElementDefinition):
+    from element.schema.professional import ElementDefinitionV2
+    if isinstance(design, (ElementDefinition, ElementDefinitionV2)):
         from element.io.records import parse_element, element_ref
         design = parse_element(design)
         ref = element_ref(design)

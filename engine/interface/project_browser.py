@@ -25,7 +25,12 @@ def context(path=None):
     root = root.resolve(strict=True)
     if root.is_file() and root.name == 'project.json': root = root.parent
     source = load_project(root)
-    manifest = ProjectManifest.model_validate_json(read_record(package_file(root, 'project.json')))
+    raw = read_record(package_file(root, 'project.json'))
+    if json.loads(raw).get('project_version') == 3:
+        from engine.design.professional import Manifest
+        manifest = Manifest.model_validate_json(raw)
+    else:
+        manifest = ProjectManifest.model_validate_json(raw)
     return root, source, manifest
 
 
@@ -45,6 +50,8 @@ def element_root(root, source, key):
     selection_key(source, key)
     location = source['element_sources'][key]
     if location['kind'] == 'custom':
+        if location['path'].endswith('/element.json'):
+            return package_file(root / 'element', location['path']).parent
         return package_file(root / 'element', location['path'] + '/manifest.json').parent
     library = pool_root().resolve(strict=True)
     return package_file(library, location['folder'] + '/manifest.json').parent

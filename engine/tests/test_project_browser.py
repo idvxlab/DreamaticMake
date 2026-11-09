@@ -87,9 +87,9 @@ class ProjectBrowserTests(unittest.TestCase):
 
     def test_library_definition_files_and_size_limit(self):
         files = handle({'method': 'files', 'target': 'gripper'})['files']
-        self.assertIn('component.json', {f['path'] for f in files})
-        component = handle({'method': 'preview', 'target': 'gripper', 'path': 'component.json'})
-        self.assertEqual(json.loads(component['text'])['id'], 'demo.gripper')
+        self.assertIn('element.json', {f['path'] for f in files})
+        component = handle({'method': 'preview', 'target': 'gripper', 'path': 'element.json'})
+        self.assertEqual(json.loads(component['text'])['element_id'], 'demo.gripper')
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             project_fixture(root)

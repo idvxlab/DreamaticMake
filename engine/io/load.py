@@ -64,7 +64,10 @@ def load_model(path: str | Path):
 def load(path: str | Path, record_type: type[T] | None = None):
     path = Path(path)
     if record_type is None and ((path.is_dir() and (path / 'project.json').is_file()) or path.name == 'project.json'):
-        from engine.project_io import load_project
+        from engine.project_io import load_project, load_design_package, _read
+        root = path if path.is_dir() else path.parent
+        if _read(root, 'project.json').get('project_version') == 3:
+            return load_design_package(path)
         from engine.layout_project import parse_project
         return parse_project(load_project(path))
     if record_type is None and (Path(path).is_dir() or Path(path).suffix.lower() == ".toml"):

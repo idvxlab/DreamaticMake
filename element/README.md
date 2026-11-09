@@ -1,5 +1,8 @@
 # Reusable element library
 
+专业字段 v2、新 revision 显式迁移与项目 v3 的入口见[专业领域协议](../engine/design/PROFESSIONAL.md)。
+新定义使用 `element.schema.professional.ElementDefinitionV2`；历史 v1 读取和哈希保持独立。
+
 元件输入和存储已统一为 D 盘 `element_pool_2` 的逐元件目录，见[目录输入规范](library/packages.md)。
 
 `element/` owns reusable component descriptions. It has no dependency on `engine`, application Context, Pi, or model providers. `engine/` owns assembly, design records, projections, compilation and simulation.

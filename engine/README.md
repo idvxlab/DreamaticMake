@@ -1,5 +1,8 @@
 # Product Design Engine — 0.5.0
 
+项目 v3、四域投影、执行证据和迁移入口见[专业领域协议](design/PROFESSIONAL.md)，
+可运行示例见 [project_1](../examples/project_1/README.md)。旧协议仍由各自读取器解释。
+
 This Python package implements the executable core of the product DSL v2 proposal (`0.2.0-proposal`). It is an offline library and CLI, independent of the existing Node.js server. It never reads `.env`, invokes a model provider, updates Design Context, purchases components, or executes code from a DSL record.
 
 Read-only [element discovery tools](../element/library/README.md) in `engine.element_search` expose category discovery, natural-language/parameter candidate search and exact-pin inspection. A host injects an `ElementRetriever`; JSON CLI requests explicitly configure the source with `--element-pool`. Retrieval does not connect an agent, publish elements or approve selections.

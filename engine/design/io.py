@@ -15,6 +15,11 @@ def parse_record(value):
     return RECORD_ADAPTER.validate_json(_data(value))
 
 def parse_package(value):
+    import json
+    raw = json.loads(_data(value))
+    if raw.get('schema_version') == '3.0.0-draft':
+        from engine.design.professional import parse_package as parse_v3
+        return parse_v3(raw)
     return DesignPackage.model_validate_json(_data(value))
 
 def record_ref(record):
