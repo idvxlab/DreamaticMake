@@ -58,17 +58,33 @@ def dispatch(method, bundle, scenario=None, *, asset_resolver=None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline product design engine tools")
-    parser.add_argument("method", choices=["validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language", "project", "project-views", "project-check", "project-simulate", "project-urdf"])
+    parser.add_argument("method", choices=["tool-list", "tool-prepare", "tool-run", "validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language", "project", "project-views", "project-check", "project-simulate", "project-urdf"])
     parser.add_argument("input", nargs="?")
     parser.add_argument("--scenario")
     parser.add_argument("--asset-root", help="Explicit confined asset library for relative STL references")
     parser.add_argument("--unit", choices=["m", "cm", "mm"])
     parser.add_argument('--element-pool', help='Explicit read-only element_pool_2 root for element_* request tools')
     parser.add_argument('--backend', default='kinematics')
+    parser.add_argument('--tool', default='native_kinematics')
+    parser.add_argument('--operation', default='pose')
+    parser.add_argument('--options', default='{}', help='Typed operation options as JSON')
+    parser.add_argument('--scope', action='append', default=[])
     args = parser.parse_args(argv)
     request_id = None
     try:
-        if args.method in ('project-views', 'project-check', 'project-simulate', 'project-urdf'):
+        if args.method.startswith('tool-'):
+            from engine.tools import describe, prepare, run, ToolRequest
+            from engine.tools.source import project_context, kind
+            if args.method == 'tool-list': output = {'tools':describe(probe=True)}
+            else:
+                if not args.input: raise ValueError('Tool execution requires a project path')
+                ctx = project_context(args.input)
+                request = ToolRequest.model_validate_json(json.dumps({'request_id':__import__('uuid').uuid4().hex,
+                    'tool_id':args.tool,'operation':args.operation,'snapshot_id':ctx.snapshot_id,
+                    'source_kind':kind(ctx.source),'scope':args.scope,'options':json.loads(args.options),'scenario_ref':args.scenario}))
+                prepared = prepare(request,ctx)
+                output = prepared.model_dump(mode='json') if args.method == 'tool-prepare' else run(prepared,ctx).model_dump(mode='json')
+        elif args.method in ('project-views', 'project-check', 'project-simulate', 'project-urdf'):
             from engine.project_io import load_design_package
             package = load_design_package(args.input, element_pool=args.element_pool)
             if args.method == 'project-views':
@@ -191,7 +207,9 @@ def main(argv=None):
             output = dispatch(args.method, bundle, scenario, asset_resolver=resolver)
         print(json.dumps(output, ensure_ascii=True, allow_nan=False, separators=(",", ":")))
         payload = output.get("payload", output)
+        if 'evidence' in payload: return 0 if payload['evidence']['execution'] == 'completed' and payload['evidence']['outcome'] != 'fail' else 2
         status = (payload.get("result") or {}).get("status", payload.get("status", payload.get("preview_status", "completed")))
+        if args.method == 'tool-prepare': return 0 if status == 'ready' else 2
         return 0 if status == "completed" else 2
     except (ValueError, TypeError, OSError, KeyError, RecursionError) as exc:
         if isinstance(exc, ModelError):

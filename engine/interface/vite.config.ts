@@ -82,10 +82,21 @@ function api(): Plugin {
         env: { ...process.env, PYTHONIOENCODING: "utf-8" },
         windowsHide: true,
         stdio: ["pipe", "pipe", "pipe"],
+        detached: process.platform !== 'win32',
       });
       let output = "";
       let errors = "";
       let done = false;
+      const stopTree = () => {
+        if (child.exitCode !== null || !child.pid) return;
+        if (process.platform === 'win32') {
+          const killer = spawn('taskkill.exe', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
+          killer.on('error', () => child.kill());
+        } else {
+          try { process.kill(-child.pid, 'SIGKILL'); } catch { child.kill(); }
+        }
+      };
+      res.on('close', () => { if (!done) stopTree(); });
       const finish = (status: number, body: string) => {
         if (done) return;
         done = true;
@@ -94,12 +105,12 @@ function api(): Plugin {
         res.end(body);
       };
       const timer = setTimeout(() => {
-        child.kill();
+        stopTree();
         finish(504, JSON.stringify({ error: "Engine timed out" }));
       }, 30000);
       child.stdout.on("data", (chunk) => {
         output += chunk;
-        if (output.length > 16_000_000) child.kill();
+        if (output.length > 16_000_000) { stopTree(); finish(502, JSON.stringify({ error: 'Engine output budget exceeded' })); }
       });
       child.stderr.on("data", (chunk) => {
         if (errors.length < 4000) errors += chunk;

@@ -36,21 +36,20 @@ def capabilities():
 
 
 def run_check(p, backend, *, options=None, asset_resolver=None):
+    if backend in ('kinematics','native_kinematics','occt_geometry','fcl_collision'):
+        from pathlib import Path
+        from engine.tools import ToolContext, ToolRequest, prepare, run
+        from engine.tools.source import kind
+        tool = 'native_kinematics' if backend == 'kinematics' else backend
+        operation = {'native_kinematics':'pose','occt_geometry':'inspect_step','fcl_collision':'collision'}[tool]
+        context = ToolContext(p, Path(__file__).resolve().parents[1]/'workspace/tools', asset_resolver)
+        request = ToolRequest(request_id=str(uuid.uuid4()),tool_id=tool,operation=operation,
+            snapshot_id=context.snapshot_id,source_kind=kind(p),options=options or {})
+        return ExecutionResult.model_validate_json(__import__('json').dumps(run(prepare(request,context),context).evidence))
     options = options or {}
     diagnostics, coverage, execution, outcome = [], [], 'completed', 'unknown'
     try:
-        if backend == 'kinematics':
-            if p.motion.couplings or p.motion.configurations or any(p.definition(i).mechanical.couplings for i in p.index.instances):
-                execution = 'unsupported'
-                diagnostics.append({'code': 'kinematics.coupling', 'message': 'Coupling execution is not implemented in this profile'})
-            else:
-                resolved_poses(p, options.get('positions'))
-                coverage = ['link references', 'forest structure', 'root placements', 'initial positions', 'joint limits', 'forward kinematics']
-                missing_limits = [id for id, j in p.effective_joints().items() if j.type in ('prismatic','revolute')
-                    and (j.limit is None or j.limit.lower is None or j.limit.upper is None)]
-                diagnostics.extend({'code':'kinematics.limits_unknown','joint':id} for id in missing_limits)
-                outcome = 'unknown' if missing_limits else 'pass'
-        elif backend == 'mesh_geometry':
+        if backend == 'mesh_geometry':
             from element.io.mesh import resolve_stl, MeshDependencyError
             from element.interfaces.geometry import TriangleMesh
             count = 0
@@ -108,44 +107,18 @@ def run_check(p, backend, *, options=None, asset_resolver=None):
 
 
 def run_project_scenario(p, root, relative):
-    import hashlib
+    """Compatibility projection of the same tool-service evidence and trace."""
     import json
+    from pathlib import Path
     from element.io.package import package_file
     from element.io.load import read_record
-    from element.base.reference import AssetRef
-    from engine.statechart import Scenario, run_statechart
-    if relative not in p.logic.scenarios: raise ValueError('Scenario is not registered in logic record')
-    scenario = Scenario.model_validate_json(read_record(package_file(root, relative)))
-    if scenario.design_snapshot_id != p.snapshot_id: raise ValueError('Scenario design snapshot differs')
-    result = {'execution': 'unsupported', 'outcome': 'unknown', 'trace': [], 'coverage': []}
-    if len(p.logic.units) != 1: raise ValueError('Current statechart profile requires exactly one unit')
-    if p.logic.bindings or p.logic.hardware_bindings:
-        raise ValueError('Current statechart profile does not execute hardware or inter-unit bindings')
-    unit = next(iter(p.logic.units.values()))
-    model = unit['model_ref']
-    if model.get('backend') != 'sismic': raise ValueError('Scenario requires a Sismic model')
-    if model.get('version') != '1.6.11' or model.get('semantic_profile') != 'restricted-v1':
-        raise ValueError('Unsupported Sismic version or semantics profile')
-    if any(s.target not in unit.get('ports', {}) or unit['ports'][s.target]['direction'] not in ('in','bidirectional') for s in scenario.stimuli):
-        raise ValueError('Stimulus requires a declared input event port')
-    asset = AssetRef.model_validate_json(json.dumps(model['asset_ref']))
-    data = package_file(root, asset.relative_path).read_bytes()
-    if hashlib.sha256(data).hexdigest() != asset.sha256: raise ValueError('YAML model hash differs')
-    diagnostics = []
-    try:
-        result = run_statechart(data.decode('utf-8'), scenario)
-    except ImportError:
-        diagnostics.append({'code': 'sismic.unavailable'})
-    except Exception as error:
-        # Sismic also raises contract/nondeterminism/evaluation errors. All are
-        # execution failures with diagnostics, never a successful evidence record.
-        result.update(execution='failed', outcome='unknown')
-        diagnostics.append({'code': 'sismic.execution_failed', 'message': str(error)})
-    evidence = ExecutionResult(run_id=str(uuid.uuid4()), subject_snapshot_id=p.snapshot_id,
-        scenario_hash=record_hash(scenario, 'scenario-v2'), input_asset_hashes={**p.asset_hashes, asset.relative_path: asset.sha256},
-        backend_versions={'sismic': capabilities()['sismic_statechart'] or 'unavailable'},
-        model_versions={unit.get('id', 'statechart'): asset.sha256},
-        options_hash=record_hash({'profile': scenario.backend_profile}, 'execution-options-v1'),
-        execution=result['execution'], outcome=result['outcome'], coverage=tuple(result['coverage']),
-        diagnostics=tuple([*diagnostics, *({'code': 'assertion.failed', **failure} for failure in result.get('failures', []))]))
-    return {**evidence.model_dump(mode='json'), 'trace': result['trace']}
+    from engine.tools import ToolContext, ToolRequest, prepare, run
+    from engine.tools.assets import file_resolver
+    context = ToolContext(p, Path(__file__).resolve().parents[1]/'workspace/tools',
+        file_resolver({'project':root}), lambda ref: read_record(package_file(root,ref)))
+    request = ToolRequest(request_id=str(uuid.uuid4()),tool_id='sismic_statechart',operation='simulate',
+        snapshot_id=p.snapshot_id,source_kind='design_v3',scenario_ref=relative)
+    result = run(prepare(request,context),context)
+    trace = next((a for a in result.artifacts if a['path']=='artifacts/trace.json'),None)
+    frames = json.loads((context.workspace/'runs'/result.evidence['run_id']/trace['path']).read_text(encoding='utf-8')) if trace else []
+    return {**result.evidence,'trace':frames}

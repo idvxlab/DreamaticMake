@@ -16,6 +16,11 @@ def validate_code(code, mode='eval'):
     if not code: return
     if len(code) > 10000: raise ValueError('Statechart code exceeds budget')
     tree = ast.parse(code, mode=mode)
+    pending, count = [(tree,0)], 0
+    while pending:
+        node, depth = pending.pop(); count += 1
+        if count > 2000 or depth > 64: raise ValueError('Statechart AST complexity exceeds budget')
+        pending.extend((child,depth+1) for child in ast.iter_child_nodes(node))
     allowed = (ast.Expression, ast.Module, ast.Expr, ast.Assign, ast.Name, ast.Load, ast.Store,
         ast.Constant, ast.Attribute, ast.Call, ast.keyword, ast.BoolOp, ast.And, ast.Or,
         ast.UnaryOp, ast.Not, ast.USub, ast.UAdd, ast.BinOp, ast.Add, ast.Sub, ast.Mult, ast.Div,
@@ -75,7 +80,7 @@ class Scenario(Contract):
         return self
 
 
-def run_statechart(yaml_text, scenario):
+def run_statechart(yaml_text, scenario, *, validate_only=False):
     """Stable same-time events; explicit wakeups for after guards, bounded microsteps."""
     from sismic.io import import_from_yaml
     from sismic.code import PythonEvaluator
@@ -92,7 +97,16 @@ def run_statechart(yaml_text, scenario):
     for v in scenario.initial.values(): primitive(v)
     for stimulus in scenario.stimuli:
         for v in stimulus.payload.values(): primitive(v)
+    if len(yaml_text.encode('utf-8')) > 256_000: raise ValueError('Statechart YAML exceeds budget')
+    import yaml
+    depth = 0
+    for event in yaml.parse(yaml_text):
+        if isinstance(event, yaml.events.AliasEvent): raise ValueError('YAML aliases are not supported')
+        if isinstance(event, (yaml.events.MappingStartEvent, yaml.events.SequenceStartEvent)): depth += 1
+        if isinstance(event, (yaml.events.MappingEndEvent, yaml.events.SequenceEndEvent)): depth -= 1
+        if depth > 32: raise ValueError('YAML nesting exceeds budget')
     chart = import_from_yaml(text=yaml_text)
+    if len(chart.states) > 512 or len(chart.transitions) > 2048: raise ValueError('Statechart size exceeds budget')
     # Validate every code fragment, including unreachable states and contracts.
     validate_code(chart.preamble, 'exec')
     for name in chart.states:
@@ -106,6 +120,10 @@ def run_statechart(yaml_text, scenario):
         for field in ('preconditions', 'postconditions', 'invariants'):
             for code in getattr(transition, field, []): validate_code(code)
 
+    if validate_only:
+        return {'execution': 'completed', 'outcome': 'unknown', 'trace': [], 'outputs': [],
+            'coverage': ['All statechart code validated against restricted-v1; no simulation executed']}
+    outputs = []
     class RestrictedEvaluator(PythonEvaluator):
         def expression(self, node, extra):
             context = {**self.context, 'time': self._interpreter.time,
@@ -155,6 +173,9 @@ def run_statechart(yaml_text, scenario):
             events = []
             def send(name, **payload):
                 for v in payload.values(): primitive(v)
+                if not isinstance(name, str) or len(name) > 128: raise ValueError('Invalid output event name')
+                if len(outputs) >= 10000: raise ValueError('Output event budget exceeded')
+                outputs.append({'sequence': len(outputs), 'at_s': self._interpreter.time, 'name': name, 'payload': payload})
                 events.append(InternalEvent(name, **payload))
             extra = {**(additional_context or {}), 'send': send}
             for statement in ast.parse(code or '', mode='exec').body:
@@ -193,4 +214,4 @@ def run_statechart(yaml_text, scenario):
         passed = bool(values) and (any(values) if assertion.kind == 'eventually' else (values[-1] if assertion.kind == 'at' else all(values)))
         if not passed: failures.append(assertion.model_dump(mode='json'))
     return {'execution': 'completed', 'outcome': 'fail' if failures else ('pass' if scenario.assertions else 'unknown'),
-            'trace': trace, 'failures': failures, 'coverage': ['Sismic state/event trace at explicit host timestamps; not MCU execution']}
+            'trace': trace, 'outputs': outputs, 'failures': failures, 'coverage': ['Sismic state/event trace at explicit host timestamps; not MCU execution']}

@@ -232,3 +232,16 @@ export type LayoutProjection = {
   check?: LayoutReport;
   motion?: LayoutReport;
 };
+export type ToolDescriptor = {
+  id: string;
+  operations: string[];
+  availability: { worker_ready: boolean | null; reason: string; versions: Record<string, string> };
+};
+export type ToolRunResult = {
+  tool_contract_version: 'tools/1'; tool_id: string; operation: string;
+  evidence: { run_id: string; subject_snapshot_id: string; execution: 'completed' | 'failed' | 'unsupported' | 'cancelled'; outcome: 'pass' | 'fail' | 'unknown' };
+  findings: { finding_id: string; code: string; message: string; refs: string[] }[];
+  coverage_items: { ref: string; covered: boolean; omissions: string[] }[];
+  source_map: Record<string, { ref: string; display_ref?: string }>;
+  presentation: { stale: boolean; overlay_refs: {ref: string; finding_id: string}[]; trajectory_ref: string | null };
+};

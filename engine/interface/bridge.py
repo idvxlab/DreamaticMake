@@ -7,6 +7,19 @@ from engine.interface.project_browser import context, project_info, selection_ke
 
 def handle(request):
     method = request.get('method')
+    if method in ('tools_describe','tools_prepare','tools_run','tools_result','tools_artifact'):
+        from engine.tools import describe, prepare, run, ToolRequest
+        from engine.tools.source import project_context, kind
+        from engine.tools.host import stored_result, artifact
+        if method == 'tools_describe': return {'tools':describe(probe=True)}
+        ctx = project_context(request.get('project_path') or str(__import__('engine.interface.project_browser',fromlist=['DEFAULT_PROJECT']).DEFAULT_PROJECT))
+        if method == 'tools_result': return stored_result(ctx,request.get('run_id'))
+        if method == 'tools_artifact': return artifact(ctx,request.get('run_id'),request.get('artifact_id'))
+        if 'tool_request' not in request:
+            return {'snapshot_id':ctx.snapshot_id,'source_kind':kind(ctx.source)}
+        tool_request = ToolRequest.model_validate_json(json.dumps(request['tool_request']))
+        prepared = prepare(tool_request,ctx)
+        return prepared.model_dump(mode='json') if method == 'tools_prepare' else run(prepared,ctx).model_dump(mode='json')
     if method not in ('open_project', 'view', 'files', 'preview', 'mesh', 'software', 'software_preview', 'professional_views'): raise ValueError('Unknown operation')
     root, source, manifest = context(request.get('project_path'))
     info = project_info(root, source, manifest)

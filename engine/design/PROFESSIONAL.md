@@ -60,4 +60,4 @@ specification、behavior、flow 和部分安装接口仍复用既有类型载荷
 KiCad 原理图生成、回读和真实 ERC，OCCT STEP 读取/选件/离散化缓存，FCL 新协议
 碰撞与离散路径检查，自动定时唤醒、多 unit、端口/引脚/接点/关节桥，以及四域双向
 编辑定位仍需实现。不能因依赖已安装就返回 pass。
-本次未修改 project_2，其 38 实例/36 关节验收不属于 project_1 的验证结果。
+project_2 已单独迁移为目录 v3，保留 38 实例/36 关节/19 网络；迁移前后姿态、资产和新工具验证见 examples/project_2/doc/migration/validation-v3.json。该验收独立于 project_1。
