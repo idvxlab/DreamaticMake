@@ -65,6 +65,8 @@ def main(argv=None):
     parser.add_argument("--unit", choices=["m", "cm", "mm"])
     parser.add_argument('--element-pool', help='Explicit read-only element_pool_2 root for element_* request tools')
     parser.add_argument('--backend', default='kinematics')
+    parser.add_argument('--project-root', help='Host-bound root for context-query requests')
+    parser.add_argument('--project-handle', default='project')
     parser.add_argument('--tool', default='native_kinematics')
     parser.add_argument('--operation', default='pose')
     parser.add_argument('--options', default='{}', help='Typed operation options as JSON')
@@ -133,7 +135,11 @@ def main(argv=None):
             request_id = request.get("request_id")
             if not isinstance(request_id, str) or len(request_id) > 128:
                 raise ValueError("request_id must be a short string")
-            if request['method'] in ('element_search', 'element_inspect', 'element_categories'):
+            if request['method'] == 'context-query':
+                if not args.project_root: raise ValueError('context-query requires host --project-root')
+                from engine.query import QueryService
+                payload = QueryService(args.project_root, args.project_handle).query(request.get('arguments', {})).model_dump(mode='json')
+            elif request['method'] in ('element_search', 'element_inspect', 'element_categories'):
                 if not args.element_pool: raise ValueError('Element tools require a host-supplied --element-pool')
                 from element.library.pool import load_element_pool
                 from engine.element_search import dispatch_element_search
@@ -141,16 +147,8 @@ def main(argv=None):
             elif request['method'] == 'language':
                 from engine.language import to_document
                 payload = to_document(request['source'])
-            elif request["method"].startswith("design_"):
-                from engine.design.dispatch import dispatch_design
-                assets = request.get('assets', {})
-                if not isinstance(assets, dict) or len(assets) > 32:
-                    raise ValueError('Invalid inline assets')
-                def design_resolver(ref):
-                    if ref.relative_path or ref.sha256 not in assets:
-                        raise ValueError('Project asset is unavailable')
-                    return base64.b64decode(assets[ref.sha256], validate=True)
-                payload = dispatch_design(request['method'], request, design_resolver)
+            elif request['method'].startswith('design_'):
+                raise ValueError('Eight-layer design operations have been retired; use native v3 project/tool APIs')
             elif request["method"].startswith("layout_"):
                 from engine.layout import dispatch_layout
                 assets = request.get("assets", {})

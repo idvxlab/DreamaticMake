@@ -23,12 +23,9 @@ def loads(text: str, record_type: type[T] | None = None) -> T | BaseModel:
         if kind == 'element_definition':
             from element.io.records import parse_element
             return parse_element(data)
-        if kind in ('design_record', 'design_package', 'design_manifest'):
-            from engine.design.io import parse_record, parse_package
-            from engine.design.contracts import DesignManifest
-            if kind == 'design_record': return parse_record(data)
-            if kind == 'design_package': return parse_package(data)
-            return DesignManifest.model_validate_json(json.dumps(data, allow_nan=False))
+        if kind == 'design_package':
+            from engine.design import parse_package
+            return parse_package(data)
     if record_type is None and data.get("record_kind") == "component_design":
         from element.io.components import parse_component
         return parse_component(data)

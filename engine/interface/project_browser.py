@@ -11,7 +11,7 @@ from element.base.reference import AssetRef
 from element.io.load import read_asset
 from element.io.mesh import MAX_STL_BYTES
 
-DEFAULT_PROJECT = Path(__file__).resolve().parents[2] / 'examples/project_1'
+DEFAULT_PROJECT = Path(__file__).resolve().parents[2] / 'examples/project_2'
 PREVIEW_TYPES = {'.json': ('json', 'application/json'), '.md': ('markdown', 'text/markdown'),
     '.txt': ('text', 'text/plain'), '.pdf': ('pdf', 'application/pdf'),
     '.png': ('image', 'image/png'), '.jpg': ('image', 'image/jpeg'), '.jpeg': ('image', 'image/jpeg'),

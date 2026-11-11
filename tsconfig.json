@@ -13,5 +13,5 @@
     "noEmit": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["tests", "scripts", "engine/interface", "engine/custom_model"]
+  "include": ["tests", "scripts", "engine/interface", "engine/custom_model", "harness/src"]
 }

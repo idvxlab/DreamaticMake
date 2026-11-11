@@ -1,12 +1,13 @@
 """Design package v3: one pinned source, four derived views, no approvals."""
 import json
 from typing import Literal
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 from element.base.contract import Contract, Id, Sha256
 from element.base.frame import Pose
 from element.schema.library import ElementRef
 from element.schema.professional import ElementDefinitionV2, Joint, OccurrenceRef
 from element.io.records import element_ref, record_hash
+from .authoring import LinkRef, PinRef, ProjectJoint, occurrence
 
 
 class Location(Contract):
@@ -35,20 +36,38 @@ class Record(Contract):
 
 
 class Placement(Contract):
-    relative_to: OccurrenceRef
-    origin: Pose
+    relative_to: LinkRef
+    origin: Pose = Pose()
 
 
 class Structure(Record):
     frame_id: Id = 'world'
     root_placements: dict[str, Pose] = Field(default_factory=dict)
     placements: dict[str, Placement] = Field(default_factory=dict)
+    # Source-only shared metadata is materialized into each connection before
+    # hashing, projection or execution. Explicit per-connection values win.
+    mount_defaults: dict[Literal['hardware', 'status', 'source_record'], str] = Field(default_factory=dict, exclude=True)
     mount_connections: dict[Id, dict] = Field(default_factory=dict)
     display_overrides: dict = Field(default_factory=dict)
 
+    @field_validator('mount_connections', mode='before')
+    @classmethod
+    def expand_mounts(cls, value, info):
+        if not isinstance(value, dict): return value
+        result = {}
+        for id, item in value.items():
+            if not isinstance(item, dict): raise ValueError('Mount connection must be an object')
+            item = {**info.data.get('mount_defaults', {}), **item}
+            for end in ('a', 'b'):
+                if end in item:
+                    ref = OccurrenceRef.model_validate_json(json.dumps(occurrence(item[end], 'mechanical', 'mounts')))
+                    item[end] = ref.model_dump(mode='json')
+            result[id] = item
+        return result
+
 
 class Motion(Record):
-    joints: dict[str, Joint] = Field(default_factory=dict)
+    joints: dict[str, ProjectJoint] = Field(default_factory=dict)
     initial_positions: dict[str, float] = Field(default_factory=dict)
     configurations: dict[str, dict] = Field(default_factory=dict)
     couplings: dict[str, dict] = Field(default_factory=dict)
@@ -59,9 +78,26 @@ class Motion(Record):
 class Net(Contract):
     name: str
     kind: Literal['signal', 'power', 'ground'] = 'signal'
-    nodes: tuple[OccurrenceRef, ...] = Field(min_length=2, max_length=128)
+    nodes: tuple[PinRef, ...] = Field(min_length=2, max_length=128)
     reference_net: Id | None = None
     evidence_refs: tuple[Id, ...] = ()
+
+
+class NetInput(Net):
+    # Within Electrical.nets, an omitted name is inherited from the map key.
+    name: str = ''
+
+
+class UnconnectedPin(Contract):
+    pin: PinRef
+    intentional: bool
+    reason: str = Field(min_length=1)
+
+
+class UnconnectedGroup(Contract):
+    pins: tuple[PinRef, ...] = Field(min_length=1, max_length=128)
+    intentional: bool
+    reason: str = Field(min_length=1)
 
 
 class Electrical(Record):
@@ -72,6 +108,33 @@ class Electrical(Record):
     pin_config: dict[str, dict] = Field(default_factory=dict)
     interface_config: dict[str, dict] = Field(default_factory=dict)
     schematic: dict = Field(default_factory=dict)
+
+    @field_validator('nets', mode='before', json_schema_input_type=dict[Id, NetInput])
+    @classmethod
+    def net_names(cls, value):
+        if not isinstance(value, dict): return value
+        return {id: Net.model_validate_json(json.dumps({'name': id, **net}))
+                if isinstance(net, dict) else net for id, net in value.items()}
+
+    @field_validator('unconnected', mode='before', json_schema_input_type=tuple[UnconnectedPin | UnconnectedGroup, ...])
+    @classmethod
+    def expand_unconnected(cls, value):
+        if not isinstance(value, (list, tuple)): return value
+        result = []
+        for item in value:
+            if not isinstance(item, dict) or not ('pins' in item or 'pin' in item):
+                raise ValueError('Unconnected declaration requires pin or pins')
+            if 'pins' in item:
+                group = UnconnectedGroup.model_validate_json(json.dumps(item))
+                pins = [pin.model_dump(mode='json') for pin in group.pins]
+                metadata = {k: v for k, v in item.items() if k != 'pins'}
+            else:
+                pins = [item['pin']]
+                metadata = {k: v for k, v in item.items() if k != 'pin'}
+            for pin in pins:
+                ref = OccurrenceRef.model_validate_json(json.dumps(occurrence(pin, 'electrical', 'pins')))
+                result.append({'pin': ref.model_dump(mode='json'), **metadata})
+        return tuple(result)
 
 
 class Logic(Record):

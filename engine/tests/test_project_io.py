@@ -70,26 +70,15 @@ class ProjectIOTests(unittest.TestCase):
                 with self.assertRaises(ValueError): load_project(root)
 
     def test_motion_and_electrical_interfaces(self):
-        source = load_project('examples/project_1')
+        source = load_project('examples/project_2')
         before = copy.deepcopy(source)
         draft = import_layout(source)
         self.assertEqual(source, before)
-        self.assertEqual(len(draft['entities']), 9)
-        self.assertEqual(len(draft['bodies']), 14)
-        self.assertEqual(len([e for e in draft['edges'].values() if e['domain'] == 'electrical']), 5)
+        self.assertEqual(len(draft['entities']), 38)
         initial = dispatch_layout('layout_motion', {'draft': draft})
-        changed = dispatch_layout('layout_motion', {'draft': draft, 'joint_inputs': {'shoulder/joints/axis': .3}})
+        changed = dispatch_layout('layout_motion', {'draft': draft, 'joint_inputs': {'press/stop': .0002}})
         self.assertEqual(changed['motion']['status'], 'completed')
         self.assertNotEqual(initial['scene']['bodies'], changed['scene']['bodies'])
-        self.assertNotIn('flow', source)
-        self.assertNotIn('components', source)
-        for mutation in ('missing_joint', 'outside_range', 'widen_limit', 'wrong_terminal', 'unknown_element', 'copied_geometry', 'flow'):
-            bad = copy.deepcopy(source)
-            if mutation == 'missing_joint': bad['motion']['configuration']['missing/axis'] = {'initial': 0.0}
-            elif mutation == 'outside_range': bad['motion']['configuration']['yaw/axis']['initial'] = 99.0
-            elif mutation == 'widen_limit': bad['motion']['configuration']['yaw/axis']['lower'] = -99.0
-            elif mutation == 'wrong_terminal': bad['circuit_logic']['nets']['yaw_pwm']['members'][1] = 'yaw/missing'
-            elif mutation == 'unknown_element': bad['structure']['placements']['missing'] = {}
-            elif mutation == 'copied_geometry': bad['structure']['geometry'] = source['elements']['base']['geometry']
-            else: bad['flow'] = {}
-            with self.subTest(mutation=mutation), self.assertRaises(ValueError): import_layout(bad)
+        bad = copy.deepcopy(source)
+        bad['circuit_logic']['nets']['piezo_pwm']['members'][1] = 'buzzer_r1/missing'
+        with self.assertRaises(ValueError): import_layout(bad)

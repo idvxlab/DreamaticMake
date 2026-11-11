@@ -16,5 +16,5 @@
 .\python.cmd scripts/check-element-pool.py 'D:\【项目】设计引擎\DreamaticMaker\element_pool_2'
 ```
 
-完整的组装案例见 [project_1](../../examples/project_1/README.md)。库记录和测试通过
+完整的组装案例见 [project_2](../../examples/project_2/README.md)。库记录和测试通过
 不表示媒体采样、电池续航、固件或制造性能已经验证。

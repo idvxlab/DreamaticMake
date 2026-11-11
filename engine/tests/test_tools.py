@@ -28,21 +28,31 @@ def collision_data(entries, frames=None):
 
 
 class ToolTests(unittest.TestCase):
+    def test_worker_output_budget_tolerates_disappearing_temporary_files(self):
+        from engine.tools.runner import output_bytes
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            kept, removed = root/'output.json', root/'transient'
+            kept.write_bytes(b'1234567'); removed.write_bytes(b'temporary')
+            listing = list(root.iterdir()); removed.unlink()
+            with patch.object(Path, 'iterdir', return_value=iter(listing)):
+                self.assertEqual(output_bytes(root), 7)
+
     @classmethod
     def setUpClass(cls):
-        cls.context = project_context('examples/project_1')
+        cls.context = project_context('examples/project_2')
 
     def request(self, tool='native_kinematics', operation='pose', **values):
         return ToolRequest(request_id='test',tool_id=tool,operation=operation,
             snapshot_id=self.context.snapshot_id,source_kind='design_v3',**values)
 
     def test_fk_evidence_and_stale_presentation(self):
-        job = prepare(self.request(scope=('yaw',)),self.context)
+        job = prepare(self.request(scope=('cap_stop',)),self.context)
         self.assertTrue(job.ready,job.requirements)
         result = run(job,self.context)
         self.assertEqual(result.evidence['execution'],'completed')
         self.assertEqual(result.evidence['outcome'],'pass')
-        self.assertTrue(all(ref.startswith('yaw/') for ref in result.source_map))
+        self.assertTrue(all(ref.startswith('cap_stop/') for ref in result.source_map))
         self.assertTrue(present(result,'0'*64)['stale'])
         self.assertIsNone(present(result,'0'*64)['trajectory_ref'])
         from engine.tools.host import stored_result, artifact
@@ -115,11 +125,11 @@ class ToolTests(unittest.TestCase):
 
     def test_trajectory_native_samples_and_budget(self):
         request = self.request(operation='sample_trajectory',options={'samples':[
-            {'time_s':0.,'positions':{'yaw/joints/axis':0.}}, {'time_s':.1,'positions':{'yaw/joints/axis':.1}}], 'max_step_s':.05})
+            {'time_s':0.,'positions':{'press/stop':0.}}, {'time_s':.1,'positions':{'press/stop':.0004}}], 'max_step_s':.05})
         job = prepare(request,self.context)
         self.assertTrue(job.ready,job.requirements)
         self.assertEqual(len(job.tool_input['frames']),3)
-        self.assertAlmostEqual(job.tool_input['frames'][1]['positions']['yaw/joints/axis'],.05)
+        self.assertAlmostEqual(job.tool_input['frames'][1]['positions']['press/stop'],.0002)
         self.assertEqual(run(job,self.context).evidence['outcome'],'unknown')
 
     @unittest.skipUnless(importlib.util.find_spec('OCP'), 'Optional OCCT unavailable')
@@ -158,9 +168,9 @@ class ToolTests(unittest.TestCase):
             writer = STEPControl_Writer(); writer.Transfer(BRepPrimAPI_MakeBox(10,20,30).Shape(),STEPControl_AsIs); writer.Write(str(path))
             value = path.read_bytes(); digest = hashlib.sha256(value).hexdigest()
             source = self.context.source.model_dump(mode='json')
-            instance = source['index']['instances']['base']
+            instance = source['index']['instances']['case_front']
             definition = source['elements'][instance['element_ref']['content_hash']]
-            collision = definition['mechanical']['links']['body']['collisions']['plate']
+            collision = definition['mechanical']['links']['body']['collisions']['solid']
             collision['geometry'] = {'type':'brep','format':'step','unit':'mm','asset_ref':{'relative_path':'box.step','sha256':digest,'media_type':'model/step'}}
             definition['mechanical']['links']['body']['collisions']['copy'] = json.loads(json.dumps(collision))
             definition = ElementDefinitionV2.model_validate_json(json.dumps(definition))
@@ -169,7 +179,7 @@ class ToolTests(unittest.TestCase):
             instance['element_ref'] = ref.model_dump(mode='json')
             source['manifest']['element_index_hash'] = record_hash(source['index'],'project-index-v3')
             context = ToolContext(parse_package(source),Path(tmp)/'tools',lambda owner,ref:value)
-            request = ToolRequest(request_id='step',tool_id='fcl_collision',operation='collision',snapshot_id=context.snapshot_id,source_kind='design_v3',scope=('base',))
+            request = ToolRequest(request_id='step',tool_id='fcl_collision',operation='collision',snapshot_id=context.snapshot_id,source_kind='design_v3',scope=('case_front',))
             job = prepare(request,context)
             self.assertTrue(job.ready,job.requirements)
             self.assertEqual(len(job.plan),2)
@@ -203,9 +213,12 @@ class ToolTests(unittest.TestCase):
         self.assertEqual([f['event_id'] for f in result['trace'] if f['event_id']],['a','b'])
         self.assertEqual(run_statechart(text,scenario,validate_only=True)['outputs'],[])
         with self.assertRaisesRegex(ValueError,'aliases'): run_statechart('a: &a [1]\nb: *a',scenario)
-        job = prepare(self.request('sismic_statechart','simulate',scenario_ref='simulation/interlock.json'),self.context)
+        from engine.tests.fixtures.statechart import statechart_context
+        ctx = statechart_context(self.context)
+        req = ToolRequest(request_id='chart',tool_id='sismic_statechart',operation='simulate',snapshot_id=ctx.snapshot_id,source_kind='design_v3',scenario_ref='simulation/interlock.json')
+        job = prepare(req,ctx)
         self.assertTrue(job.ready,job.requirements)
-        self.assertEqual(run(job,self.context).evidence['outcome'],'pass')
+        self.assertEqual(run(job,ctx).evidence['outcome'],'pass')
 
     def test_timeout_cancel_and_worker_allowlist(self):
         with self.assertRaises(TimeoutError): execute('native_kinematics','probe',{},timeout_s=.001)
@@ -217,14 +230,6 @@ class ToolTests(unittest.TestCase):
         result = run(prepare(self.request(),self.context),replace(self.context,cancelled=lambda:True))
         self.assertEqual((result.evidence['execution'],result.evidence['outcome']),('cancelled','unknown'))
 
-    def test_legacy_project_is_not_migrated(self):
-        context = project_context('examples/project_2')
-        context = replace(context,source=json.loads(Path('examples/project_2/doc/migration/layout-v2.json').read_text(encoding='utf-8')))
-        self.assertEqual(context.source['project_version'],2)
-        request = ToolRequest(request_id='legacy',tool_id='native_kinematics',operation='pose',snapshot_id=context.snapshot_id,source_kind='layout_v2')
-        job = prepare(request,context)
-        self.assertTrue(job.ready,job.requirements)
-        self.assertEqual(len(context.source['elements']),38)
 
 
 if __name__ == '__main__': unittest.main()

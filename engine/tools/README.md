@@ -17,9 +17,9 @@
 .runtime/python/Scripts/python.exe -m pip install -r engine/tools/requirements/occt.txt
 .runtime/python/Scripts/python.exe -m pip install -r engine/tools/requirements/collision.txt
 .runtime/python/Scripts/python.exe -m engine.cli tool-list
-.runtime/python/Scripts/python.exe -m engine.cli tool-run examples/project_1 --tool native_kinematics --operation pose
-.runtime/python/Scripts/python.exe -m engine.cli tool-run examples/project_1 --tool fcl_collision --operation collision
-.runtime/python/Scripts/python.exe -m engine.cli tool-run examples/project_1 --tool sismic_statechart --operation simulate --scenario simulation/interlock.json
+.runtime/python/Scripts/python.exe -m engine.cli tool-run examples/project_2 --tool native_kinematics --operation pose
+.runtime/python/Scripts/python.exe -m engine.cli tool-run examples/project_2 --tool fcl_collision --operation collision
+.runtime/python/Scripts/python.exe -m engine.cli tool-run examples/project_2 --tool occt_geometry --operation inspect_step --scope case_front
 ```
 
 `--scope` 可重复，选择 instance、link/body 或具体几何 occurrence。子集只检查子集内部，项目环境必须加入 scope 或使用全项目。`--options` 接受对应操作的严格 JSON schema；轨迹需要 `samples: [{time_s, positions}]`、`max_step_s`，连续关节需要 `continuous_policy: "unwrapped"`。插值只对关节位置，时间严格递增，总采样最多 2000，pair×sample 最多 100000。
@@ -39,7 +39,7 @@ worker 使用固定解释器、白名单模块与操作，单项累计 20 秒预
 ## 当前边界
 
 - STEP 仅整份选择；名称/产品路径子形状选择、多单位混合、自动修复未实现，显式 unsupported/needs_input。
-- v2 当前支持 FK/FCL；八层 DesignPackage、ModelBundle/IR 的新工具 source adapter 尚未实现，旧 API 保持。
+- v2 当前支持 FK/FCL；ModelBundle/IR 的新工具 source adapter 尚未实现，旧 API 保持。
 - 耦合、非空 collision_policy、硬件/多 unit bridge、动态自动唤醒和连续碰撞 profile 不执行。record/带单位或字段的输入事件暂拒绝，不猜测端口含义。
 - send trace 是解释器中可信 hook 记录的事件，未声明硬件端口映射。状态图通过不代表 MCU 固件或产品仿真通过。
 - 工作台当前提供单次分析与来源定位；完整轨迹参数通过 CLI/库接口，持久 JobManager 和联合仿真不在本期。

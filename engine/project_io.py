@@ -54,6 +54,7 @@ class ProjectDocument(Contract):
     path: str
     media_type: str
     title: str
+    currency: Literal['current', 'historical', 'unresolved'] = 'unresolved'
 
 
 class StageDocuments(Contract):

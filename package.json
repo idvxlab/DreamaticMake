@@ -13,11 +13,12 @@
     "engine:dev": "vite --config engine/interface/vite.config.ts",
     "engine:build": "tsc --noEmit && vite build --config engine/interface/vite.config.ts",
     "engine:preview": "vite preview --config engine/interface/vite.config.ts",
-    "test:ui:standalone-engine": "node --import tsx scripts/test-standalone-engine-ui.ts",
+    "test:ui:standalone-engine": "node --import tsx scripts/test-project2-v3-ui.ts",
     "format": "prettier --write \"engine/**/*.{ts,tsx,css,html}\" \"scripts/*.{ts,mjs}\" \"tests/*.ts\" \"*.json\" \"*.md\""
   },
   "dependencies": {
     "@jscad/modeling": "2.13.0",
+    "@mariozechner/pi-coding-agent": "0.73.1",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "three": "0.180.0"

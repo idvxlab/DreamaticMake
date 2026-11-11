@@ -15,9 +15,8 @@ def export_schema(record_kind: str) -> dict:
         model = {'project_manifest': ProjectManifest, 'project_elements': ProjectElementIndex,
                  'project_library_element': LibraryElement, 'project_documents': ProjectDocuments}[record_kind]
         return {'$schema': 'https://json-schema.org/draft/2020-12/schema', **model.model_json_schema()}
-    if record_kind in ('design_record', 'design_manifest', 'design_package'):
-        from engine.design.io import export_schema as design_schema
-        return design_schema(record_kind)
+    if record_kind in ('design_package', 'design_manifest'):
+        return export_schema('design_package_v3' if record_kind == 'design_package' else 'project_manifest_v3')
     if record_kind in ('element_definition', 'element_ref', 'catalog_entry'):
         from element.io.records import export_schema as element_schema
         return element_schema(record_kind)

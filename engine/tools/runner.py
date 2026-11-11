@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -18,6 +19,16 @@ def stop_tree(process):
         try: os.killpg(process.pid, signal.SIGKILL)
         except ProcessLookupError: pass
     process.wait(timeout=5)
+
+
+def output_bytes(folder):
+    """Workers may delete transient files between directory enumeration and stat."""
+    total = 0
+    for path in folder.iterdir():
+        try: info = path.stat(follow_symlinks=False)
+        except FileNotFoundError: continue
+        if stat.S_ISREG(info.st_mode): total += info.st_size
+    return total
 
 
 def execute(tool, operation, tool_input, *, timeout_s=20, cancelled=lambda: False, directory=None):
@@ -41,7 +52,7 @@ def execute(tool, operation, tool_input, *, timeout_s=20, cancelled=lambda: Fals
                 while process.poll() is None:
                     if cancelled(): raise InterruptedError('Tool request cancelled')
                     if time.monotonic()-start >= timeout_s: raise TimeoutError('Tool worker timed out')
-                    if sum(p.stat().st_size for p in folder.iterdir() if p.is_file()) > 64_000_000: raise ValueError('Worker output budget exceeded')
+                    if output_bytes(folder) > 64_000_000: raise ValueError('Worker output budget exceeded')
                     time.sleep(.02)
             finally: stop_tree(process)
         if not output_file.exists(): raise ValueError('Worker failed before publishing output')
