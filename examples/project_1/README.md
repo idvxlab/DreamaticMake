@@ -13,12 +13,13 @@
 | `design/motion.json` | 16条跨元件固定关系；内部关节及默认初值归按键机构 |
 | `design/circuit-logic.json` | 网络及24个显式未接引脚 |
 | `design/logic.json` | MicroPython工程、目标平台和源码清单哈希 |
-| `doc/index.json` | 当前参考资料和保留过程成果的登记入口 |
-| `doc/tasks/index.json` | 分包任务所需查询及文档范围 |
-| `doc/<stage>/` | 需求、决定、设计理由和阶段独有成果 |
-| `analysis/tools.json` | 当前工程快照的实际工具检查配置 |
+| `documents.json` | 空文档索引，保证最终方案独立加载，不依赖本地过程资料 |
 
-任务资料在 `doc/` 维护；工程结果在 `design/` 或 `element/` 维护，避免在说明中复制一套可编辑工程数据。
+Git 追踪最终工程方案：项目清单、工程记录、元件定义与参数、STEP/STL、固定来源附件、软件源码及测试。
+`doc/` 中的需求整理、过程说明、阶段截图、历史BOM及验证报告，以及 `analysis/` 工具检查配置，
+仅保留在本地并由 `.gitignore` 排除。远端检出不包含这些资料，也不提供依赖本地资料的任务上下文。
+元件中被哈希固定引用的参数和几何来源记录继续保留，避免破坏方案依赖。
+`.gitattributes` 保留元件附件和软件文件的原始字节，避免跨平台换行转换破坏固定哈希。
 CAD、打印姿态和装配姿态分别保留；STL/STEP显式声明mm，原生位姿使用m。
 简写规则见[项目协议](../../engine/project_io.md)。
 
@@ -28,14 +29,13 @@ CAD、打印姿态和装配姿态分别保留；STL/STEP显式声明mm，原生�
 例如 `button_stop/joints/press` 控制 `button_stop/cap/links/body`；BOM按 children 展开。
 元件和几何资产未改版，仅新增组合定义。开关 pressed 仍是环境输入，未将键帽位移推导为触点仿真。
 
-需求和功能见 [doc/requirements/README.md](doc/requirements/README.md)，用户原文与决定仍在该目录。
 软件说明见 [software/Feather_RP2040_1/README.md](software/Feather_RP2040_1/README.md)。
-打印交付见 [doc/print_optimization/README.md](doc/print_optimization/README.md)。
+打印几何保存在各元件的 `assets/print.step`；本地过程说明和交付归档位于 `doc/`。
 
 ```powershell
 .\python.cmd -m engine project-views examples/project_1
 .\python.cmd -m engine tool-run examples/project_1 --tool native_kinematics --operation pose
-.\python.cmd scripts/verify-project2-v3.py examples/project_1
+.\python.cmd scripts/verify-project2-v3.py examples/project_1 --no-tools
 ```
 
 旧选型版本、迁移副本、过时生成器和重复说明已保存到

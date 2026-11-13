@@ -1,0 +1,7 @@
+# Project asset/source manifests pin byte hashes. Preserve the source bytes on
+# every platform so a checkout can verify the published design unchanged.
+examples/project_1/element/**/assets/** -text
+examples/project_1/element/**/sources/** -text
+examples/project_1/element/**/source-parameters.json -text
+examples/project_1/element/**/geometry_audit.json -text
+examples/project_1/software/** -text

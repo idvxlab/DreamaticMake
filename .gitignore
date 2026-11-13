@@ -17,6 +17,10 @@ coverage/
 /workspace/
 /projects/
 
+# Local example design history and intermediate tool profiles
+/examples/project_*/doc/
+/examples/project_*/analysis/
+
 # Local AI collaboration documents
 /agent/
 /overleaf/
