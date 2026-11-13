@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
+import type { TestContext } from "node:test";
 import { mkdir, mkdtemp, symlink, writeFile } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
@@ -14,7 +15,22 @@ import { isSameOriginRequest } from "../apps/server/src/request-origin";
 import { serveAppearancePreview } from "../apps/server/src/appearance-previews";
 import { serveCadResults } from "../apps/server/src/cad-results";
 
-test("the live appearance preview serves a finished image before the agent submits its artifact", async () => {
+async function externalLink(t: TestContext, source: string, target: string, check: () => Promise<void>) {
+  await t.test("excludes an external symbolic link", async (t) => {
+    try {
+      await symlink(source, target);
+    } catch (error) {
+      if (process.platform === "win32" && (error as NodeJS.ErrnoException).code === "EPERM") {
+        t.skip("Windows does not grant symbolic link creation privileges");
+        return;
+      }
+      throw error;
+    }
+    await check();
+  });
+}
+
+test("the live appearance preview serves a finished image before the agent submits its artifact", async (t) => {
   const workspace = await mkdtemp(join(tmpdir(), "dreamatic-appearance-"));
   const project = await new ProjectStore(workspace).create("Appearance", "Show the image before the turn finishes");
   const directory = join(workspace, project.id, "workspace", "appearance");
@@ -33,7 +49,9 @@ test("the live appearance preview serves a finished image before the agent submi
   }
   await writeFile(join(directory, "render.png"), png.subarray(0, -12));
   await writeFile(join(workspace, "outside.png"), png);
-  await symlink(join(workspace, "outside.png"), join(directory, "external.png"));
+  await externalLink(t, join(workspace, "outside.png"), join(directory, "external.png"), async () => {
+    assert.deepEqual(await get(path), { status: 200, body: "[]" });
+  });
   assert.deepEqual(await get(path), { status: 200, body: "[]" });
 
   await writeFile(join(directory, "render.png"), png);
@@ -43,7 +61,7 @@ test("the live appearance preview serves a finished image before the agent submi
   assert.deepEqual(await get(`${path}/${preview.id}`), { status: 200, body: png });
 });
 
-test("CAD previews wait for complete exports and respect the selected stage and artifact hash", async () => {
+test("CAD previews wait for complete exports and respect the selected stage and artifact hash", async (t) => {
   const workspace = await mkdtemp(join(tmpdir(), "dreamatic-cad-preview-"));
   const store = new ProjectStore(workspace);
   const project = await store.create("CAD", "Show stage results");
@@ -70,7 +88,9 @@ test("CAD previews wait for complete exports and respect the selected stage and 
   }
   await writeFile(join(folder, "scene.stl"), stl.subarray(0, -1));
   await writeFile(join(workspace, "outside.stl"), stl);
-  await symlink(join(workspace, "outside.stl"), join(folder, "outside.stl"));
+  await externalLink(t, join(workspace, "outside.stl"), join(folder, "outside.stl"), async () => {
+    assert.deepEqual(JSON.parse((await get(path)).body.toString()), []);
+  });
   assert.deepEqual(JSON.parse((await get(path)).body.toString()), []);
   await writeFile(join(folder, "scene.stl"), stl);
   const [preview] = JSON.parse((await get(path)).body.toString());

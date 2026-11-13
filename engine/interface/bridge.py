@@ -7,9 +7,26 @@ from engine.interface.project_browser import context, project_info, selection_ke
 
 def handle(request):
     method = request.get('method')
-    if method not in ('open_project', 'view', 'files', 'preview', 'mesh', 'software', 'software_preview'): raise ValueError('Unknown operation')
+    if method in ('tools_describe','tools_prepare','tools_run','tools_result','tools_artifact'):
+        from engine.tools import describe, prepare, run, ToolRequest
+        from engine.tools.source import project_context, kind
+        from engine.tools.host import stored_result, artifact
+        if method == 'tools_describe': return {'tools':describe(probe=True)}
+        ctx = project_context(request.get('project_path') or str(__import__('engine.interface.project_browser',fromlist=['DEFAULT_PROJECT']).DEFAULT_PROJECT))
+        if method == 'tools_result': return stored_result(ctx,request.get('run_id'))
+        if method == 'tools_artifact': return artifact(ctx,request.get('run_id'),request.get('artifact_id'))
+        if 'tool_request' not in request:
+            return {'snapshot_id':ctx.snapshot_id,'source_kind':kind(ctx.source)}
+        tool_request = ToolRequest.model_validate_json(json.dumps(request['tool_request']))
+        prepared = prepare(tool_request,ctx)
+        return prepared.model_dump(mode='json') if method == 'tools_prepare' else run(prepared,ctx).model_dump(mode='json')
+    if method not in ('open_project', 'view', 'files', 'preview', 'mesh', 'software', 'software_preview', 'professional_views'): raise ValueError('Unknown operation')
     root, source, manifest = context(request.get('project_path'))
     info = project_info(root, source, manifest)
+    if method == 'professional_views':
+        from engine.project_io import load_design_package
+        from engine.design.professional import project_views
+        return project_views(load_design_package(root))
     if method == 'open_project': return info
     target = selection_key(source, request.get('target'))
     if method == 'software':
@@ -38,9 +55,9 @@ def handle(request):
     result = dispatch_layout('layout_motion', {'draft': draft, 'joint_inputs': inputs})
     for ref, port in result['circuit']['ports'].items():
         port['connections'] = connections.get(ref, [])
-        parts = ref.split('/')
-        if len(parts) == 3 and parts[1] == 'terminals':
-            terminal = elements.get(parts[0], {}).get('wiring', {}).get('terminals', {}).get(parts[2], {})
+        owner, separator, id = ref.rpartition('/terminals/')
+        if separator:
+            terminal = elements.get(owner, {}).get('wiring', {}).get('terminals', {}).get(id, {})
             if number := terminal.get('physical_pin_number'):
                 port['physical_pin_number'] = number
     return {'project': info, 'selection': {'key': target, 'level': 'element' if target is not None else 'project'}, **result}
@@ -54,8 +71,9 @@ def focused_element(source, key):
         if belongs(joint['parent']) and belongs(joint['child'])}
     from engine.layout_project import expand_ref
     joint_refs = set(joints) | {expand_ref(ref, 'joints') for ref in source['motion']['configuration'] if belongs(ref)}
-    return {**source, 'elements': {key: source['elements'][key]},
-        'element_sources': {key: source['element_sources'][key]},
+    selected = {id: value for id, value in source['elements'].items() if id == key or id.startswith(prefix)}
+    return {**source, 'elements': selected,
+        'element_sources': {id: source['element_sources'][id] for id in selected},
         'structure': {'placements': {}},
         'motion': {'joints': joints,
             'configuration': {k: v for k, v in source['motion']['configuration'].items() if belongs(k)},

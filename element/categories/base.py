@@ -46,3 +46,8 @@ class ComponentDesign(Definition):
     def replace(self, **changes):
         """Validated immutable edit, unlike unchecked model_copy(update=...)."""
         return type(self).model_validate({**dict(self), **changes})
+
+    def to_element_v2(self, *, library_id, revision=None):
+        """Explicit category adapter: returns a new revision and migration report."""
+        from element.migration import migrate_component
+        return migrate_component(self, library_id=library_id, revision=revision)

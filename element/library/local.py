@@ -144,22 +144,35 @@ class ElementLibrary:
         d = definition
         ref = element_ref(d)
         exact = [normalize(x) for x in (d.name, *d.aliases, d.product.model or '') if x]
-        procurement = d.model.procurement
+        from element.schema.professional import ElementDefinitionV2
+        native = isinstance(d, ElementDefinitionV2)
+        if native:
+            from element.schema.commerce import Procurement
+            procurement = Procurement.model_validate_json(canonical_json(d.procurement)) if d.procurement else None
+        else:
+            procurement = d.model.procurement
         text = normalize(' '.join([d.library_id, d.element_id, d.name, d.category, *d.aliases,
             *d.tags, *d.roles, d.product.manufacturer or '', d.product.model or '', d.description_markdown,
             *([procurement.manufacturer or '', procurement.model or '', procurement.sku or '',
                procurement.description, *procurement.tags] if procurement else [])]))
-        protocols = sorted({i.protocol for i in getattr(d.model, 'interfaces', {}).values()})
+        protocols = sorted({i.get('protocol') for i in d.electrical.interfaces.values() if i.get('protocol')}) if native else sorted({i.protocol for i in getattr(d.model, 'interfaces', {}).values()})
         parameters = {}
-        for name, p in d.parameters.items():
+        for name, p in (() if native else d.parameters.items()):
             bounds = p.limits or (type('Bounds', (), {'min': p.value, 'max': p.value}) if p.value else None)
             if not bounds: continue
             verified = bool(p.evidence_ids) and any(d.evidence[e].basis != 'assumption' for e in p.evidence_ids)
             parameters[name] = {'min': bounds.min.si_value, 'max': bounds.max.si_value,
                                 'dimension': bounds.min.dimension, 'verified': verified}
+        if native:
+            from element.library.retrieval import native_facts
+            for name, fact in native_facts(d).items():
+                lower, upper = fact.minimum or fact.value, fact.maximum or fact.value
+                if lower and upper:
+                    parameters[name] = {'min': lower.si_value, 'max': upper.si_value, 'dimension':lower.dimension,
+                                        'verified':fact.status=='known' and fact.evidence_supported}
         db.execute('INSERT OR REPLACE INTO versions VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
                    (d.library_id, d.element_id, d.revision, ref.content_hash, d.name, d.category,
-                    catalog.status, text, json.dumps(exact), json.dumps([c.code for c in d.capabilities.values()]),
+                    catalog.status, text, json.dumps(exact), json.dumps(list(d.capabilities) if native else [c.code for c in d.capabilities.values()]),
                     json.dumps(protocols), json.dumps(parameters)))
         key = (d.library_id, d.element_id, d.revision)
         db.execute('DELETE FROM terms WHERE library_id=? AND element_id=? AND revision=?', key)

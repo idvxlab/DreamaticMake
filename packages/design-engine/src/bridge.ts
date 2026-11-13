@@ -6,6 +6,7 @@ import type { StageId } from "../../orchestrator/src/contracts";
 
 export interface ProcessContractRef {
   processKind: StageId;
+  contractVersion: string;
   title: string;
   requiredUpstream: StageId[];
   optionalUpstream: StageId[];
@@ -18,6 +19,7 @@ export interface ProcessContractRef {
 
 interface ProcessDescriptor {
   title: string;
+  contract_version: string;
   required_upstream: StageId[];
   optional_upstream: StageId[];
   context_keys: string[];
@@ -97,7 +99,7 @@ export class DesignEngineBridge {
     await mkdir(folder, { recursive: true });
     await writeFile(path, canonical, "utf8");
     const contract: ProcessContractRef = {
-      processKind: stage, title: descriptor.title,
+      processKind: stage, contractVersion: descriptor.contract_version, title: descriptor.title,
       requiredUpstream: descriptor.required_upstream ?? [], optionalUpstream: descriptor.optional_upstream ?? [],
       contextKeys: descriptor.context_keys ?? [], limitations: descriptor.limitations ?? [],
       schemaPath: relative(workspace, path), schemaSha256: createHash("sha256").update(canonical).digest("hex"),

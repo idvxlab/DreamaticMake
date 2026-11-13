@@ -13,7 +13,8 @@ from element.categories.base import ComponentDesign
 
 def compile_model(bundle: ModelBundle | ComponentDesign) -> SimulationIR:
     from element.schema.library import ElementDefinition
-    if isinstance(bundle, (ComponentDesign, ElementDefinition)):
+    from element.schema.professional import ElementDefinitionV2
+    if isinstance(bundle, (ComponentDesign, ElementDefinition, ElementDefinitionV2)):
         from engine.adapters.elements import to_bundle
         bundle = to_bundle(bundle)
     # Revalidate callers that used unchecked Pydantic model_copy/model_construct.

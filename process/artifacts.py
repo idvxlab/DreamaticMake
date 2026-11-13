@@ -1,15 +1,22 @@
 """Versioned design deliverables. Native geometry/material/electrical types stay upstream."""
-from hashlib import sha256
 from typing import Annotated, Literal
 from pydantic import Field, StringConstraints, model_validator
-from element.base.contract import Contract, Id, Sha256
+from element.base.contract import Contract, Id
 from element.base.frame import Pose
 from element.base.reference import AssetRef
 from element.categories.housing import CADHousing
 from element.interfaces.software import SoftwareProject
 from element.schema.library import ElementRef
 from element.io.save import canonical_json
-from engine.design.contracts import Markdown, ObjectRef, Net, Joint, StructureConnection
+from engine.design.authoring import LinkRef, ProjectJoint
+from engine.design.professional import Net, UnconnectedPin, UnconnectedGroup, Structure
+
+
+class Markdown(Contract):
+    format: Literal['markdown'] = 'markdown'
+    text: str = Field(default='', max_length=1000000)
+    attachments: tuple[AssetRef, ...] = Field(default=(), max_length=128)
+
 
 Stage = Literal['requirements', 'appearance', 'hardware_selection', 'spatial_layout',
                 'logical_layout', 'enclosure_detail', 'motion_detail', 'assembly_detail',
@@ -103,7 +110,7 @@ class HardwareSelectionOutput(Contract):
 
 
 class HardwarePlacement(Contract):
-    instance_ref: ObjectRef
+    instance_ref: LinkRef
     world_pose: Pose
 
 
@@ -116,12 +123,12 @@ class SpatialLayoutOutput(Contract):
 class LogicalLayoutOutput(Contract):
     kind: Literal['logical_layout'] = 'logical_layout'
     nets: dict[Id, Net] = Field(default_factory=dict)
-    unconnected_terminals: tuple[ObjectRef, ...] = ()
+    unconnected: tuple[UnconnectedPin | UnconnectedGroup, ...] = ()
     notes: Markdown = Markdown()
 
 
 class SoftwareDesign(Contract):
-    instance_ref: ObjectRef
+    instance_ref: LinkRef
     software: SoftwareProject
     architecture: Markdown
     control_logic: Markdown
@@ -142,7 +149,7 @@ class SoftwareDesignOutput(Contract):
 
     @model_validator(mode='after')
     def unique(self):
-        refs = [p.instance_ref.key() for p in self.projects]
+        refs = [canonical_json(p.instance_ref) for p in self.projects]
         if len(set(refs)) != len(refs): raise ValueError('Duplicate software controller instance')
         paths = [p.software.relative_path for p in self.projects]
         if len(set(paths)) != len(paths): raise ValueError('Use separate software paths for controller instances')
@@ -168,17 +175,17 @@ class EnclosureDetailOutput(Contract):
 
 class MotionDetailOutput(Contract):
     kind: Literal['motion_detail'] = 'motion_detail'
-    joints: dict[Id, Joint] = Field(default_factory=dict)
+    joints: dict[Id, ProjectJoint] = Field(default_factory=dict)
+    initial_positions: dict[str, float] = Field(default_factory=dict)
     notes: Markdown = Markdown()
 
     @model_validator(mode='after')
     def explicit_motion(self):
-        for joint in self.joints.values():
-            if joint.source is not None:
-                raise ValueError('Intrinsic joints remain element-owned')
-            if joint.kind != 'fixed' and (joint.axis is None or joint.initial is None):
+        for joint_id, joint in self.joints.items():
+            if joint.type != 'fixed' and (joint.axis is None or joint_id not in self.initial_positions):
                 raise ValueError('Moving joints require an axis and initial configuration')
-            if joint.kind in ('revolute', 'prismatic') and (joint.lower is None or joint.upper is None):
+            if joint.type in ('revolute', 'prismatic') and (joint.limit is None or
+                    joint.limit.lower is None or joint.limit.upper is None):
                 raise ValueError('Bounded motion requires an explicit range')
         return self
 
@@ -205,7 +212,7 @@ class AssemblyRelation(Contract):
 class AssemblyDetailOutput(EnclosureDetailOutput):
     kind: Literal['assembly_detail'] = 'assembly_detail'
     relations: tuple[AssemblyRelation, ...] = Field(default=(), max_length=2000)
-    engineering_connections: tuple[StructureConnection, ...] = ()
+    structure: Structure | None = None
 
 
 class PrinterConstraints(Contract):
@@ -252,31 +259,3 @@ Deliverable = Annotated[RequirementsOutput | AppearanceOutput | HardwareSelectio
     SpatialLayoutOutput | LogicalLayoutOutput | EnclosureDetailOutput | MotionDetailOutput |
     AssemblyDetailOutput | PrintOptimizationOutput | SoftwareDesignOutput |
     ProcurementAssemblyGuideOutput, Field(discriminator='kind')]
-
-
-class ArtifactRef(Contract):
-    artifact_id: Id
-    revision: int = Field(ge=1)
-    content_hash: Sha256
-
-
-class DesignArtifact(Contract):
-    record_kind: Literal['process_artifact'] = 'process_artifact'
-    schema_version: Literal['0.2.0-draft'] = '0.2.0-draft'
-    design_id: Id
-    artifact_id: Id
-    revision: int = Field(ge=1)
-    previous: ArtifactRef | None = None
-    source_snapshot_id: Sha256
-    dependencies: dict[Stage, ArtifactRef] = Field(default_factory=dict)
-    source_documents: tuple[Document, ...] = ()
-    constraints: Markdown = Markdown()
-    printer: PrinterConstraints | None = None
-    payload: Deliverable
-    # Acceptance records authored data only; no geometric or manufacturing certification.
-    validation: Literal['contract_only'] = 'contract_only'
-
-
-def artifact_ref(artifact: DesignArtifact) -> ArtifactRef:
-    return ArtifactRef(artifact_id=artifact.artifact_id, revision=artifact.revision,
-        content_hash=sha256(canonical_json(artifact).encode('utf-8')).hexdigest())

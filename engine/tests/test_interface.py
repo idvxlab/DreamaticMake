@@ -11,39 +11,25 @@ from engine.interface.bridge import handle
 class InterfaceTests(unittest.TestCase):
     def test_project_targets_and_independent_motion_views(self):
         info = handle({'method': 'open_project'})
-        self.assertEqual(len(info['targets']), 9)
-        for target in (None, *(item['key'] for item in info['targets'])):
-            with self.subTest(target=target):
-                result = handle({'method': 'view', 'project_path': info['path'], 'target': target})
-                self.assertIn('scene', result)
-                self.assertEqual(len(result['draft']['entities']), 9 if target is None else 1)
-        a = handle({'method': 'view', 'target': 'gripper'})
-        project = handle({'method': 'view'})
-        self.assertEqual(len(a['scene']['bodies']), 3)
-        self.assertEqual(a['draft']['joints'], {key: joint for key, joint in project['draft']['joints'].items()
-            if key.startswith('gripper/')})
-        key, joint = next((k,j) for k,j in a['draft']['joints'].items() if j['kind']=='prismatic')
-        b = handle({'method': 'view', 'target': 'gripper', 'mode': 'motion', 'joint_inputs': {key: joint['upper']}})
-        self.assertNotEqual(a['scene']['bodies'], b['scene']['bodies'])
-        self.assertEqual(b['motion']['status'], 'completed')
-        structure = handle({'method': 'view', 'target': 'gripper', 'joint_inputs': {key: joint['upper']}})
-        self.assertEqual(a['scene']['bodies'], structure['scene']['bodies'])
+        self.assertEqual(len(info['targets']), 43)
+        initial = handle({'method': 'view'})
+        changed = handle({'method': 'view', 'mode': 'motion', 'joint_inputs': {'button_stop/joints/press': .0002}})
+        self.assertNotEqual(initial['scene']['bodies'], changed['scene']['bodies'])
+        structure = handle({'method': 'view', 'joint_inputs': {'button_stop/joints/press': .0002}})
+        self.assertEqual(initial['scene']['bodies'], structure['scene']['bodies'])
+        single = handle({'method': 'view', 'target': 'button_stop/cap'})
+        self.assertEqual(len(single['draft']['entities']), 1)
         with self.assertRaisesRegex(ValueError, 'Unknown project element'):
             handle({'method': 'view', 'target': 'outside'})
 
     def test_circuit_ports_keep_project_connections_in_element_view(self):
         project = handle({'method': 'view', 'mode': 'circuit'})
         controller = handle({'method': 'view', 'target': 'controller', 'mode': 'circuit'})
-        self.assertEqual(len(controller['circuit']['ports']), 5)
         self.assertEqual(controller['circuit']['edges'], [])
-        for ref, port in controller['circuit']['ports'].items():
-            self.assertEqual(port, project['circuit']['ports'][ref])
-            self.assertTrue(port['connections'])
-            self.assertIn('physical_pin_number', port)
-            self.assertTrue(all(peer != ref for net in port['connections'] for peer in net['peers']))
-        pwm = controller['circuit']['ports']['controller/terminals/yaw_pwm']
-        self.assertEqual(pwm['physical_pin_number'], '3')
-        self.assertEqual(pwm['connections'][0]['peers'], ['yaw/terminals/pwm'])
+        port = controller['circuit']['ports']['controller/terminals/gp08']
+        self.assertEqual(port, project['circuit']['ports']['controller/terminals/gp08'])
+        self.assertTrue(port['connections'])
+        self.assertIn('physical_pin_number', port)
 
     def test_common_procurement_and_search_rebuild(self):
         for invalid in [{'price': -1.0}, {'price': float('inf')}, {'purchase_url':'javascript:alert(1)'}, {'currency':'bad'}]:

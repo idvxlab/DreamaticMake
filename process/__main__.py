@@ -4,7 +4,8 @@ import json
 import sys
 from pydantic import ValidationError
 from element.io.load import MAX_BYTES
-from process.registry import PROCESSES, get_process
+from process.workbench import SPECS, describe_stage
+from process.tasks import TASK_KINDS, describe_task
 
 
 def selectable_elements():
@@ -34,15 +35,14 @@ def main():
     # JSON wire output is UTF-8 even on Windows consoles using a legacy code page.
     sys.stdout.reconfigure(encoding='utf-8')
     parser = argparse.ArgumentParser(description='Typed design process tools')
-    parser.add_argument('command', choices=('list', 'schema', 'request', 'validate-output', 'library-pins', 'purchase-candidates'))
+    parser.add_argument('command', choices=('list', 'schema', 'validate-output', 'library-pins', 'purchase-candidates'))
     parser.add_argument('kind', nargs='?')
     args = parser.parse_args()
     try:
         if args.command == 'list':
-            output = [{'process_kind': k, 'title': get_process(k).title,
-                'category': get_process(k).describe().category} for k in PROCESSES]
+            output = [describe_stage(k) for k in SPECS]
         elif args.command == 'schema':
-            output = get_process(args.kind).describe().model_dump(mode='json')
+            output = describe_task(args.kind) if args.kind in TASK_KINDS else describe_stage(args.kind)
         elif args.command == 'library-pins':
             output = selectable_elements()
         else:
@@ -60,7 +60,7 @@ def main():
                 output = purchase_candidates(text)
             elif args.command == 'validate-output':
                 from element.io.records import record_hash
-                from process.workflows import SPECS
+                from process.workbench import SPECS
                 deliverable = SPECS[args.kind][1].model_validate_json(json.dumps(payload.get('deliverable'), allow_nan=False))
                 if args.kind == 'hardware_selection':
                     library = selectable_elements()
@@ -86,11 +86,6 @@ def main():
                     output['content_hash'] = record_hash(output, 'hardware-selection-with-evidence-v1')
                 else:
                     output['content_hash'] = record_hash(deliverable, 'workflow-deliverable-v1')
-            else:
-                result = get_process(payload.get('process_kind')).run(payload)
-                output = result.model_dump(mode='json')
-                print(json.dumps(output, ensure_ascii=False, allow_nan=False))
-                return 0 if result.status == 'completed' else 2
         print(json.dumps(output, ensure_ascii=False, allow_nan=False))
         return 0
     except (ValueError, KeyError, OSError) as exc:

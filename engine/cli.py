@@ -58,16 +58,52 @@ def dispatch(method, bundle, scenario=None, *, asset_resolver=None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline product design engine tools")
-    parser.add_argument("method", choices=["validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language", "project"])
+    parser.add_argument("method", choices=["tool-list", "tool-prepare", "tool-run", "validate", "compile", "simulate", "scene", "circuit", "flow", "preview", "workspace", "schema", "request", "import-stl", "language", "project", "project-views", "project-check", "project-simulate", "project-urdf"])
     parser.add_argument("input", nargs="?")
     parser.add_argument("--scenario")
     parser.add_argument("--asset-root", help="Explicit confined asset library for relative STL references")
     parser.add_argument("--unit", choices=["m", "cm", "mm"])
-    parser.add_argument('--element-pool', help='Explicit read-only element_pool root for element_* request tools')
+    parser.add_argument('--element-pool', help='Explicit read-only element_pool_2 root for element_* request tools')
+    parser.add_argument('--backend', default='kinematics')
+    parser.add_argument('--project-root', help='Host-bound root for context-query requests')
+    parser.add_argument('--project-handle', default='project')
+    parser.add_argument('--tool', default='native_kinematics')
+    parser.add_argument('--operation', default='pose')
+    parser.add_argument('--options', default='{}', help='Typed operation options as JSON')
+    parser.add_argument('--scope', action='append', default=[])
     args = parser.parse_args(argv)
     request_id = None
     try:
-        if args.method == 'project':
+        if args.method.startswith('tool-'):
+            from engine.tools import describe, prepare, run, ToolRequest
+            from engine.tools.source import project_context, kind
+            if args.method == 'tool-list': output = {'tools':describe(probe=True)}
+            else:
+                if not args.input: raise ValueError('Tool execution requires a project path')
+                ctx = project_context(args.input)
+                request = ToolRequest.model_validate_json(json.dumps({'request_id':__import__('uuid').uuid4().hex,
+                    'tool_id':args.tool,'operation':args.operation,'snapshot_id':ctx.snapshot_id,
+                    'source_kind':kind(ctx.source),'scope':args.scope,'options':json.loads(args.options),'scenario_ref':args.scenario}))
+                prepared = prepare(request,ctx)
+                output = prepared.model_dump(mode='json') if args.method == 'tool-prepare' else run(prepared,ctx).model_dump(mode='json')
+        elif args.method in ('project-views', 'project-check', 'project-simulate', 'project-urdf'):
+            from engine.project_io import load_design_package
+            package = load_design_package(args.input, element_pool=args.element_pool)
+            if args.method == 'project-views':
+                from engine.design.professional import project_views
+                output = project_views(package)
+            elif args.method == 'project-check':
+                from engine.execution import run_check
+                output = run_check(package, args.backend).model_dump(mode='json')
+            elif args.method == 'project-urdf':
+                from engine.urdf import export_urdf
+                output = export_urdf(package)
+            else:
+                from engine.execution import run_project_scenario
+                if not args.scenario: raise ValueError('project-simulate requires --scenario relative to project root')
+                path = Path(args.input)
+                output = run_project_scenario(package, path if path.is_dir() else path.parent, args.scenario)
+        elif args.method == 'project':
             if not args.input: raise ValueError('project requires a project folder or project.json')
             from engine.project_io import load_project
             from engine.layout import import_layout, dispatch_layout
@@ -99,7 +135,11 @@ def main(argv=None):
             request_id = request.get("request_id")
             if not isinstance(request_id, str) or len(request_id) > 128:
                 raise ValueError("request_id must be a short string")
-            if request['method'] in ('element_search', 'element_inspect', 'element_categories'):
+            if request['method'] == 'context-query':
+                if not args.project_root: raise ValueError('context-query requires host --project-root')
+                from engine.query import QueryService
+                payload = QueryService(args.project_root, args.project_handle).query(request.get('arguments', {})).model_dump(mode='json')
+            elif request['method'] in ('element_search', 'element_inspect', 'element_categories'):
                 if not args.element_pool: raise ValueError('Element tools require a host-supplied --element-pool')
                 from element.library.pool import load_element_pool
                 from engine.element_search import dispatch_element_search
@@ -107,16 +147,8 @@ def main(argv=None):
             elif request['method'] == 'language':
                 from engine.language import to_document
                 payload = to_document(request['source'])
-            elif request["method"].startswith("design_"):
-                from engine.design.dispatch import dispatch_design
-                assets = request.get('assets', {})
-                if not isinstance(assets, dict) or len(assets) > 32:
-                    raise ValueError('Invalid inline assets')
-                def design_resolver(ref):
-                    if ref.relative_path or ref.sha256 not in assets:
-                        raise ValueError('Project asset is unavailable')
-                    return base64.b64decode(assets[ref.sha256], validate=True)
-                payload = dispatch_design(request['method'], request, design_resolver)
+            elif request['method'].startswith('design_'):
+                raise ValueError('Eight-layer design operations have been retired; use native v3 project/tool APIs')
             elif request["method"].startswith("layout_"):
                 from engine.layout import dispatch_layout
                 assets = request.get("assets", {})
@@ -173,7 +205,9 @@ def main(argv=None):
             output = dispatch(args.method, bundle, scenario, asset_resolver=resolver)
         print(json.dumps(output, ensure_ascii=True, allow_nan=False, separators=(",", ":")))
         payload = output.get("payload", output)
+        if 'evidence' in payload: return 0 if payload['evidence']['execution'] == 'completed' and payload['evidence']['outcome'] != 'fail' else 2
         status = (payload.get("result") or {}).get("status", payload.get("status", payload.get("preview_status", "completed")))
+        if args.method == 'tool-prepare': return 0 if status == 'ready' else 2
         return 0 if status == "completed" else 2
     except (ValueError, TypeError, OSError, KeyError, RecursionError) as exc:
         if isinstance(exc, ModelError):

@@ -1,173 +1,54 @@
-# Reusable element library
+# 元件契约与元件库
 
-元件输入和存储统一为仓库根目录 `element_pool/` 的逐元件目录，见[目录输入规范](library/packages.md)。
+`element/` 是代码和协议；项目 `element/` 保存具体元件定义与资产。
+原生定义使用 `schema/professional.py` 的 `ElementDefinitionV2`，拥有 mechanical、electrical、
+behavior、flow以及参数、来源和证据。`ElementRef` 固定库ID、元件ID、revision和内容哈希。
 
-`element/` owns reusable component descriptions. It has no dependency on `engine`, application Context, Pi, or model providers. `engine/` owns assembly, design records, projections, compilation and simulation.
+该原生读取器现在显式区分 element v2 与 v3：v2 原序列化与 pin 保持不变；
+`schema_version: 3.0.0-draft` 增加 `units`、`exports` 和 `bom.policy`。
+组合定义使用 v3；不含组合的既有采购件和打印件继续使用 v2。
 
-## 控制元件的软件工程接口
+## 子单元与引用
 
-控制类元件新增可选 `software` 接口，定义见 [`SoftwareProject`](interfaces/software.py)。
-默认 `null`，也可用 `{"schema_version":"1","relative_path":null,"language":null,"entrypoint":null}` 保留空草稿。
-例如 `{"relative_path":"software/ESP32_1","language":"cpp","entrypoint":"app_main"}`。
-`relative_path` 相对于项目根目录，可指向 `software/` 内的文件或文件夹；
-不从元件库目录解析，也不替代已有带哈希的 `firmware` 资产引用。
-项目实例绑定与存储规范见 [项目目录输入](../engine/project_io.md#软件工程)。
+`units` 是唯一递归入口，映射键是局部实例 ID。`kind: reference` 保存完整 `element_ref`
+和 `location: {kind, path}`，不复制子元件属性；项目内 custom 路径相对于项目 `element/`。
+`kind: inline` 的 `definition` 使用 `UnitDefinition`：保留参数、四域、交付、证据与嵌套字段，
+省略库身份和独立 revision。内联资产相对于拥有该定义的元件包，内联变更更新所属元件 pin。
 
-## Natural-language candidate retrieval
+`DomainRef` 增加可省略的 `unit_path`，例如
+`{"unit_path":["cap"],"domain":"mechanical","collection":"links","id":"body"}`。
+路径相对于拥有关系的单元；`[]` 表示本地。运动刚体继续归 `mechanical.links`，不递归；
+关节端点引用本地或子单元对象。不要把运动刚体数量当作采购数量。
 
-The [retrieval guide](library/README.md) documents read-only discovery over `element_pool` and existing native libraries, including incomplete records, native model parameters, evidence-backed comparisons and engine tool schemas. `ElementSearchTool` exposes `element_categories`, `element_search` and `element_inspect` for host registration with an LLM. Natural-language parsing uses bounded bilingual rules with explicit warnings and structured refinement; no model provider is called. Incomplete records remain discoverable without becoming selectable native elements.
+`exports[domain][collection][public_id]` 指向一个 `DomainRef`，只是别名，不复制几何或额定值。
+v3 跨单元连接必须通过显式导出；v2 保留已有公开对象的访问规则。
+`mechanical.mount_connections` 管内部安装连接，`electrical.nets` 管内部引脚网络。
+外部安装与接线仍归项目。内部行为/流连接尚无组合执行适配器，读取时明确拒绝，不自动推导。
 
-## Custom CAD housings
+`bom.policy: self`（默认、省略）计本单元，不再计其内部；`children` 展开子单元。
+展开型装配不能另有未归属子件的本地刚体、采购或制造交付，避免漏计。
+内联交付项以所属 pin 加定义指针区分；不同实例复用同一引用元件时按其 pin 合并。
 
-`CADHousing` is a specialized `structure` authoring object with `structural_role="housing"`, an existing `GeometrySpec`, and versioned `CADHousingSpec` metadata. This preserves the fourteen primary categories. Generic JSON parsing returns a `Structure` retaining the full `cad_housing` payload; callers can validate it as `CADHousing` when they require that specialization.
+引用子单元的 `parameter_bindings` 仅支持 `{parameter: {value: {value, unit}}}`。
+只允许声明为 configurable 的参数，按已有状态、单位维度和范围验证；源 pin 不变。
+绑定只修改解析后的参数值，不自动重建 CAD、改写额定值或生成行为模型。
 
-```python
-from element.categories import CADHousing, CADHousingSpec, HousingMaterial
-from element.interfaces.geometry import Box
+`composition.py` 校验依赖 pin、导出、路径和领域，展开上限为256个单元 occurrence、
+最多16级子路径；拒绝依赖环。展开图是只读派生结果，不写回第二套工程源文件。
 
-housing = CADHousing.from_shape(
-    id="housing", name="Housing envelope",
-    shape=Box(size_m=(0.08, 0.06, 0.03)),
-    cad_housing=CADHousingSpec(material=HousingMaterial(name="PETG", color="#327F90")),
-)
-```
-
-Geometry uses the existing bodies, envelopes, local transforms, visual assets and explicit mesh units. `CADHousing.from_stl(...)` verifies an explicit STL asset using the existing optional mesh backend. Material supports density (`kg/m3`), elastic modulus/yield strength (`Pa` or compatible units), and dimensionless isotropic Poisson ratio as existing `Parameter` values with known/assumed/unknown status and model-local evidence references. Missing properties stay unknown; selecting a material name supplies no physical constants or strength proof. Material and CAD metadata participate in the immutable element hash.
-
-Source CAD/command assets and exchange assets use hashed `AssetRef` values. There is no new B-rep parser or manufacturing solver. Installed custom housing packages keep their STL and authoring source under the configured [element pool](../element_pool/README.md). Integration into a scheme is provided by [process/](../process/README.md).
-
-Structured Markdown output for LLM context is available through [`element.language`](language/README.md): `to_markdown(value)`, `to_document(value)`, or `python -m element language path/to/element.json`. Existing JSON storage and CLI methods retain their contracts.
-
-### Preview color
-
-CAD housings accept `cad_housing.material.color`; other mechanical parts accept
-`spec.color` beside `spec.material`. Both are optional sRGB `#RRGGBB` strings.
-For example: `"spec": {"kind": "bracket", "material": "PETG", "color": "#F5A94D"}`.
-Category lowering applies this color to each rigid body; `geometry.bodies.<id>.color`
-can override it for individual bodies. Housing material color takes precedence over
-the mechanical description color. Both simulation scenes and project layout scenes
-preserve these colors, including STL meshes. Missing colors retain the viewer default;
-selection, collision and keepout/service overlays retain their existing priority.
-Colors participate in content hashes but imply no physical material properties.
-
-## Structure
-
-| Package | Responsibility |
+| 模块 | 职责 |
 | --- | --- |
-| `base/` | Strict immutable contracts, identities, units, frames, evidence and signal types |
-| `interfaces/` | Local geometry, mounting, motion, terminals, material paths and declarative behavior contracts |
-| `categories/` | The existing 14 typed authoring categories, without engine execution methods |
-| `schema/library.py` | Versioned definitions, pinned references, capabilities, parameters, catalog entries and search requests |
-| `schema/definition.py` | Shared definition identity and descriptive metadata |
-| `io/` | Bounded JSON/TOML, asset inspection, deterministic serialization, explicit legacy catalog migration |
-| `library/` | Immutable definition files and a rebuildable SQLite index |
+| `base/` | 不可变契约、身份、单位、位姿、信号和证据 |
+| `interfaces/` | 几何、安装、电气、行为、软件等共享接口 |
+| `schema/` | 原生定义、引用、检索和采购契约 |
+| `categories/` | 14类创作接口；现有模型通过显式适配形成原生定义 |
+| `migration.py` | 新 revision 迁移及只读兼容转换 |
+| `io/、library/` | 有界读取、资产校验、固定版本存储和检索 |
+| `language/` | 保留原始字段、单位和未知项的 Markdown 输出 |
 
-The categories are `structure`, `transmission`, `actuator`, `light`, `display`, `sound`, `human_input`, `sensor`, `controller`, `driver`, `power`, `transport`, `energy_storage`, and `circuit_element`. Software/assembly form, origin, role and capability are separate attributes.
+几何、端子额定值和内部机构变化需要新的元件 revision；项目摆放和跨元件接线由 engine 管理。
+`categories`、旧分类读取器和 `.model` 派生属性仍用于组件仿真与前端投影，保留为执行适配接口。
+元件库位置必须显式指定；索引可重建，源定义才是权威数据。
 
-## Author and publish
-
-```python
-from element.categories import Structure
-from element.interfaces.geometry import Box
-from element.schema.library import ElementDefinition, ElementQuery
-from element.library import ElementLibrary
-
-model = Structure.from_shape(
-    id="housing", name="Example housing",
-    shape=Box(size_m=(0.1, 0.08, 0.04)),
-)
-definition = ElementDefinition(
-    library_id="personal", element_id=model.id, revision=model.revision,
-    name=model.name, category=model.category, origin="template", model=model,
-)
-library = ElementLibrary("workspace/element-library")
-ref = library.publish(definition)
-same_definition = library.get(ref)
-page = library.search(ElementQuery(categories=("structure",)))
-```
-
-All dimensions in this example are synthetic assumptions. The library stores the complete category authoring record in `model`; it does not lower and discard editable fields. Information and non-electrical energy ports are explicit library-level extensions. The outer identity, revision and category must match `model`.
-
-`ElementRef` includes library ID, element ID, revision and SHA-256. Publishing different content under the same identity/revision fails. Existing pinned versions remain readable after withdrawal. A query result is only a candidate, not evidence of compatibility with a project.
-
-Search supports Chinese bigram tokens, normalized names/model aliases, categories, capabilities, protocols, and dimension-checked numeric ranges converted to SI. Missing values do not satisfy numeric conditions. Unverified/assumed numeric descriptions are excluded from numeric filtering unless explicitly enabled. Cursor pagination binds the query and index generation; an index change requires restarting the search.
-
-The source files are authoritative; `index.sqlite3` can be deleted and rebuilt. Catalog updates have their own immutable revisions. Library paths must be explicitly supplied, and all generated data belongs under ignored `workspace/`, not this package. The API does not authorize writes on behalf of a user; an application must authorize its own callers.
-
-## CLI
-
-```bash
-python -m element schema element_definition
-python -m element validate path/to/element.json
-python -m element publish path/to/element.json --root workspace/element-library
-python -m element search path/to/query.json --root workspace/element-library
-python -m element get path/to/reference.json --root workspace/element-library
-python -m element rebuild-index --root workspace/element-library
-python -m element seed element_pool --root workspace/element-library
-```
-
-`seed` imports installed template packages as `origin=template` records. The tracked `element_pool/` starts empty; engine regression bundles and builders live separately in `engine/tests/fixtures`. `import_catalog_part(part, model)` in `element.io.catalog` imports procurement metadata only with an explicit typed model; it preserves unknown dimensions and does not promote descriptions to measured geometry.
-
-## Engine execution boundary
-
-```python
-from engine.adapters.elements import to_bundle, assemble_elements
-from engine.compiler.lower import compile_model
-
-ir = compile_model(definition)
-bundle = assemble_elements(
-    id="pair", name="Two housings",
-    elements={"left": definition, "right": definition},
-)
-```
-
-Engine adapters retain element provenance and namespace library definitions during composition. Import category types directly from `element.categories`. Use `engine.adapters.elements.to_definition()` / `to_bundle()` for execution conversion, `engine.adapters.assembly.assemble_components()` for composition, and `engine.adapters.commands.move_to()` / `set_speed()` for actuator scenario commands. These functions receive the element as an argument; category types do not inherit engine methods. The old engine forwarding modules and compatibility subclasses are removed. Cross-instance nets and mounting connections live in `engine.schema.connections`.
-
-Legacy snapshot hashes retain their original encoding. New element references use the separate `element-v1` domain and Python's deterministic validated JSON encoding; this is not an RFC 8785 claim. See [design records](../engine/design/README.md) for selection and cross-layer use.
-
-Run `python -B -m unittest discover -s element/tests -v` and the existing engine tests after changing these contracts.
-
-## Ownership boundary with engine
-
-An `ElementDefinition` is the authoritative reusable engineering unit. Its category model owns intrinsic geometry, terminals, ratings, mounts, internal motion, material paths, interfaces and behavior. Library-level information and energy ports are part of the same pinned definition. `collections()` exposes these native objects, including transmissions, visual assets, sensors and behavior inputs, without lowering through an execution model.
-
-`engine/design` protocol 2 selects pinned definitions and creates occurrences. It owns placements, initial conditions and connections between units, and resolves local element objects on demand. It must not duplicate intrinsic properties into persisted scheme layers. Changes to geometry, terminal ratings, internal topology or behavior require a revised/derived element definition; scheme placement and connections do not change the element hash. Element contracts have no dependency on engine.
-
-### Single ownership of shared contracts
-
-Terminal properties and electrical validation, material-port properties, and declarative behavior programs are defined once in `element.interfaces`. Scheme views reuse those contracts while binding references in the scheme namespace. Power sources expose their effective electrical terminals in `PowerSource.electrical`, so library occurrences and simulation inputs agree even when wiring is implicit.
-
-Normalized execution containers (`ComponentDefinition`, `PhysicalSpec`, `ElectronicSpec`) belong to `engine.schema.component`. They are compiler inputs rather than an alternate reusable element schema. The old `element.schema.model` import path and identity-only migration wrappers have been removed.
-
-## Common procurement fields and search
-
-All 14 component categories inherit an optional `procurement` record:
-
-```json
-{
-  "metadata_version": "1",
-  "manufacturer": null,
-  "model": null,
-  "supplier": null,
-  "sku": null,
-  "purchase_url": null,
-  "price": null,
-  "currency": "CNY",
-  "price_observed_at": null,
-  "availability": null,
-  "description": "",
-  "tags": []
-}
-```
-
-Purchase URLs must use HTTP(S), prices must be finite and nonnegative, and currency uses three uppercase letters. Null means unknown, never zero/free. No live supplier prices are supplied by the examples. Omitted procurement data preserves existing serialized records and content hashes. Once populated, it participates in the element revision/hash; bump revisions when publishing changed definitions. Time-varying supplier quotations can instead use versioned `CatalogEntry.offers` without changing geometry references.
-
-Library identity is `(library_id, element_id, revision, content_hash)`. JSON definitions are the source of truth; SQLite stores the composite identity, category/status index, normalized search text and token table. Search supports category, capability, protocol, numeric ranges, version policy and cursor pagination. Text uses NFKC/case normalization, Chinese bigrams, and substring matching across ID, name, aliases, category, tags, roles, description, manufacturer, model and SKU. Substring matching scans the filtered candidates; the token table remains available for future large-library optimization. Index rebuilds preserve source definitions and invalidate old cursors explicitly.
-
-```sh
-python -m element seed element_pool --root workspace/element-library
-python -m element search query.json --root workspace/element-library
-python -m element rebuild-index --root workspace/element-library
-```
-
-Example `query.json`: `{"text":"servo","categories":["actuator"],"limit":20}`. The standalone engine interface exposes name/text search and category filters, while the CLI retains the richer filters above.
+目录格式见 [library/packages.md](library/packages.md)，检索见 [library/README.md](library/README.md)，
+分类创作接口见 [categories/README.md](categories/README.md)。

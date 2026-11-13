@@ -11,7 +11,7 @@ from element.base.reference import AssetRef
 from element.io.load import read_asset
 from element.io.mesh import MAX_STL_BYTES
 
-DEFAULT_PROJECT = Path(__file__).resolve().parents[2] / 'examples/project_1'
+DEFAULT_PROJECT = Path(__file__).resolve().parents[2] / 'examples/project_2'
 PREVIEW_TYPES = {'.json': ('json', 'application/json'), '.md': ('markdown', 'text/markdown'),
     '.txt': ('text', 'text/plain'), '.pdf': ('pdf', 'application/pdf'),
     '.png': ('image', 'image/png'), '.jpg': ('image', 'image/jpeg'), '.jpeg': ('image', 'image/jpeg'),
@@ -25,7 +25,12 @@ def context(path=None):
     root = root.resolve(strict=True)
     if root.is_file() and root.name == 'project.json': root = root.parent
     source = load_project(root)
-    manifest = ProjectManifest.model_validate_json(read_record(package_file(root, 'project.json')))
+    raw = read_record(package_file(root, 'project.json'))
+    if json.loads(raw).get('project_version') == 3:
+        from engine.design.professional import Manifest
+        manifest = Manifest.model_validate_json(raw)
+    else:
+        manifest = ProjectManifest.model_validate_json(raw)
     return root, source, manifest
 
 
@@ -45,6 +50,8 @@ def element_root(root, source, key):
     selection_key(source, key)
     location = source['element_sources'][key]
     if location['kind'] == 'custom':
+        if location['path'].endswith('/element.json'):
+            return package_file(root / 'element', location['path']).parent
         return package_file(root / 'element', location['path'] + '/manifest.json').parent
     library = pool_root().resolve(strict=True)
     return package_file(library, location['folder'] + '/manifest.json').parent
@@ -54,7 +61,7 @@ def mesh_asset(root, source, selected, owner, value):
     """Serve only a pinned mesh declared by the owning project element, never a file URL."""
     if not isinstance(owner, str): raise ValueError('Mesh requires an owning element')
     selection_key(source, owner)
-    if selected is not None and owner != selected:
+    if selected is not None and owner != selected and not owner.startswith(selected + '/'):
         raise ValueError('Mesh owner is outside the current element selection')
     ref = AssetRef.model_validate_json(json.dumps(value, allow_nan=False))
     if (not ref.relative_path or Path(ref.relative_path).suffix.lower() != '.stl'

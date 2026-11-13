@@ -3,8 +3,9 @@
 ## DreamaticMaker v3 application
 
 The application under `apps/` and `packages/` keeps six product agents and runs their conversations through
-the local Codex app-server. Its task runner is adapted from the GitHub `design-engine-v2` harness. The Python
-process contracts normalize stage outputs, and Rhino 8 remains the production CAD backend.
+the local Codex app-server. The application owns task execution; the former standalone `harness/` is retired.
+Python stage contracts use the current native engine/element interfaces, including scoped nested-unit references.
+Rhino 8 remains the production CAD backend. See [process contracts](process/README.md) for the stage API.
 
 ```sh
 npm ci

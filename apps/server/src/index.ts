@@ -13,6 +13,7 @@ import { productStages, ProjectStore } from "../../../packages/core/src/store";
 import { ProjectPipeline } from "../../../packages/core/src/pipeline";
 import { historicalGuideSource, purchaseSourceText, withPurchaseLinks } from "../../../packages/core/src/procurement-guide";
 import { DesignEngineBridge } from "../../../packages/design-engine/src/bridge";
+import { enginePython } from "../../../packages/design-engine/src/python";
 import type { Project } from "../../../packages/core/src/project";
 import type { AgentRunEvent, StageId } from "../../../packages/orchestrator/src/contracts";
 import { isSameOriginRequest } from "./request-origin";
@@ -39,8 +40,7 @@ const executorOptions = {
   onToolApprovalsChanged: (id: string) => bus.emit(id, { type: "tool-approvals-changed" }),
 };
 const executor = new CodexServerExecutor(executorOptions);
-const localPython = resolve(root, ".runtime/python/bin/python");
-const python = process.env.MAKE_ENGINE_PYTHON ?? (existsSync(localPython) ? localPython : "python3");
+const python = enginePython(root);
 const contracts = new DesignEngineBridge(root, python);
 const pipeline = new ProjectPipeline(store, executor, (project, event) => bus.emit(project.id, { type: "run-event", event, project }), contracts);
 const conversations = new Map<string, AbortController>();

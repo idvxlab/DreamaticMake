@@ -1,2 +1,4 @@
 # Core engine/element contracts. Optional collision extras: engine/requirements-mesh.txt.
 pydantic==2.14.1
+sismic==1.6.11
+PyYAML==6.0.3

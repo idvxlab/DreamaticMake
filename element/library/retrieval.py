@@ -147,6 +147,20 @@ class SearchRecord:
 
 def native_facts(definition):
     facts = {}
+    from element.schema.professional import ElementDefinitionV2
+    if isinstance(definition, ElementDefinitionV2):
+        from element.base.quantity import Parameter
+        for code, raw in definition.parameters.items():
+            parameter = Parameter.model_validate_json(canonical_json(raw))
+            evidence = {k: definition.evidence[k] for k in parameter.evidence_refs if k in definition.evidence}
+            ids = {e.get('source_ref') for e in evidence.values()}
+            sources = {k:v for k,v in definition.sources.items() if k in ids}
+            facts[code] = ParameterFact(code=code, status=parameter.status, value=parameter.value,
+                minimum=parameter.range.min if parameter.range else None, maximum=parameter.range.max if parameter.range else None,
+                conditions=parameter.conditions, evidence=evidence, sources=sources,
+                evidence_supported=bool(evidence) and len(evidence)==len(parameter.evidence_refs) and
+                    all(e.get('kind') in ('manufacturer_rated','measured','calculated','tutorial_reported') for e in evidence.values()))
+        return facts
     for code, parameter in definition.model.parameters.items():
         evidence = {key: definition.model.evidence[key].model_dump(mode='json')
             for key in parameter.evidence_refs if key in definition.model.evidence}

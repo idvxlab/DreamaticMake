@@ -18,6 +18,7 @@ from element.io.save import content_hash
 class Entity(Contract):
     name: str = Field(max_length=200)
     part_id: str | None = None
+    is_group: bool = Field(default=False, exclude_if=lambda v: not v)
 
 
 class Body(Contract):
@@ -171,7 +172,7 @@ def project_layout(draft):
             diagnostics.append(issue("layout.placeholder", "Display-only placeholder; geometry is not modeled", key))
     # Display-only placeholders are never sent to collision checks.
     for index, (key, entity) in enumerate(d.entities.items()):
-        if not bindings[key]:
+        if not bindings[key] and not entity.is_group:
             body = f"{key}/bodies/__placeholder"
             bindings[key] = [body]
             bodies.append({"entity_ref": body, "world_pose": Pose(translation_m=(index * .06, -.06, 0.)).model_dump(mode="json")})
@@ -372,7 +373,7 @@ def collision(d, poses, resolver=None):
     except (ValueError, ImportError, OSError) as exc:
         skipped.extend(objects); objects = {}; diagnostics.append(issue("collision.unavailable", str(exc)))
     covered_bodies = {"/".join((*o.scope, "bodies", o.spec.body_ref)) for o in objects.values() if o.spec.purpose == "solid"}
-    missing = sorted(set(d.bodies) - covered_bodies) + [key for key in d.entities if not any(body.entity == key for body in d.bodies.values())]
+    missing = sorted(set(d.bodies) - covered_bodies) + [key for key, entity in d.entities.items() if not entity.is_group and not any(body.entity == key for body in d.bodies.values())]
     for a, b in pairs: diagnostics.append(issue("collision.overlap", "Declared envelopes overlap", a, b, severity="error"))
     return {"kind": "collision", "pairs": pairs, "diagnostics": diagnostics, "checked": list(objects),
             "skipped": skipped, "missing_bodies": missing,
@@ -409,6 +410,13 @@ def dispatch_layout(method, data, resolver=None):
 
 def import_layout(source, scenario=None):
     """Import strict legacy definitions without compiling electrical/kinematic semantics."""
+    if source.get('record_kind') == 'design_package' and source.get('schema_version') == '3.0.0-draft':
+        from engine.design.professional import parse_package, layout_project, resolved_poses
+        p = parse_package(source)
+        result = import_layout(layout_project(p))
+        for ref, pose in resolved_poses(p).items():
+            result['bodies'][ref.replace('/links/', '/bodies/')]['pose'] = pose.model_dump(mode='json')
+        return result
     if source.get("record_kind") == "layout_project":
         from engine.layout_project import compose_project
         return compose_project(source)

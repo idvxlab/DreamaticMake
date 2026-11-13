@@ -1,3 +1,4 @@
+import { enginePython } from "../packages/design-engine/src/python";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { existsSync } from "node:fs";
@@ -193,8 +194,7 @@ test("deleting a project removes it from history and undo restores its saved sta
 test("the production contract bridge retries malformed deliverables and passes normalized upstream data", async () => {
   const store = new ProjectStore(await mkdtemp(join(tmpdir(), "dreamatic-contracts-")));
   const project = await store.create("Test device", "Show a status light");
-  const localPython = join(process.cwd(), ".runtime/python/bin/python");
-  const python = process.env.MAKE_ENGINE_PYTHON || (existsSync(localPython) ? localPython : "python3");
+  const python = enginePython(process.cwd());
   const bridge = new DesignEngineBridge(process.cwd(), python);
   let requirementsAttempts = 0;
   let appearanceContext: unknown;
@@ -274,8 +274,7 @@ test("missing hardware evidence is handed to the coordinator without starting do
   requirements.artifact = { markdown: "Measure and display", createdAt: project.createdAt,
     pin: { artifact_id: "requirements", revision: 1, content_hash: "0".repeat(64) } };
   await store.save(project);
-  const localPython = join(process.cwd(), ".runtime/python/bin/python");
-  const bridge = new DesignEngineBridge(process.cwd(), process.env.MAKE_ENGINE_PYTHON || (existsSync(localPython) ? localPython : "python3"));
+  const bridge = new DesignEngineBridge(process.cwd(), enginePython(process.cwd()));
   const calls: StageExecutionRequest[] = [];
   const executor: AgentExecutor = {
     async *execute(request) {
@@ -326,8 +325,7 @@ test("hardware resumes with prior node feedback and hands off ordinary prototype
     payload: { threadId: "previous-author", message: feedback } });
   await store.save(project);
 
-  const localPython = join(process.cwd(), ".runtime/python/bin/python");
-  const bridge = new DesignEngineBridge(process.cwd(), process.env.MAKE_ENGINE_PYTHON || (existsSync(localPython) ? localPython : "python3"));
+  const bridge = new DesignEngineBridge(process.cwd(), enginePython(process.cwd()));
   const workspace = join(store.root, project.id);
   const contract = await bridge.materialize(hardware.id, workspace);
   const { elements } = JSON.parse(await readFile(join(workspace, contract.elementLibrary!.path), "utf8"));
@@ -385,8 +383,7 @@ test("requirements accept user specifications and recover pending library-only q
   requirements.questions = [legacy];
   await store.save(project);
 
-  const localPython = join(process.cwd(), ".runtime/python/bin/python");
-  const bridge = new DesignEngineBridge(process.cwd(), process.env.MAKE_ENGINE_PYTHON || (existsSync(localPython) ? localPython : "python3"));
+  const bridge = new DesignEngineBridge(process.cwd(), enginePython(process.cwd()));
   const calls: StageExecutionRequest[] = [];
   const executor: AgentExecutor = {
     async *execute(request) {
@@ -433,8 +430,7 @@ test("previously completed projects can generate a pinned guide without rerunnin
   }
   await store.save(project);
   assert.equal((await store.get(project.id)).activeStage, "procurement_assembly_guide");
-  const localPython = join(process.cwd(), ".runtime/python/bin/python");
-  const bridge = new DesignEngineBridge(process.cwd(), process.env.MAKE_ENGINE_PYTHON || (existsSync(localPython) ? localPython : "python3"));
+  const bridge = new DesignEngineBridge(process.cwd(), enginePython(process.cwd()));
   const output = {
     kind: "procurement_assembly_guide",
     title: "Prototype guide",

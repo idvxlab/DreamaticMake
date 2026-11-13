@@ -5,13 +5,13 @@ This interface takes inline records only. The owning application resolves files.
 import json
 from pydantic import Field, model_validator
 from typing import Literal
-from element.base.contract import Contract, Id
+from element.base.contract import Contract, Id, ChannelId
 from element.base.frame import Pose
 from engine.layout import DraftJoint, DraftTransmission, Port, Edge, PathCheck, parse_layout
 
 
 class Instance(Contract):
-    definition: Id
+    definition: ChannelId
     name: str | None = None
     pose: Pose = Pose()
 
@@ -59,7 +59,7 @@ class ProjectMotionLayer(MotionLayer):
 
 
 class ProjectStructureLayer(Contract):
-    placements: dict[Id, Pose] = Field(default_factory=dict, max_length=64)
+    placements: dict[ChannelId, Pose] = Field(default_factory=dict, max_length=256)
 
 
 class ProjectNet(Contract):
@@ -68,15 +68,15 @@ class ProjectNet(Contract):
 
 
 class CircuitLogicLayer(Contract):
-    nets: dict[Id, ProjectNet] = Field(default_factory=dict, max_length=2000)
+    nets: dict[ChannelId, ProjectNet] = Field(default_factory=dict, max_length=2000)
 
 
 class LayoutProject(Contract):
     """Resolved project v2; file and library resolution is explicit in project_io."""
     record_kind: Literal['layout_project'] = 'layout_project'
     project_version: Literal[2] = 2
-    elements: dict[Id, dict] = Field(min_length=1, max_length=64)
-    element_sources: dict[Id, dict] = Field(default_factory=dict, max_length=64)
+    elements: dict[ChannelId, dict] = Field(min_length=1, max_length=256)
+    element_sources: dict[ChannelId, dict] = Field(default_factory=dict, max_length=256)
     structure: ProjectStructureLayer = ProjectStructureLayer()
     motion: ProjectMotionLayer = ProjectMotionLayer()
     circuit_logic: CircuitLogicLayer = CircuitLogicLayer()
@@ -113,7 +113,8 @@ def compose_project(source):
         component = definitions[placement.definition]
         ref = lambda key: f"{instance}/{key}"
         entity = next(iter(component["entities"].values()))
-        put("entities", instance, {**entity, "name": placement.name or entity["name"]})
+        put("entities", instance, {**entity, "name": placement.name or entity["name"],
+            **({'is_group': True} if isinstance(project, LayoutProject) and project.element_sources.get(instance, {}).get('is_group') else {})})
         for key, body in component["bodies"].items():
             pose = placement.pose.compose(Pose.model_validate_json(json.dumps(body["pose"])))
             put("bodies", ref(key), {**body, "entity": instance, "pose": pose.model_dump(mode="json")})

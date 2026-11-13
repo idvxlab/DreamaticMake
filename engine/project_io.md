@@ -1,4 +1,59 @@
-# 项目目录输入 v2
+# 项目目录输入
+
+## v3：简写源文件与完整执行对象
+
+原生元件允许 element v2/v3 混用。v3 `units` 可包含内联子单元或固定版本引用，
+加载器递归验证所有依赖 pin 与资产，custom 子引用的 location.path 相对于项目 `element/`。
+内联子单元继承所属包的资产根；引用子单元保持自己的资产根，不把路径改成相对父装配。
+
+正式领域引用可带 `unit_path` 数组；二段简写仅表示顶层实例的公开对象，不能把任意多段字符串猜成短引用。
+例如项目 `button_stop/body` 经机构导出解析到 `button_stop/guide/links/body`。
+内部关节的 `parent/child` 使用相对 `DomainRef`；有效关节标识为 `button_stop/joints/press`。
+项目 `initial_positions/configurations` 可以引用导出的关节，仅覆盖初值或收窄限位，
+候选工具亦可为已有内部关节写项目初值，不改写元件本征定义。
+
+`unit_occurrences()` 提供完整单元索引；`occurrences()` 提供唯一实体对象，导出别名不重复计数。
+`effective_joints/effective_mount_connections/effective_nets` 合并内部与项目关系；
+通过导出端点相接的同类电气网络合为一个导体，冲突网络种类被拒绝。
+投影、工具资产解析与查询来源保留子单元的包位置、pin及内联 JSON 指针。
+旧工作台按完整单元路径展示，装配分组不产生虚构的几何占位。
+
+`project_version: 3` 使用 `load_design_package()` 读取四域记录；版本、索引、元件、
+资产和软件源码仍按精确 pin 校验。`examples/project_2` 展示简写，
+`load_project()` 继续从 v3 派生兼容视图。以下规则在 `engine.design` 实现，
+不要求工具后端理解简写，也不修改元件定义：
+
+- 关节 `parent/child`、相对位姿 `relative_to` 中的 `instance/local_id` 指向机械 link；
+  安装连接 `a/b` 指向 mount；电气 `nodes` 与未接声明 `pin/pins` 指向 pin。
+  完整引用对象继续可用，错误领域、未知对象和重复关系仍会被拒绝。
+- 项目关节缺省 `type: fixed`；锚点缺省单位位姿，位姿内省略平移或旋转分别表示
+  `[0,0,0]` 和 `[0,0,0,1]`。运动关节仍须写明类型、单位轴及初值；不补猜行程、速度或力矩。
+- 可以省略已有默认值的空集合、`null` 与信号网络的 `kind: signal`。
+  网络省略 `name` 时使用其映射键；自定义显示名保留。
+- `structure.mount_defaults` 只支持共享 `hardware/status/source_record`；展开后逐项值优先。
+  不提供坐标误差、端点或验证结果的默认值，项目特有说明也不写死在 engine 中。
+- `unconnected` 的每项可以用 `pins: ["controller/en", "controller/rst"]` 合并相同声明。
+  `intentional` 和 `reason` 必须明确提供；加载后展开为原来的逐引脚声明，覆盖检查保持不变。
+
+例如，固定连接可以只写：
+
+```json
+"mount/case_rear": {"parent": "case_front/body", "child": "case_rear/body"}
+```
+
+`engine.design.authoring.compact_record(record)` 导出上述简写。读取、校验、哈希和工具
+输入使用补齐后的完整对象；等价简写保持原 record pin 和设计快照，无需增加 revision。
+实际修改几何、位姿、接线或软件内容仍须更新对应 pin，已有执行证据不能沿用。
+`root_placements` 的声明本身不能省略，`{}` 只表示该已声明根的单位位姿。
+
+`examples/project_3` 和 `project_4` 同样使用 v3。`motion.configurations` 以完整关节键
+（如 `yaw/joints/axis`）登记项目的 `lower/upper`，只能收窄本征限位；初值仍在
+`initial_positions`。跨元件比例耦合使用 `couplings` 中的
+`{"driver":"grip/joints/axis","follower":"gripper/joints/finger_right","factor":-1}`。
+原生 FK 和工具在限位检查前解析从动位置；拒绝环、重复从动端、非同类关节和冲突从动指令。
+这里只支持无偏移的线性比例；元件内部传动仍需显式执行适配器。
+
+## v2：兼容目录格式
 
 `load_project(folder, element_pool=None)` 显式只读加载 `project.json`，支持默认统一库
 或调用方指定的元件库根目录。项目文件、库引用文件和自定义元件路径分别受项目/元件目录约束，
@@ -32,7 +87,7 @@
 加载结果是在内存中解析的 `layout_project` v2，可交给 `import_layout` 和
 布局/运动/连通检查。解析结果不是新的磁盘源文件，也不代表完成实体编译或物理验证。
 原有 `layout_project` v1 的内联案例继续可读；`schema layout_project` 输出 v2。
-八层 `DesignPackage` 的通用 `flow` 合约继续服务其他设计场景，project_1 不声明独立 flow 层。
+v3 项目的工程域以其清单为准；旧八层文档和流程API已归档。
 
 工作台可通过项目路径或本机文件夹选择器加载任意同格式目录，并按项目实例键查看元件。
 项目源文件树只列出 `design/`、`doc/` 和根说明/清单；元件源文件树则以对应自定义目录
@@ -86,11 +141,11 @@ project/
 工作台左侧按主控列出关联文件树，右侧只读显示 UTF-8 源码、语言和入口。
 支持 C/C++、Arduino、Python、Rust、JS/TS 及常用配置；排除隐藏文件、依赖/构建目录和链接。
 每个工程最多遍历 5000 个条目、列出 1000 个文件，单文件预览上限 2 MiB。
-流程接口见 [软件工程设计](../process/software_design/README.md)。
+流程接口见 [软件工程设计](../process/README.md)。
 
-```sh
-.runtime/python/bin/python -m engine project examples/project_1
-.runtime/python/bin/python -m engine language examples/project_1
-.runtime/python/bin/python -m engine schema project_manifest
-.runtime/python/bin/python -m engine schema project_elements
+```powershell
+.\python.cmd -m engine project examples/project_2
+.\python.cmd -m engine language examples/project_2
+.\python.cmd -m engine schema project_manifest
+.\python.cmd -m engine schema project_elements
 ```

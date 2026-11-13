@@ -1,15 +1,9 @@
 # Engine regression fixtures
 
-These synthetic builders and JSON records support compiler, simulation, layout,
-legacy-format and CLI regressions. Application code must not load this directory.
-The standalone UI uses `examples/project_1` and the configured element pool.
+Synthetic builders and JSON records exercise the active compiler, simulation,
+layout, component-authoring and CLI contracts. Application code does not load them.
+The workbench defaults to `examples/project_2`; tests no longer depend on the deleted project_1.
 
-`build_examples.py` regenerates only the three bundle/scenario pairs in `data/`:
-
-```sh
-.runtime/python/bin/python -m engine.tests.fixtures.build_examples
-```
-
-`build_components.py` and `described_components.py` expose test constructors only;
-they do not write to the external element library. `data/gripper.project.json`
-remains a v1-format parsing regression, separate from the live project v2 source.
+`statechart.py` supplies an isolated Sismic model for tool-boundary tests.
+`build_examples.py` regenerates the three bundle/scenario pairs in `data/`.
+`build_components.py` and `described_components.py` are test-only constructors.

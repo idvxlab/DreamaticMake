@@ -13,7 +13,7 @@ export function createProjectMeshLoader(projectPath?: string, target?: string | 
     if (cached) return cached;
     const existing = pending.get(key);
     if (existing && !existing.signal.aborted) return existing.promise;
-    const owner = envelope.body_ref.split("/")[0];
+    const owner = envelope.body_ref.slice(0, envelope.body_ref.lastIndexOf("/bodies/"));
     const entry = { signal, promise: Promise.resolve(new ArrayBuffer(0)) };
     entry.promise = api<{ sha256: string; media_type: string; data_base64: string }>({
       method: "mesh", project_path: projectPath, target: target ?? null,
