@@ -1,0 +1,73 @@
+{
+  "cad": {
+    "status": "valid_step_and_mesh",
+    "source": "D:\\【项目】设计引擎\\DreamaticMaker\\data-library\\17_resistor_220ohm\\models\\17_resistor_220ohm.step",
+    "solid_count": 1,
+    "source_bbox_mm": [
+      -0.3988707403508727,
+      -1.3529903503654925,
+      -3.0000001,
+      8.018870740350872,
+      1.3529903503654925,
+      2.6029903503654923
+    ],
+    "source_solid_bboxes_mm": [
+      [
+        -0.3988707403508727,
+        -1.3529903503654925,
+        -3.0000001,
+        8.018870740350872,
+        1.3529903503654925,
+        2.6029903503654923
+      ]
+    ],
+    "bbox_m": [
+      -0.00039887074035087274,
+      -0.0013529903503654926,
+      -0.0030000001,
+      0.008018870740350872,
+      0.0013529903503654926,
+      0.002602990350365492
+    ],
+    "source_unit": "STEP reader normalized mm",
+    "mesh_unit": "m",
+    "meshing_deflection_m": 5e-05,
+    "angular_deflection_rad": 0.25,
+    "physical_matching": "not_established_by_CAD_validity",
+    "mesh_assets": [
+      {
+        "path": "assets/reference.m.stl",
+        "sha256": "7b5fb63d6eb0cd2831dedc745ccc87b703c5c1d757769ec5fedc26eaf128afbc"
+      }
+    ],
+    "export_cleanup": "removed zero/sub-threshold area faces only, no hole filling; see mesh_preparation.json"
+  },
+  "mesh": {
+    "files": [
+      "assets/reference.m.stl"
+    ],
+    "faces": 6612,
+    "vertices": 3308,
+    "bounds_m": [
+      [
+        -0.0002994310052599758,
+        -0.0012476291740313172,
+        -0.003000000026077032
+      ],
+      [
+        0.00791943073272705,
+        0.0012499999720603228,
+        0.0024994071573019028
+      ]
+    ],
+    "extents_m": [
+      0.008218861737987027,
+      0.00249762914609164,
+      0.005499407183378935
+    ],
+    "watertight": true,
+    "winding_consistent": true,
+    "finite": true,
+    "positive_area": true
+  }
+}

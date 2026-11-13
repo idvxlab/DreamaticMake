@@ -1,0 +1,16 @@
+{
+  "record_id": "logic",
+  "revision": 4,
+  "schema_version": "3.0.0-draft",
+  "software_projects": {
+    "controller": {
+      "relative_path": "software/Feather_RP2040_1",
+      "language": "micropython",
+      "entrypoint": "main.main",
+      "owner_instance": "controller",
+      "source_manifest_hash": "2c4c69536568bd4f107a4e03e73bd173982643971b084ca8de6bc9fed9d284a3",
+      "target": "micropython-rp2/adafruit-feather-rp2040-4884",
+      "relation_to_model": "not_verified"
+    }
+  }
+}

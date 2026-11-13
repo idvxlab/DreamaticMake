@@ -1,13 +1,182 @@
 {
-  "placements": {
-    "base": {
-      "translation_m": [0, 0, 0.008]
+  "record_id": "structure",
+  "revision": 2,
+  "schema_version": "3.0.0-draft",
+  "root_placements": {
+    "case_front/links/body": {}
+  },
+  "mount_connections": {
+    "bolt_0": {
+      "connection_id": "bolt/0",
+      "a": "case_front/lid_0",
+      "b": "case_rear/lid_0",
+      "hardware": "M2.5x8 countersunk self-tapping",
+      "datum_position_mismatch_m": 0.0
     },
-    "controller": {
-      "translation_m": [-0.09, -0.03, 0.012]
+    "bolt_1": {
+      "connection_id": "bolt/1",
+      "a": "case_front/lid_1",
+      "b": "case_rear/lid_1",
+      "hardware": "M2.5x8 countersunk self-tapping",
+      "datum_position_mismatch_m": 0.0
     },
-    "supply": {
-      "translation_m": [-0.09, 0.025, 0.012]
+    "bolt_2": {
+      "connection_id": "bolt/2",
+      "a": "case_front/lid_2",
+      "b": "case_rear/lid_2",
+      "hardware": "M2.5x8 countersunk self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_3": {
+      "connection_id": "bolt/3",
+      "a": "case_front/lid_3",
+      "b": "case_rear/lid_3",
+      "hardware": "M2.5x8 countersunk self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_4": {
+      "connection_id": "bolt/4",
+      "a": "case_front/display_0",
+      "b": "display_clamp/display_0",
+      "hardware": "M2x8 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_5": {
+      "connection_id": "bolt/5",
+      "a": "case_front/display_1",
+      "b": "display_clamp/display_1",
+      "hardware": "M2x8 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_6": {
+      "connection_id": "bolt/6",
+      "a": "case_front/display_2",
+      "b": "display_clamp/display_2",
+      "hardware": "M2x8 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_7": {
+      "connection_id": "bolt/7",
+      "a": "case_front/display_3",
+      "b": "display_clamp/display_3",
+      "hardware": "M2x8 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_8": {
+      "connection_id": "bolt/8",
+      "a": "case_front/tray_0",
+      "b": "inner_tray/tray_0",
+      "hardware": "M2x3 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_9": {
+      "connection_id": "bolt/9",
+      "a": "case_front/tray_1",
+      "b": "inner_tray/tray_1",
+      "hardware": "M2x3 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_10": {
+      "connection_id": "bolt/10",
+      "a": "case_front/tray_2",
+      "b": "inner_tray/tray_2",
+      "hardware": "M2x3 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_11": {
+      "connection_id": "bolt/11",
+      "a": "case_front/tray_3",
+      "b": "inner_tray/tray_3",
+      "hardware": "M2x3 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_12": {
+      "connection_id": "bolt/12",
+      "a": "inner_tray/bridge_0",
+      "b": "battery_bridge/bridge_0",
+      "hardware": "M2x5 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_13": {
+      "connection_id": "bolt/13",
+      "a": "inner_tray/bridge_1",
+      "b": "battery_bridge/bridge_1",
+      "hardware": "M2x5 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_14": {
+      "connection_id": "bolt/14",
+      "a": "case_front/key_snooze_0",
+      "b": "button_snooze/guide_shell_0",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_15": {
+      "connection_id": "bolt/15",
+      "a": "case_front/key_snooze_1",
+      "b": "button_snooze/guide_shell_1",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_22": {
+      "connection_id": "bolt/22",
+      "a": "case_front/key_stop_0",
+      "b": "button_stop/guide_shell_0",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_23": {
+      "connection_id": "bolt/23",
+      "a": "case_front/key_stop_1",
+      "b": "button_stop/guide_shell_1",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_30": {
+      "connection_id": "bolt/30",
+      "a": "case_rear/key_set_0",
+      "b": "button_set/guide_shell_0",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_31": {
+      "connection_id": "bolt/31",
+      "a": "case_rear/key_set_1",
+      "b": "button_set/guide_shell_1",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_38": {
+      "connection_id": "bolt/38",
+      "a": "case_rear/key_minus_0",
+      "b": "button_minus/guide_shell_0",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_39": {
+      "connection_id": "bolt/39",
+      "a": "case_rear/key_minus_1",
+      "b": "button_minus/guide_shell_1",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_46": {
+      "connection_id": "bolt/46",
+      "a": "case_rear/key_plus_0",
+      "b": "button_plus/guide_shell_0",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
+    },
+    "bolt_47": {
+      "connection_id": "bolt/47",
+      "a": "case_rear/key_plus_1",
+      "b": "button_plus/guide_shell_1",
+      "hardware": "M2x4 self-tapping",
+      "datum_position_mismatch_m": 0.0
     }
+  },
+  "mount_defaults": {
+    "status": "Explicit native printed mount references; thread fit and hardware not physically tested",
+    "source_record": "doc/assembly_detail/mount-connections-v0.1.json"
   }
 }

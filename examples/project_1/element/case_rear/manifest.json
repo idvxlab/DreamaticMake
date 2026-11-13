@@ -1,0 +1,13 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "case rear",
+  "category": "structure",
+  "element_path": "element.json",
+  "supplemental_cad": {
+    "path": "assets/part.step",
+    "sha256": "573f86697b7cd1ff2ecddc0f48f2755fb301ee0eaba21a182ba41c62b7245f49",
+    "unit": "mm",
+    "scope": "Executed prototype design, dimensions still require received-hardware checks."
+  }
+}

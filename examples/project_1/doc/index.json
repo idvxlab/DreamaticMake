@@ -8,7 +8,26 @@
         {
           "path": "doc/requirements/README.md",
           "media_type": "text/markdown",
-          "title": "需求与功能"
+          "title": "01 · 需求与功能",
+          "currency": "current"
+        },
+        {
+          "path": "doc/requirements/source.md",
+          "media_type": "text/markdown",
+          "title": "原始资料",
+          "currency": "current"
+        },
+        {
+          "path": "doc/requirements/functions.md",
+          "media_type": "text/markdown",
+          "title": "功能说明",
+          "currency": "current"
+        },
+        {
+          "path": "doc/requirements/decisions.md",
+          "media_type": "text/markdown",
+          "title": "决策与待定事项",
+          "currency": "current"
         }
       ]
     },
@@ -18,7 +37,32 @@
         {
           "path": "doc/appearance/README.md",
           "media_type": "text/markdown",
-          "title": "外观设计"
+          "title": "02 · 外观设计",
+          "currency": "current"
+        },
+        {
+          "path": "doc/appearance/concept-board-v0.1.png",
+          "media_type": "image/png",
+          "title": "Rounded horizontal clock - four concept views",
+          "currency": "current"
+        },
+        {
+          "path": "doc/appearance/prompt-v0.1.md",
+          "media_type": "text/markdown",
+          "title": "Image generation prompt v0.1",
+          "currency": "current"
+        },
+        {
+          "path": "doc/appearance/assets-v0.1.json",
+          "media_type": "application/json",
+          "title": "Image evidence and pinned upstream v0.1",
+          "currency": "current"
+        },
+        {
+          "path": "doc/appearance/upstream-v0.1.json",
+          "media_type": "application/json",
+          "title": "upstream-v0.1.json",
+          "currency": "historical"
         }
       ]
     },
@@ -28,7 +72,44 @@
         {
           "path": "doc/hardware_selection/README.md",
           "media_type": "text/markdown",
-          "title": "硬件选型"
+          "title": "03 · 硬件选型",
+          "currency": "current"
+        },
+        {
+          "path": "doc/hardware_selection/sources-v0.1.json",
+          "media_type": "application/json",
+          "title": "sources-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/hardware_selection/power-budget.md",
+          "media_type": "text/markdown",
+          "title": "power-budget.md",
+          "currency": "current"
+        },
+        {
+          "path": "doc/hardware_selection/selection-v0.4.json",
+          "media_type": "application/json",
+          "title": "selection-v0.4.json",
+          "currency": "historical"
+        },
+        {
+          "path": "doc/hardware_selection/bom-v0.4.json",
+          "media_type": "application/json",
+          "title": "bom-v0.4.json",
+          "currency": "historical"
+        },
+        {
+          "path": "doc/hardware_selection/selection-v0.5.json",
+          "media_type": "application/json",
+          "title": "selection-v0.5.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/hardware_selection/bom-v0.5.json",
+          "media_type": "application/json",
+          "title": "bom-v0.5.json",
+          "currency": "current"
         }
       ]
     },
@@ -38,7 +119,38 @@
         {
           "path": "doc/spatial_layout/README.md",
           "media_type": "text/markdown",
-          "title": "空间布局"
+          "title": "04 · 空间布局",
+          "currency": "current"
+        },
+        {
+          "path": "doc/spatial_layout/planning-v0.1.json",
+          "media_type": "application/json",
+          "title": "planning-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/spatial_layout/layout-v0.1.svg",
+          "media_type": "image/svg+xml",
+          "title": "layout-v0.1.svg",
+          "currency": "current"
+        },
+        {
+          "path": "doc/spatial_layout/layout-v0.1.png",
+          "media_type": "image/png",
+          "title": "layout-v0.1.png",
+          "currency": "current"
+        },
+        {
+          "path": "doc/spatial_layout/validation-v0.1.json",
+          "media_type": "application/json",
+          "title": "validation-v0.1.json",
+          "currency": "historical"
+        },
+        {
+          "path": "doc/spatial_layout/validation-v0.2.json",
+          "media_type": "application/json",
+          "title": "validation-v0.2.json",
+          "currency": "historical"
         }
       ]
     },
@@ -48,17 +160,32 @@
         {
           "path": "doc/logical_layout/README.md",
           "media_type": "text/markdown",
-          "title": "电路逻辑布局"
+          "title": "05 · 电路逻辑布局",
+          "currency": "current"
         },
         {
-          "path": "doc/logical_layout/control.py",
-          "media_type": "text/x-python",
-          "title": "控制参考 · control.py"
-        },
-        {
-          "path": "doc/logical_layout/notebook.json",
+          "path": "doc/logical_layout/pin-plan-v0.1.json",
           "media_type": "application/json",
-          "title": "控制参考 · notebook.json"
+          "title": "pin-plan-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/logical_layout/terminal-coverage-v0.1.json",
+          "media_type": "application/json",
+          "title": "terminal-coverage-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/logical_layout/validation-v0.1.json",
+          "media_type": "application/json",
+          "title": "validation-v0.1.json",
+          "currency": "historical"
+        },
+        {
+          "path": "doc/logical_layout/validation-v0.2.json",
+          "media_type": "application/json",
+          "title": "validation-v0.2.json",
+          "currency": "historical"
         }
       ]
     },
@@ -68,7 +195,32 @@
         {
           "path": "doc/enclosure_detail/README.md",
           "media_type": "text/markdown",
-          "title": "外壳组件深化"
+          "title": "06 · 外壳组件深化",
+          "currency": "current"
+        },
+        {
+          "path": "doc/enclosure_detail/parameters-v0.1.json",
+          "media_type": "application/json",
+          "title": "parameters-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/enclosure_detail/cad-validation-v0.1.json",
+          "media_type": "application/json",
+          "title": "cad-validation-v0.1.json",
+          "currency": "historical"
+        },
+        {
+          "path": "doc/enclosure_detail/cad-preview-v0.1.png",
+          "media_type": "image/png",
+          "title": "cad-preview-v0.1.png",
+          "currency": "current"
+        },
+        {
+          "path": "doc/enclosure_detail/upstream-v0.1.json",
+          "media_type": "application/json",
+          "title": "upstream-v0.1.json",
+          "currency": "historical"
         }
       ]
     },
@@ -78,7 +230,14 @@
         {
           "path": "doc/motion_detail/README.md",
           "media_type": "text/markdown",
-          "title": "运动深化"
+          "title": "07 · 运动深化",
+          "currency": "current"
+        },
+        {
+          "path": "doc/motion_detail/validation-v0.1.json",
+          "media_type": "application/json",
+          "title": "validation-v0.1.json",
+          "currency": "historical"
         }
       ]
     },
@@ -88,7 +247,32 @@
         {
           "path": "doc/assembly_detail/README.md",
           "media_type": "text/markdown",
-          "title": "装配与连接深化"
+          "title": "08 · 装配与连接深化",
+          "currency": "current"
+        },
+        {
+          "path": "doc/assembly_detail/assets/printed-assembly.step",
+          "media_type": "model/step",
+          "title": "assets/printed-assembly.step",
+          "currency": "current"
+        },
+        {
+          "path": "doc/assembly_detail/assembly-v0.1.json",
+          "media_type": "application/json",
+          "title": "assembly-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/assembly_detail/mount-connections-v0.1.json",
+          "media_type": "application/json",
+          "title": "mount-connections-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/assembly_detail/verification-v0.1.json",
+          "media_type": "application/json",
+          "title": "verification-v0.1.json",
+          "currency": "historical"
         }
       ]
     },
@@ -98,7 +282,60 @@
         {
           "path": "doc/print_optimization/README.md",
           "media_type": "text/markdown",
-          "title": "打印件优化"
+          "title": "09 · 打印件优化",
+          "currency": "current"
+        },
+        {
+          "path": "doc/print_optimization/plan-v0.1.json",
+          "media_type": "application/json",
+          "title": "plan-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/print_optimization/delivery-v0.1.json",
+          "media_type": "application/json",
+          "title": "delivery-v0.1.json",
+          "currency": "current"
+        },
+        {
+          "path": "doc/print_optimization/assets/project_2-step-v0.1.zip",
+          "media_type": "application/zip",
+          "title": "assets/project_2-step-v0.1.zip",
+          "currency": "current"
+        }
+      ]
+    },
+    "software_design": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/software_design/README.md",
+          "media_type": "text/markdown",
+          "title": "床头闹钟软件工程",
+          "currency": "current"
+        },
+        {
+          "path": "doc/software_design/verification-v0.1.json",
+          "media_type": "application/json",
+          "title": "主机测试与源代码/接线快照",
+          "currency": "historical"
+        },
+        {
+          "path": "doc/software_design/verification-v0.2.json",
+          "media_type": "application/json",
+          "title": "verification-v0.2.json",
+          "currency": "historical"
+        }
+      ]
+    },
+    "task_context": {
+      "status": "draft",
+      "files": [
+        {
+          "path": "doc/tasks/index.json",
+          "media_type": "application/json",
+          "title": "分包任务参考资料配置",
+          "currency": "current"
         }
       ]
     }

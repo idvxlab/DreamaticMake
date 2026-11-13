@@ -1,76 +1,203 @@
 {
+  "record_id": "motion",
+  "revision": 2,
+  "schema_version": "3.0.0-draft",
   "joints": {
-    "mount/base_yaw": {
-      "kind": "fixed",
-      "parent": "base/body",
-      "child": "yaw/case",
-      "parent_anchor": {
-        "translation_m": [0, 0, 0.023]
+    "mount/case_rear": {
+      "parent": "case_front/body",
+      "child": "case_rear/body"
+    },
+    "mount/inner_tray": {
+      "parent": "case_front/body",
+      "child": "inner_tray/body"
+    },
+    "mount/display_clamp": {
+      "parent": "case_front/body",
+      "child": "display_clamp/body"
+    },
+    "mount/battery_bridge": {
+      "parent": "inner_tray/body",
+      "child": "battery_bridge/body"
+    },
+    "mount/controller": {
+      "parent": "inner_tray/body",
+      "child": "controller/body",
+      "origin": {
+        "translation_m": [
+          -0.028,
+          0.032,
+          0.00855
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          -0.7071067811865476,
+          0.7071067811865476
+        ]
       }
     },
-    "mount/yaw_shoulder": {
-      "kind": "fixed",
-      "parent": "yaw/shaft",
-      "child": "shoulder/case",
-      "parent_anchor": {
-        "translation_m": [0, 0, 0.025],
-        "rotation_xyzw": [-0.7071067811865476, 0, 0, 0.7071067811865476]
+    "mount/rtc": {
+      "parent": "inner_tray/body",
+      "child": "rtc/body",
+      "origin": {
+        "translation_m": [
+          0.031,
+          0.0245,
+          0.022
+        ]
       }
     },
-    "mount/shoulder_upper": {
-      "kind": "fixed",
-      "parent": "shoulder/shaft",
-      "child": "upper/body"
-    },
-    "mount/upper_elbow": {
-      "kind": "fixed",
-      "parent": "upper/body",
-      "child": "elbow/case",
-      "parent_anchor": {
-        "translation_m": [0.105, 0, 0]
+    "mount/battery": {
+      "parent": "inner_tray/body",
+      "child": "battery/body",
+      "origin": {
+        "translation_m": [
+          0.014,
+          0.037,
+          0.008
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ]
       }
     },
-    "mount/elbow_forearm": {
-      "kind": "fixed",
-      "parent": "elbow/shaft",
-      "child": "forearm/body"
-    },
-    "mount/forearm_gripper": {
-      "kind": "fixed",
-      "parent": "forearm/body",
-      "child": "gripper/palm",
-      "parent_anchor": {
-        "translation_m": [0.09, 0, 0]
+    "mount/buzzer_r1": {
+      "parent": "inner_tray/body",
+      "child": "buzzer_r1/body",
+      "origin": {
+        "translation_m": [
+          0.038,
+          0.037,
+          0.022
+        ]
       }
     },
-    "gripper/joints/left": {
-      "kind": "prismatic",
-      "parent": "gripper/palm",
-      "child": "gripper/left",
-      "axis": [0, 1, 0],
-      "initial": 0.02,
-      "lower": 0.008,
-      "upper": 0.035
+    "mount/buzzer_r2": {
+      "parent": "inner_tray/body",
+      "child": "buzzer_r2/body",
+      "origin": {
+        "translation_m": [
+          0.038,
+          0.043,
+          0.022
+        ]
+      }
     },
-    "gripper/joints/right": {
-      "kind": "prismatic",
-      "parent": "gripper/palm",
-      "child": "gripper/right",
-      "axis": [0, 1, 0],
-      "initial": -0.02,
-      "lower": -0.035,
-      "upper": -0.008
-    }
-  },
-  "configuration": {
-    "yaw/axis": {
-      "initial": 0.0
+    "mount/buzzer": {
+      "parent": "case_rear/body",
+      "child": "buzzer/body",
+      "origin": {
+        "translation_m": [
+          0.042,
+          0.053,
+          0.036
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
     },
-    "shoulder/axis": {
-      "initial": 0.0
+    "mount/display": {
+      "parent": "case_front/body",
+      "child": "display/body",
+      "origin": {
+        "translation_m": [
+          0.0,
+          0.007,
+          0.036
+        ],
+        "rotation_xyzw": [
+          0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
     },
-    "elbow/axis": {
-      "initial": 0.0
+    "mount/guide_snooze": {
+      "parent": "case_front/body",
+      "child": "button_snooze/body",
+      "origin": {
+        "translation_m": [
+          0.0,
+          0.027,
+          0.06
+        ]
+      }
+    },
+    "mount/guide_stop": {
+      "parent": "case_front/body",
+      "child": "button_stop/body",
+      "origin": {
+        "translation_m": [
+          0.054,
+          0.025,
+          0.035
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/guide_set": {
+      "parent": "case_rear/body",
+      "child": "button_set/body",
+      "origin": {
+        "translation_m": [
+          -0.024,
+          0.054,
+          0.046
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/guide_minus": {
+      "parent": "case_rear/body",
+      "child": "button_minus/body",
+      "origin": {
+        "translation_m": [
+          0.0,
+          0.054,
+          0.046
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/guide_plus": {
+      "parent": "case_rear/body",
+      "child": "button_plus/body",
+      "origin": {
+        "translation_m": [
+          0.024,
+          0.054,
+          0.046
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
     }
   }
 }

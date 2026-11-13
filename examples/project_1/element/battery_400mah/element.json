@@ -1,0 +1,356 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.battery_400mah",
+  "revision": 2,
+  "name": "Adafruit 3898 protected 1S 400mAh pack",
+  "category": "power",
+  "aliases": [],
+  "subtype": null,
+  "form": "part",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": "Adafruit / PKCELL",
+    "model": "3898 / LP801735 400mAh",
+    "hardware_revision": null
+  },
+  "description_markdown": "Use original Adafruit connector polarity; do not infer polarity from connector shape. Geometry uses pack drawing maxima, excludes lead/plug and swelling allowance. Native PowerSource is a nominal static source, not a battery/charger model. Published 400mAh x 3.7V gives 1.48Wh; product prose about 1.9Wh is not used.",
+  "parameters": {
+    "envelope_x": {
+      "status": "known",
+      "value": {
+        "value": 37.0,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_y": {
+      "status": "known",
+      "value": {
+        "value": 17.5,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_z": {
+      "status": "known",
+      "value": {
+        "value": 8.2,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "maximum_charge_current": {
+      "status": "known",
+      "value": {
+        "value": 400.0,
+        "unit": "mA"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "maximum_pack_length": {
+      "status": "known",
+      "value": {
+        "value": 37.0,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "maximum_pack_thickness": {
+      "status": "known",
+      "value": {
+        "value": 8.2,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "maximum_pack_width": {
+      "status": "known",
+      "value": {
+        "value": 17.5,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "nominal_capacity": {
+      "status": "known",
+      "value": {
+        "value": 400.0,
+        "unit": "mAh"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "runtime": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "No user minimum. Prioritize compact size. Runtime depends on measured pack current and cutoff; not simulated."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "source_kind": "battery",
+    "voltage": {
+      "value": 3.7,
+      "unit": "V"
+    },
+    "spec": {
+      "capacity": {
+        "value": 400.0,
+        "unit": "mAh"
+      },
+      "current_limit": null,
+      "chemistry": "1S LiPo, protected"
+    }
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Nominal body envelope; excludes leads, plugs and assembly clearances.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {},
+        "collisions": {
+          "nominal": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "box",
+              "size_m": [
+                0.037,
+                0.0175,
+                0.008199999999999999
+              ]
+            },
+            "interpretation": "solid",
+            "approximation": "unknown",
+            "margin_m": 0.0,
+            "evidence_refs": [
+              "design"
+            ]
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {
+      "ground": {
+        "number": "JST-PH negative",
+        "name": "JST-PH negative",
+        "electrical_type": "passive",
+        "power": {
+          "role": "reference"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "positive": {
+        "number": "JST-PH positive",
+        "name": "JST-PH positive",
+        "electrical_type": "power_out",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 3.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 4.2,
+              "unit": "V"
+            }
+          },
+          "role": "source"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      }
+    },
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {},
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "b8ea50d707b3232f7611eb68479386319ddfe44ecab0406905615afe83463369",
+    "category_parameters": [
+      "envelope_x",
+      "envelope_y",
+      "envelope_z",
+      "maximum_charge_current",
+      "maximum_pack_length",
+      "maximum_pack_thickness",
+      "maximum_pack_width",
+      "nominal_capacity",
+      "runtime"
+    ],
+    "category_sources": [
+      "battery",
+      "battery_drawing"
+    ],
+    "category_evidence": [
+      "design",
+      "rated"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.battery_400mah",
+      "revision": 1,
+      "content_hash": "4c3c716c3d0315b04d1c77a6742e4702d3784be5886376fb45632798f4c9966b"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/battery_400mah/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.battery_400mah",
+        "revision": 1,
+        "content_hash": "4c3c716c3d0315b04d1c77a6742e4702d3784be5886376fb45632798f4c9966b"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": {
+    "metadata_version": "1",
+    "manufacturer": "Adafruit / PKCELL",
+    "model": "3898 / LP801735 400mAh",
+    "supplier": null,
+    "sku": null,
+    "purchase_url": "https://www.adafruit.com/product/3898",
+    "price": null,
+    "currency": "CNY",
+    "price_observed_at": null,
+    "availability": null,
+    "description": "",
+    "tags": []
+  },
+  "sources": {
+    "battery": {
+      "title": "Adafruit Feather battery PID 3898, 400mAh",
+      "url": "https://www.adafruit.com/product/3898",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    },
+    "battery_drawing": {
+      "title": "LP801735 pack drawing and specifications",
+      "url": "https://cdn-shop.adafruit.com/product-files/3898/3898_specsheet_LP801735_400mAh_3.7V_20161129.pdf",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    }
+  },
+  "evidence": {
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "Project design assumptions, unverified.",
+      "note": "Primitive envelope is for rough planning only. No mounting holes, contact dynamics, connector locations or tolerances are inferred."
+    },
+    "rated": {
+      "kind": "manufacturer_rated",
+      "source_ref": "battery",
+      "locator": null,
+      "conditions": "Published product nominal data; no sample measurement.",
+      "note": "Use original Adafruit connector polarity; do not infer polarity from connector shape. Geometry uses pack drawing maxima, excludes lead/plug and swelling allowance. Native PowerSource is a nominal static source, not a battery/charger model. Published 400mAh x 3.7V gives 1.48Wh; product prose about 1.9Wh is not used."
+    }
+  }
+}

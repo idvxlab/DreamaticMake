@@ -1,7 +1,0 @@
-{
-  "record_kind": "element_package",
-  "package_version": "1",
-  "name": "微型位置舵机（假设）",
-  "category": "actuator",
-  "component_path": "component.json"
-}

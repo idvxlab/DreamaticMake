@@ -1,0 +1,13 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "switch pcb retainer",
+  "category": "structure",
+  "element_path": "element.json",
+  "supplemental_cad": {
+    "path": "assets/part.step",
+    "sha256": "01c6b66e6fc0c7568dcaf466a8d5b13a924f98608ba2fd150a194fc2bf14f5d0",
+    "unit": "mm",
+    "scope": "Executed prototype design, dimensions still require received-hardware checks."
+  }
+}

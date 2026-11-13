@@ -1,0 +1,1016 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.feather_rp2040",
+  "revision": 3,
+  "name": "Adafruit Feather RP2040 4884",
+  "category": "controller",
+  "aliases": [],
+  "subtype": null,
+  "form": "module",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": "Adafruit",
+    "model": "4884 Feather RP2040",
+    "hardware_revision": null
+  },
+  "description_markdown": "USB-C plus protected 1S LiPo on JST-PH. Manufacturer documents automatic USB/battery switchover. Header subset model: USB data, SWD, and duplicated ground pads are not represented; no switching/charging simulation. Never power backup loads from VBUS. Hardware revision to be checked on receipt. Revision 2 is the project-configured pin-mode contract, not executed firmware. GP18/19 SPI0, GP09/10/11 OLED control, GP02/03 I2C1, GP06/07/12/24/25 pulled-up buttons, GP08 PWM4A. BAT is a passive bidirectional power contact because the native role enum has no bidirectional-power role; it is not a digital signal. No charge/discharge direction simulation.",
+  "parameters": {
+    "charge_current": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "Verify RPROG/board revision before assembly; must be <=400mA for selected cell."
+    },
+    "continuous_current": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "Board, display and RTC load must be thermally verified."
+    },
+    "envelope_x": {
+      "status": "known",
+      "value": {
+        "value": 51.0,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_y": {
+      "status": "known",
+      "value": {
+        "value": 23.0,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_z": {
+      "status": "known",
+      "value": {
+        "value": 7.5,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "regulator_peak": {
+      "status": "known",
+      "value": {
+        "value": 500.0,
+        "unit": "mA"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Peak only; not continuous output rating."
+    },
+    "supply_logic": {
+      "status": "known",
+      "value": {
+        "value": 3.3,
+        "unit": "V"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "platform": "rp2040",
+    "firmware": null
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Nominal body envelope; excludes leads, plugs and assembly clearances.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {},
+        "collisions": {
+          "nominal": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "box",
+              "size_m": [
+                0.051,
+                0.023,
+                0.0075
+              ]
+            },
+            "interpretation": "solid",
+            "approximation": "unknown",
+            "margin_m": 0.0,
+            "evidence_refs": [
+              "design"
+            ]
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {
+      "aref": {
+        "number": "AREF",
+        "name": "AREF",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "bat": {
+        "number": "BAT / JST-PH positive",
+        "name": "BAT / JST-PH positive",
+        "electrical_type": "passive",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 3.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 4.2,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "en": {
+        "number": "EN",
+        "name": "EN",
+        "electrical_type": "input",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gnd": {
+        "number": "GND",
+        "name": "GND",
+        "electrical_type": "passive",
+        "power": {
+          "role": "reference"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gp00": {
+        "number": "GP00",
+        "name": "GP00",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gp01": {
+        "number": "GP01",
+        "name": "GP01",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gp02": {
+        "number": "GP02",
+        "name": "GP02",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "open_drain",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp03": {
+        "number": "GP03",
+        "name": "GP03",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "open_drain",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp06": {
+        "number": "GP06",
+        "name": "GP06",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "up"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp07": {
+        "number": "GP07",
+        "name": "GP07",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "up"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp08": {
+        "number": "GP08",
+        "name": "GP08",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "push_pull",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp09": {
+        "number": "GP09",
+        "name": "GP09",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "push_pull",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp10": {
+        "number": "GP10",
+        "name": "GP10",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "push_pull",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp11": {
+        "number": "GP11",
+        "name": "GP11",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "push_pull",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp12": {
+        "number": "GP12",
+        "name": "GP12",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "up"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp13": {
+        "number": "GP13",
+        "name": "GP13",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gp18": {
+        "number": "GP18",
+        "name": "GP18",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "push_pull",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp19": {
+        "number": "GP19",
+        "name": "GP19",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "push_pull",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp20": {
+        "number": "GP20",
+        "name": "GP20",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gp24": {
+        "number": "GP24",
+        "name": "GP24",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "up"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp25": {
+        "number": "GP25",
+        "name": "GP25",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "up"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated",
+          "pin_plan"
+        ]
+      },
+      "gp26": {
+        "number": "GP26",
+        "name": "GP26",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gp27": {
+        "number": "GP27",
+        "name": "GP27",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gp28": {
+        "number": "GP28",
+        "name": "GP28",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gp29": {
+        "number": "GP29",
+        "name": "GP29",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "rst": {
+        "number": "RST",
+        "name": "RST",
+        "electrical_type": "input",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "v3": {
+        "number": "3V",
+        "name": "3V",
+        "electrical_type": "power_out",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 3.3,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          },
+          "role": "source"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "vbus": {
+        "number": "USB / VBUS",
+        "name": "USB / VBUS",
+        "electrical_type": "power_in",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 4.75,
+              "unit": "V"
+            },
+            "max": {
+              "value": 5.25,
+              "unit": "V"
+            }
+          },
+          "role": "sink"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      }
+    },
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {
+      "control_functions": {}
+    },
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 2,
+    "source_hash": "b0ea74a0d575b17cbfb51180618cdb117de073e1c0df8980707170f5318304a8",
+    "category_parameters": [
+      "charge_current",
+      "continuous_current",
+      "envelope_x",
+      "envelope_y",
+      "envelope_z",
+      "regulator_peak",
+      "supply_logic"
+    ],
+    "category_sources": [
+      "feather",
+      "feather_pins",
+      "feather_power"
+    ],
+    "category_evidence": [
+      "design",
+      "pin_plan",
+      "rated"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.feather_rp2040",
+      "revision": 2,
+      "content_hash": "67cddecdf86b58858d863f53fbc551473fee30d1a3bc83fa5cccc7e0bb5d0a77"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/feather_rp2040/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.feather_rp2040",
+        "revision": 2,
+        "content_hash": "67cddecdf86b58858d863f53fbc551473fee30d1a3bc83fa5cccc7e0bb5d0a77"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": {
+    "metadata_version": "1",
+    "manufacturer": "Adafruit",
+    "model": "4884 Feather RP2040",
+    "supplier": null,
+    "sku": null,
+    "purchase_url": "https://www.adafruit.com/product/4884",
+    "price": null,
+    "currency": "CNY",
+    "price_observed_at": null,
+    "availability": null,
+    "description": "",
+    "tags": []
+  },
+  "sources": {
+    "feather": {
+      "title": "Adafruit Feather RP2040 PID 4884",
+      "url": "https://www.adafruit.com/product/4884",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    },
+    "feather_pins": {
+      "title": "Feather RP2040 pinouts",
+      "url": "https://learn.adafruit.com/adafruit-feather-rp2040-pico/pinouts",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    },
+    "feather_power": {
+      "title": "Feather RP2040 USB and battery switchover",
+      "url": "https://learn.adafruit.com/adafruit-feather-rp2040-pico/power-management",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    }
+  },
+  "evidence": {
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "Project design assumptions, unverified.",
+      "note": "Primitive envelope is for rough planning only. No mounting holes, contact dynamics, connector locations or tolerances are inferred."
+    },
+    "pin_plan": {
+      "kind": "assumed",
+      "source_ref": "feather_pins",
+      "locator": null,
+      "conditions": "Project pin-mode configuration to implement in future firmware, not an executed configuration.",
+      "note": " Revision 2 is the project-configured pin-mode contract, not executed firmware. GP18/19 SPI0, GP09/10/11 OLED control, GP02/03 I2C1, GP06/07/12/24/25 pulled-up buttons, GP08 PWM4A. BAT is a passive bidirectional power contact because the native role enum has no bidirectional-power role; it is not a digital signal. No charge/discharge direction simulation."
+    },
+    "rated": {
+      "kind": "manufacturer_rated",
+      "source_ref": "feather",
+      "locator": null,
+      "conditions": "Published product nominal data; no sample measurement.",
+      "note": "USB-C plus protected 1S LiPo on JST-PH. Manufacturer documents automatic USB/battery switchover. Header subset model: USB data, SWD, and duplicated ground pads are not represented; no switching/charging simulation. Never power backup loads from VBUS. Hardware revision to be checked on receipt."
+    }
+  }
+}

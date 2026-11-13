@@ -1,0 +1,274 @@
+{
+  "project_revision": "0.5",
+  "project_snapshot_id": "611c4cc1582d6c9aeeb3e927088322ca200824ab28e1a62c6a98e8c3b0c1833b",
+  "record_checks": {
+    "project_snapshot_id": "611c4cc1582d6c9aeeb3e927088322ca200824ab28e1a62c6a98e8c3b0c1833b",
+    "format_compatibility": "project_1/design conventions and project v2 contracts",
+    "instances": 38,
+    "nets": 19,
+    "native_terminals": 73,
+    "connected": 49,
+    "unconnected": 24,
+    "voltage_checks": [
+      {
+        "net": "usb_5v",
+        "source": "usb_input/positive",
+        "range_v": [
+          4.75,
+          5.25
+        ],
+        "status": "within_declared_terminal_ranges"
+      },
+      {
+        "net": "battery_raw",
+        "source": "battery/positive",
+        "range_v": [
+          3.0,
+          4.2
+        ],
+        "status": "within_declared_terminal_ranges"
+      },
+      {
+        "net": "logic_3v3",
+        "source": "controller/v3",
+        "range_v": [
+          3.3,
+          3.3
+        ],
+        "status": "within_declared_terminal_ranges"
+      }
+    ],
+    "collision_status": "partial",
+    "collision_pairs": 0,
+    "limitations": [
+      "Generic mesh preview needs per-element asset resolvers; exact CAD checks are recorded in assembly_detail. Resistor/cable/connector geometry remains limited.",
+      "Button contact mapping and physical wiring not verified",
+      "No firmware, transient, thermal, charging or acoustic validation"
+    ]
+  },
+  "input_hashes": [
+    {
+      "path": "project.json",
+      "sha256": "c5e8f184cae95f5fee84a66e62b554d0de05acda3ac5876941de6a170f25e4b9"
+    },
+    {
+      "path": "element/index.json",
+      "sha256": "ed9de9542311e27a0daad89712cca78cd504f71403d34e0e4225a2f1e8d2938d"
+    },
+    {
+      "path": "element/battery_400mah/element.json",
+      "sha256": "2c887bf4ead918bc5455192bcea73f78677780b73cb39dca2f2b364ed886576b"
+    },
+    {
+      "path": "element/battery_bridge/element.json",
+      "sha256": "a8c5b21bca27f753a8ef0f9518f1aeede39e2b4dba1f1ff40a22002c9d1eb968"
+    },
+    {
+      "path": "element/button_pts645/element.json",
+      "sha256": "80c9c66fe93ca6e60181364e65f041652b60a6300ca7b0c17d821d6fad540b4b"
+    },
+    {
+      "path": "element/case_front/element.json",
+      "sha256": "ff12003d866605b7db1908822b00d373684f9b08d42000720581629cf774bdc1"
+    },
+    {
+      "path": "element/case_rear/element.json",
+      "sha256": "b47ea05f1ca48383283f285cd1ad237d7f7a71d3b25dbe9685fdd8f41070e20c"
+    },
+    {
+      "path": "element/display_clamp/element.json",
+      "sha256": "934da477fdb4dbf0439daf260fbeedef4d5c03741be7a190c41cfd7c42cc851a"
+    },
+    {
+      "path": "element/feather_rp2040/element.json",
+      "sha256": "1023a107147638b0af31409093161f11fddd4d94f1cf8f3854edef33e5525866"
+    },
+    {
+      "path": "element/inner_tray/element.json",
+      "sha256": "8528e1454c16cc9b798cb1d6810d05d91b9d5876f84d788d0ffbf46e4b076556"
+    },
+    {
+      "path": "element/key_gate_large/element.json",
+      "sha256": "9b2bca41c1d7ef4be2547866f1a68c0424cd738a54993063e522d3b80ae6c341"
+    },
+    {
+      "path": "element/key_gate_small/element.json",
+      "sha256": "d01b814afcd60b1af327178d1576ecb97903b0923f876bec76f701f6607701e1"
+    },
+    {
+      "path": "element/key_guide_large/element.json",
+      "sha256": "db1d95798cb713cef19de536978b7ea11789c94e60a034a073792bd72f56f9bd"
+    },
+    {
+      "path": "element/key_guide_small/element.json",
+      "sha256": "f29c89f83df6d6cd67f02709d04112236754382c8a63e757a21aa49e821406d8"
+    },
+    {
+      "path": "element/keycap_large/element.json",
+      "sha256": "13a5195cbfa866f78f702094faba3c40ac75bb9e13e2c5abc11b41caf0d4e8af"
+    },
+    {
+      "path": "element/keycap_small/element.json",
+      "sha256": "3296d0d893cb1964044bbdf143ee994aed0aae8860c4f6999a0752943ec9bd7d"
+    },
+    {
+      "path": "element/oled_242_yellow/element.json",
+      "sha256": "1cbdabe15b90d8f4f349074f285108cf7926f6781590f77af13f4a31172a7bad"
+    },
+    {
+      "path": "element/piezo_ps1240/element.json",
+      "sha256": "3375767b6421f4fcdba30c51306783783afa39843cef8957f05c05a9f0a4d4b2"
+    },
+    {
+      "path": "element/rtc_ds3231/element.json",
+      "sha256": "3f97dcb5fcf48f4c7515b4b6bb21b56f16e465171fae9938699cdff1730f5ee5"
+    },
+    {
+      "path": "element/switch_pcb_retainer/element.json",
+      "sha256": "809114805b0953352942b771be935fedce694fd764425ba143656260000f2d9a"
+    },
+    {
+      "path": "element/usb_5v_input/element.json",
+      "sha256": "0d453d101467b2d2bf108f597e50ea992e849ef752d56d3afb61f886ee1e368d"
+    },
+    {
+      "path": "element/battery_bridge/assets/part.step",
+      "sha256": "8d6c43ce06972b30be46f6fb33de5f416f4be451eb4ddb9f49eb7b1ed1843375"
+    },
+    {
+      "path": "element/case_front/assets/part.step",
+      "sha256": "5bead0cbdd7e8101c45b89f91f6315b43d2deaafb25a00383f71c81e42c30e30"
+    },
+    {
+      "path": "element/case_rear/assets/part.step",
+      "sha256": "573f86697b7cd1ff2ecddc0f48f2755fb301ee0eaba21a182ba41c62b7245f49"
+    },
+    {
+      "path": "element/display_clamp/assets/part.step",
+      "sha256": "f859eee6ea766a6a4a14ca458f06c627e2d46815e395fadc0aecb953e6d0874c"
+    },
+    {
+      "path": "element/inner_tray/assets/part.step",
+      "sha256": "19a014696a39c92853ba633a474b71ea7fb59bececff2ad97f7d8184ede6f9f3"
+    },
+    {
+      "path": "element/key_gate_large/assets/part.step",
+      "sha256": "571602a4ddb472ef2a933e61cf616a99525854f6f5b493c72408e5bc5ad80e6a"
+    },
+    {
+      "path": "element/key_gate_small/assets/part.step",
+      "sha256": "54e99b1839d7bd5e8dc1175660dba789495e441f4296a22dd06c67fb7f2f0e17"
+    },
+    {
+      "path": "element/key_guide_large/assets/part.step",
+      "sha256": "0d06059e21ac536c198a43cdcd6a5b28423e34a0fb9dd98b731da28792b4bc2c"
+    },
+    {
+      "path": "element/key_guide_small/assets/part.step",
+      "sha256": "b2379a3226be0ee4fafb2985ba06ceb54fd5cd8efd928e8c4d66465ab606b4db"
+    },
+    {
+      "path": "element/keycap_large/assets/part.step",
+      "sha256": "8d2ef1e4f529c0ce1160ef00a548c642d5f37823c9079f4fda50657fe3a1df29"
+    },
+    {
+      "path": "element/keycap_small/assets/part.step",
+      "sha256": "38aa9be1f9fade1d8c880008ad39d59bdaa78e48d63fb372aa82629966f3820b"
+    },
+    {
+      "path": "element/switch_pcb_retainer/assets/part.step",
+      "sha256": "01c6b66e6fc0c7568dcaf466a8d5b13a924f98608ba2fd150a194fc2bf14f5d0"
+    },
+    {
+      "path": "element/battery_bridge/assets/part.stl",
+      "sha256": "c8843da4f0e181f00476804b0e102d9ddcdaac37a87223f140516e5cbeab2f49"
+    },
+    {
+      "path": "element/case_front/assets/part.stl",
+      "sha256": "6b638596563704cc38929890a6d61808ca67ae490ab0d15b44cee131aa367295"
+    },
+    {
+      "path": "element/case_rear/assets/part.stl",
+      "sha256": "a4e043af4b869b5643477f12f6e747bdeb1144f1b10c884e1e0a96375348185f"
+    },
+    {
+      "path": "element/display_clamp/assets/part.stl",
+      "sha256": "1c24f621e31125ae866c2668ebc65576f353cddb70407998f53a3cf1cad4f69e"
+    },
+    {
+      "path": "element/inner_tray/assets/part.stl",
+      "sha256": "27e6a7cb5ef1297f7ee5fd744cd1f1606c475e1c8f059910a5ed466f097f985c"
+    },
+    {
+      "path": "element/key_gate_large/assets/part.stl",
+      "sha256": "b800a0bec2d99f4dd3d2de6f4df8cb42369cce15616e9797fafa97bbdf34bd51"
+    },
+    {
+      "path": "element/key_gate_small/assets/part.stl",
+      "sha256": "0812ef33d24210c660a16c76fcddbbdb0a55eb66c03e53179e66d56e1406f5e8"
+    },
+    {
+      "path": "element/key_guide_large/assets/part.stl",
+      "sha256": "f0ff244a2d2546161bc703a00f4544a12d81bc72b12a12ec2030a0bce289d6e1"
+    },
+    {
+      "path": "element/key_guide_small/assets/part.stl",
+      "sha256": "18ad8400f9827a42575ef1158334291f6de43f4440486927b66fcc6e116780a7"
+    },
+    {
+      "path": "element/keycap_large/assets/part.stl",
+      "sha256": "22427a2d36cd64e10442b5de68e29f8a1a9c26184cc578115fa8f42942c57b40"
+    },
+    {
+      "path": "element/keycap_small/assets/part.stl",
+      "sha256": "1db157b8709103da3cb3593cae9e88d488fadaad3c8f71f802dda50ba7cf1345"
+    },
+    {
+      "path": "element/switch_pcb_retainer/assets/part.stl",
+      "sha256": "aff058745c4978c0153a078a6ec70977f11f7d8804988c2a4199b1afba49afbd"
+    },
+    {
+      "path": "design/circuit-logic.json",
+      "sha256": "b7bead9b0390de5710f1ff602f6221f28eebba9ec913898f8cff413320b2aa91"
+    },
+    {
+      "path": "design/motion.json",
+      "sha256": "17317c368b45eb48fec9d0febfefb3b953be2d2250b8d719f86058b952f8ed7d"
+    },
+    {
+      "path": "design/structure.json",
+      "sha256": "2682362990755a9eae3e9c64c0b6e643fb08dfb50e941e35469dbee345fb034c"
+    },
+    {
+      "path": "doc/hardware_selection/selection-v0.3.json",
+      "sha256": "2d8a194a0b360ac9f417f839c11cc36cbbc895ecc26b120b00134ccec1064d71"
+    },
+    {
+      "path": "doc/hardware_selection/bom-v0.3.json",
+      "sha256": "5e132f27527eb70103a31c491df6202667818064d6ac9ae316809a3eace0b1ca"
+    },
+    {
+      "path": "doc/enclosure_detail/build_cad.py",
+      "sha256": "9458217849cbb58488fe0d7ac9be9811b3d66fe5a63d871a7dab20397bcb0c86"
+    }
+  ],
+  "cad_verification": "doc/assembly_detail/verification-v0.1.json",
+  "physical_verification": "not_performed",
+  "repository_checks": [
+    {
+      "command": ".\\npm.cmd run check",
+      "exit_code": 0
+    },
+    {
+      "command": ".\\npm.cmd test",
+      "exit_code": 0,
+      "note": "One symlink test skipped because this Windows environment does not support its creation."
+    },
+    {
+      "command": ".\\npm.cmd run build",
+      "exit_code": 0,
+      "note": "Vite reports a bundle-size warning."
+    }
+  ],
+  "visual_preview_inspected": true
+}

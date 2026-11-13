@@ -1,0 +1,191 @@
+{
+  "retrieved_at": "2026-11-06",
+  "timezone": "Asia/Shanghai",
+  "web_sources": [
+    {
+      "id": "feather",
+      "title": "Adafruit Feather RP2040 PID 4884",
+      "url": "https://www.adafruit.com/product/4884"
+    },
+    {
+      "id": "feather_pins",
+      "title": "Feather RP2040 pinouts",
+      "url": "https://learn.adafruit.com/adafruit-feather-rp2040-pico/pinouts"
+    },
+    {
+      "id": "feather_power",
+      "title": "Feather RP2040 USB and battery switchover",
+      "url": "https://learn.adafruit.com/adafruit-feather-rp2040-pico/power-management"
+    },
+    {
+      "id": "oled",
+      "title": "Waveshare 2.42inch OLED Module, yellow C option",
+      "url": "https://www.waveshare.com/2.42inch-oled-module.htm"
+    },
+    {
+      "id": "oled_pins",
+      "title": "Waveshare OLED module wiki",
+      "url": "https://www.waveshare.com/wiki/2.42inch_OLED_Module"
+    },
+    {
+      "id": "ssd1309",
+      "title": "SSD1309 contrast command, Rev 1.1",
+      "url": "https://files.waveshare.com/wiki/2.42inch-OLED-Module/SSD1309Datasheet.pdf"
+    },
+    {
+      "id": "rtc",
+      "title": "Adafruit DS3231 STEMMA QT PID 5188",
+      "url": "https://www.adafruit.com/product/5188"
+    },
+    {
+      "id": "rtc_pins",
+      "title": "DS3231 breakout pinouts",
+      "url": "https://learn.adafruit.com/adafruit-ds3231-precision-rtc-breakout/pinouts"
+    },
+    {
+      "id": "rtc_chip",
+      "title": "DS3231 datasheet",
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/ds3231.pdf"
+    },
+    {
+      "id": "battery",
+      "title": "Adafruit Feather battery PID 3898, 400mAh",
+      "url": "https://www.adafruit.com/product/3898"
+    },
+    {
+      "id": "battery_drawing",
+      "title": "LP801735 pack drawing and specifications",
+      "url": "https://cdn-shop.adafruit.com/product-files/3898/3898_specsheet_LP801735_400mAh_3.7V_20161129.pdf"
+    },
+    {
+      "id": "button",
+      "title": "C&K PTS645 series, THT ordering and drawing",
+      "url": "https://www.ckswitches.com/media/1471/pts645.pdf"
+    },
+    {
+      "id": "piezo",
+      "title": "Adafruit piezo PS1240 PID 160",
+      "url": "https://www.adafruit.com/product/160"
+    }
+  ],
+  "pool_root": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2",
+  "pool_candidates": [
+    {
+      "folder": "lcd_1602",
+      "blockers": [
+        "下载的RC1602A模型84.02×44mm，与TC1602A手册80×36mm明显不符。",
+        "字符数不是像素分辨率；width_px/height_px未获得可直接映射的定义。",
+        "手册p3与p5的温度范围不一致，p5的IDD=120/150mA也需要原厂核实。"
+      ],
+      "ref": null
+    },
+    {
+      "folder": "piezo_passive",
+      "blockers": [
+        "没有取得PKM22EPPH4001-B0适用的三维资产。",
+        "原套件PKM22EPP-40与所选型号并非已证明的同一料号。"
+      ],
+      "ref": null
+    },
+    {
+      "folder": "pushbutton_6mm",
+      "blockers": [
+        "PTS645仅固定到系列，执行杆高度、操作力和订货后缀未固定。",
+        "HumanInput.controls必填sample_period_s；机械按键无固有数字采样周期，未替用户编造应用采样策略。"
+      ],
+      "ref": null
+    },
+    {
+      "folder": "resistor_220ohm",
+      "blockers": [],
+      "ref": {
+        "library_id": "arduino_basic",
+        "element_id": "arduino_kit.resistor_220ohm",
+        "revision": 1,
+        "content_hash": "e4565ba7e87c8c092e979ced86d7d384a4de8c5fe9f84f03dca71f999e5bd9a7"
+      }
+    },
+    {
+      "folder": "battery_9v",
+      "blockers": [],
+      "ref": {
+        "library_id": "arduino_basic",
+        "element_id": "arduino_kit.battery_9v",
+        "revision": 1,
+        "content_hash": "34e782a007944d663dfc83411a59b97ff94ba4daa3aa32514f58e2bb136d3a42"
+      }
+    },
+    {
+      "folder": "arduino_uno_r4_wifi",
+      "blockers": [],
+      "ref": {
+        "library_id": "arduino_basic",
+        "element_id": "arduino_kit.arduino_uno_r4_wifi",
+        "revision": 1,
+        "content_hash": "e1227ce75137aae2a52ddebbcf987a5227f938aa0ce243321882f7d1c7b2d160"
+      }
+    },
+    {
+      "folder": "template_oled",
+      "blockers": [],
+      "ref": {
+        "library_id": "templates",
+        "element_id": "example.oled",
+        "revision": 1,
+        "content_hash": "a88e1875a9f8759bf1bfb9bf040ff6ba33cc930b9e9846315db599b96e957990"
+      }
+    },
+    {
+      "folder": "template_usb_supply",
+      "blockers": [],
+      "ref": {
+        "library_id": "templates",
+        "element_id": "example.usb_supply",
+        "revision": 1,
+        "content_hash": "5e70e141e88b838d9b7650a2361304917a44b6d5859ab28b831a0e60f5e469ae"
+      }
+    }
+  ],
+  "pool_inputs": [
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\index.json",
+      "sha256": "a1426ac5db6ed2d26e005dc1d44592f2759c5d423310975069b40c2da96ff325"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\resistor_220ohm\\element.json",
+      "sha256": "66c9ca947a146751570f8984c3eb62792cd23452023aad4b469b149d80504083"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\resistor_220ohm\\manifest.json",
+      "sha256": "d0e08cc764e46f6f15d33fb2ca6e9e5780b1d265625b1a492e35c4cf3c9c93d0"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\pushbutton_6mm\\manifest.json",
+      "sha256": "d5b5325adf7f8d9063f66b061b738c4359f9ab65bdaa903e22f862d179e8978f"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\piezo_passive\\manifest.json",
+      "sha256": "134cd29d3f46a9431884e49af9fa86b4c6bdc7f02789887d74a455e61a311f48"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\template_oled\\manifest.json",
+      "sha256": "5e6501a19ac762ef8be317dc9d74ebd2d879916da2b35f2369f52056e331ccb4"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\template_usb_supply\\manifest.json",
+      "sha256": "41223527a1b20f0f70ee608cb22305fd5c8630ac23b60f9accf7a53e7ac8d9af"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\arduino_uno_r4_wifi\\manifest.json",
+      "sha256": "0e27286f4d3eeda21ec2bd18c450e99bafb0d83f91b56e9d5b5bebf1cd51de69"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\battery_9v\\manifest.json",
+      "sha256": "6f20c05f47f056d421f593a16951477ec81220ece54f94c2b1d8f16532d8f184"
+    },
+    {
+      "path": "D:\\【项目】设计引擎\\DreamaticMaker\\element_pool_2\\lcd_1602\\manifest.json",
+      "sha256": "dfe37ecebe63939d46dd896a73ed259a85b7dd039fc3b4c1707d92187064d3f2"
+    }
+  ]
+}

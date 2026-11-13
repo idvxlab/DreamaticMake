@@ -1,0 +1,13 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "display clamp",
+  "category": "structure",
+  "element_path": "element.json",
+  "supplemental_cad": {
+    "path": "assets/part.step",
+    "sha256": "f859eee6ea766a6a4a14ca458f06c627e2d46815e395fadc0aecb953e6d0874c",
+    "unit": "mm",
+    "scope": "Executed prototype design, dimensions still require received-hardware checks."
+  }
+}

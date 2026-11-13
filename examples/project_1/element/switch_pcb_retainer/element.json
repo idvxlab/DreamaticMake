@@ -1,0 +1,387 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.switch_pcb_retainer",
+  "revision": 2,
+  "name": "switch pcb retainer",
+  "category": "structure",
+  "aliases": [],
+  "subtype": null,
+  "form": "part",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": null,
+    "model": null,
+    "hardware_revision": null
+  },
+  "description_markdown": "Printable CAD prototype. STEP in mm; original source and validation indexed in doc/enclosure_detail. No manufactured success.",
+  "parameters": {
+    "wall_target": {
+      "status": "assumed",
+      "value": {
+        "value": 2.4,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "PLA prototype wall target, not certified strength or minimum-wall analysis."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "structural_role": "bracket",
+    "spec": {
+      "kind": "bracket",
+      "standard": null,
+      "dimensions": {},
+      "material": "PLA",
+      "color": "#424D59"
+    }
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Executed OpenCascade solid; local CAD mm, mesh declared mm; native poses m.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {
+          "surface": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "mesh",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.stl",
+                "sha256": "aff058745c4978c0153a078a6ec70977f11f7d8804988c2a4199b1afba49afbd",
+                "media_type": "model/stl"
+              },
+              "unit": "mm"
+            }
+          },
+          "cad_step_0": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "brep",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.step",
+                "sha256": "01c6b66e6fc0c7568dcaf466a8d5b13a924f98608ba2fd150a194fc2bf14f5d0",
+                "media_type": "model/step"
+              },
+              "format": "step",
+              "unit": "mm",
+              "selection": null
+            }
+          }
+        },
+        "collisions": {
+          "solid": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "mesh",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.stl",
+                "sha256": "aff058745c4978c0153a078a6ec70977f11f7d8804988c2a4199b1afba49afbd",
+                "media_type": "model/stl"
+              },
+              "unit": "mm"
+            },
+            "interpretation": "solid",
+            "approximation": "outer",
+            "margin_m": 0.0,
+            "evidence_refs": []
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {
+      "datum": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "kind": "plane",
+        "allowed_mates": [],
+        "dimensions": {},
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "pcb_0": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.0075,
+            -0.0075,
+            -0.007
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "kind": "through_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 2.4,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "pcb_1": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.0075,
+            0.0075,
+            -0.007
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "kind": "through_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 2.4,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "pcb_2": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.0075,
+            -0.0075,
+            -0.007
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "kind": "through_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 2.4,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "pcb_3": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.0075,
+            0.0075,
+            -0.007
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "kind": "through_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 2.4,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      }
+    },
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {},
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {},
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "a60e81a93516e6fcc433b1adaae61d4463bc334de62b3a72f6bea115ec8b22f8",
+    "category_parameters": [
+      "wall_target"
+    ],
+    "category_sources": [],
+    "category_evidence": [
+      "cad_execution",
+      "design"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.switch_pcb_retainer",
+      "revision": 1,
+      "content_hash": "c3f74abe62428979f1f5952704f48b44fa1944a163e2841eb70cc044e5913777"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/switch_pcb_retainer/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.switch_pcb_retainer",
+        "revision": 1,
+        "content_hash": "c3f74abe62428979f1f5952704f48b44fa1944a163e2841eb70cc044e5913777"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": null,
+  "sources": {},
+  "evidence": {
+    "cad_execution": {
+      "kind": "calculated",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "OpenCascade BRep build, STEP reread and STL inspection executed.",
+      "note": "Valid single solid with positive volume; not a print or physical fit test."
+    },
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "User chose PLA FDM, 0.4mm nozzle, 0.2mm layers.",
+      "note": "Trial fit and actual hardware dimensions still required."
+    }
+  }
+}

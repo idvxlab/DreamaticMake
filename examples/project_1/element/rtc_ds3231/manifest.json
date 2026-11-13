@@ -1,0 +1,7 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "Adafruit DS3231 STEMMA QT 5188",
+  "category": "controller",
+  "element_path": "element.json"
+}

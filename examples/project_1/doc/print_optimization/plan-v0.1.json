@@ -1,0 +1,505 @@
+{
+  "revision": "0.1",
+  "printer": {
+    "process": "fdm",
+    "material": "PLA",
+    "nozzle_mm": 0.4,
+    "layer_height_mm": 0.2,
+    "build_volume_m": [
+      0.22,
+      0.22,
+      0.25
+    ],
+    "build_volume_status": "assumed; actual printer not specified",
+    "min_feature_m": 0.0012,
+    "resolution_m": 0.0002,
+    "max_unsupported_angle_deg": 45,
+    "infill_percent": 20,
+    "perimeters": 4,
+    "status": "design/slicing starting assumptions; no slicer run"
+  },
+  "parts": [
+    {
+      "part": "case_front",
+      "quantity": 1,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.case_front",
+        "revision": 1,
+        "content_hash": "5865a779872a16473e9ff0f603bed8a37fa00431ca5360da417222e5a8c8a075"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.06,
+          0.065,
+          -0.0
+        ],
+        "rotation_xyzw": [
+          0.7071067811865476,
+          0,
+          0,
+          0.7071067811865476
+        ]
+      },
+      "print_step": "element/case_front/assets/print.step",
+      "print_step_sha256": "099abc7c1fbf31cd14c13efffecb38abec354e4c5584973adc1a9e8dff128800",
+      "bounds_mm": [
+        120.0,
+        65.0,
+        57.6
+      ],
+      "support_strategy": "Prefer face-down orientation; inspect lip/boss overhangs in slicer, use local support only if needed.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "case_rear",
+      "quantity": 1,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.case_rear",
+        "revision": 1,
+        "content_hash": "bba34827d84dbe115c8d98f3fc77a54f014a0670c47c5e62bbb6a8383d3d7888"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.06,
+          -0.0,
+          0.06
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0,
+          0,
+          0.7071067811865476
+        ]
+      },
+      "print_step": "element/case_rear/assets/print.step",
+      "print_step_sha256": "ef7e3bc4744dbf950b07067108972478a761d6f38e70fa7778b29c0340989bc5",
+      "bounds_mm": [
+        120.0,
+        65.0,
+        10.7
+      ],
+      "support_strategy": "Prefer face-down orientation; inspect lip/boss overhangs in slicer, use local support only if needed.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "inner_tray",
+      "quantity": 1,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.inner_tray",
+        "revision": 1,
+        "content_hash": "501df282b31b0171799284e7adf681b3f68963b251218bca9240773aa5fb7ee8"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.048,
+          -0.012,
+          -0.0024
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "print_step": "element/inner_tray/assets/print.step",
+      "print_step_sha256": "6398c9b2c648af3d7ee3b397794261847c228723f3e50c6ad303a49dc57d58bd",
+      "bounds_mm": [
+        98.0,
+        39.0,
+        17.7
+      ],
+      "support_strategy": "Support inside RTC pocket and guide contact recesses if needed; slicer inspection required.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "battery_bridge",
+      "quantity": 1,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.battery_bridge",
+        "revision": 1,
+        "content_hash": "bef477fa93c7884776941724f1a1547f5738fff2517131eb08a95b78c5d22873"
+      },
+      "build_pose": {
+        "translation_m": [
+          -0.01,
+          0.0509,
+          0.0157
+        ],
+        "rotation_xyzw": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "print_step": "element/battery_bridge/assets/print.step",
+      "print_step_sha256": "6ba86d7413f359618a4f2a194af5bf181e325a0bc4ab0808a938061417c2e503",
+      "bounds_mm": [
+        8.0,
+        27.8,
+        9.7
+      ],
+      "support_strategy": "Prefer face-down orientation; inspect lip/boss overhangs in slicer, use local support only if needed.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "display_clamp",
+      "quantity": 1,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.display_clamp",
+        "revision": 1,
+        "content_hash": "248b78ca8db4a4792966785c113101ffadfe34f92f111f3d04f2a69ca8771a8b"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.038,
+          0.061,
+          -0.009800000000000001
+        ],
+        "rotation_xyzw": [
+          0.7071067811865476,
+          0,
+          0,
+          0.7071067811865476
+        ]
+      },
+      "print_step": "element/display_clamp/assets/print.step",
+      "print_step_sha256": "4f83dd47ae5a237678d9abe0eb0911e854514d1d6a974814b24f16729d00821c",
+      "bounds_mm": [
+        76.0,
+        48.0,
+        2.4
+      ],
+      "support_strategy": "Prefer face-down orientation; inspect lip/boss overhangs in slicer, use local support only if needed.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "key_guide_large",
+      "quantity": 1,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_guide_large",
+        "revision": 1,
+        "content_hash": "b78ea511338454286f0c2273e236baf002fc08c2888f4a884c269cdeaeef84f2"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.016,
+          0.016,
+          0.007
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "print_step": "element/key_guide_large/assets/print.step",
+      "print_step_sha256": "a5f5a76e9f8bf3d962e85c0580eb8b532be3366526abe53cb961bb98478aceaf",
+      "bounds_mm": [
+        32.0,
+        32.0,
+        12.4
+      ],
+      "support_strategy": "Support inside RTC pocket and guide contact recesses if needed; slicer inspection required.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "key_gate_large",
+      "quantity": 1,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_gate_large",
+        "revision": 1,
+        "content_hash": "aaa00ce13fb6f52a0168af6abaf70cc729ab630190ca3ad24e5a01f7b385aae4"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.016,
+          0.0054,
+          0.01
+        ],
+        "rotation_xyzw": [
+          0.7071067811865476,
+          0,
+          0,
+          0.7071067811865476
+        ]
+      },
+      "print_step": "element/key_gate_large/assets/print.step",
+      "print_step_sha256": "71e6fe854a1086cf9a961d94c731e923174efacbe59173471e0e5e50539bda23",
+      "bounds_mm": [
+        32.0,
+        12.4,
+        2.0
+      ],
+      "support_strategy": "Prefer face-down orientation; inspect lip/boss overhangs in slicer, use local support only if needed.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "keycap_large",
+      "quantity": 1,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.keycap_large",
+        "revision": 1,
+        "content_hash": "0e82f69479bc70fd622940539b7b65c7c1c635546a444f71cff08d58b9147e7c"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.026,
+          0.01,
+          0.009
+        ],
+        "rotation_xyzw": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "print_step": "element/keycap_large/assets/print.step",
+      "print_step_sha256": "959a40af090fa2fbdf11997fb86aa8cb6ba97d9c8903f71e1820cab4ca1b98fb",
+      "bounds_mm": [
+        52.0,
+        20.0,
+        6.7
+      ],
+      "support_strategy": "Local removable supports under retaining flange only; keep sliding faces clean; verify in slicer.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "key_guide_small",
+      "quantity": 4,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_guide_small",
+        "revision": 1,
+        "content_hash": "7dac29f8e7cecf51b01fadd802c1de239907b2e2275bef7a2d4a62e72bed3213"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.009699999999999999,
+          0.016,
+          0.007
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "print_step": "element/key_guide_small/assets/print.step",
+      "print_step_sha256": "5814b8502d8448f543c3d367c74a27c6954b236b97d3cb9b29e0b9bf5821fcec",
+      "bounds_mm": [
+        19.4,
+        32.0,
+        12.4
+      ],
+      "support_strategy": "Support inside RTC pocket and guide contact recesses if needed; slicer inspection required.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "key_gate_small",
+      "quantity": 4,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_gate_small",
+        "revision": 1,
+        "content_hash": "7fae0493e2f0a93cbf54073f89037e0a50e87a64432b101ba0bbba421dafd015"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.008,
+          0.0054,
+          0.01
+        ],
+        "rotation_xyzw": [
+          0.7071067811865476,
+          0,
+          0,
+          0.7071067811865476
+        ]
+      },
+      "print_step": "element/key_gate_small/assets/print.step",
+      "print_step_sha256": "4d9547bee4e2c38ac434c2d1d26e37d42e392ab215da6e3334a9d6a27e47c23e",
+      "bounds_mm": [
+        16.0,
+        12.4,
+        2.0
+      ],
+      "support_strategy": "Prefer face-down orientation; inspect lip/boss overhangs in slicer, use local support only if needed.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "keycap_small",
+      "quantity": 4,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.keycap_small",
+        "revision": 1,
+        "content_hash": "bb6ebff024df081bf2c3d1f3174030a2b141281fb3e83ef5653dee16ea401400"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.006,
+          0.006,
+          0.009
+        ],
+        "rotation_xyzw": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "print_step": "element/keycap_small/assets/print.step",
+      "print_step_sha256": "00924e1dbedb30e97676b74e26359fb5fca88ef78f3e70e96692e1a35d77cef5",
+      "bounds_mm": [
+        12.0,
+        12.0,
+        6.7
+      ],
+      "support_strategy": "Local removable supports under retaining flange only; keep sliding faces clean; verify in slicer.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    },
+    {
+      "part": "switch_pcb_retainer",
+      "quantity": 5,
+      "source_ref": {
+        "library_id": "project2",
+        "element_id": "clock.switch_pcb_retainer",
+        "revision": 1,
+        "content_hash": "950683792e79621a0184b219723bb99c2d3700cb876fe5153a03c7e950ff52e0"
+      },
+      "build_pose": {
+        "translation_m": [
+          0.01,
+          0.01,
+          0.0086
+        ],
+        "rotation_xyzw": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "print_step": "element/switch_pcb_retainer/assets/print.step",
+      "print_step_sha256": "d12839c859db3f556e1011f37a9cf0637548f2b5f22ac4f51b7f010abfd64d24",
+      "bounds_mm": [
+        20.0,
+        20.0,
+        4.85
+      ],
+      "support_strategy": "Prefer face-down orientation; inspect lip/boss overhangs in slicer, use local support only if needed.",
+      "feature_changes": [
+        "2.4mm shell walls",
+        "0.30mm per-side guide/lip clearance",
+        "1.2mm retaining shoulder",
+        "0.40mm physical key end stop",
+        "0.3mm gate-hole entry cones",
+        "45-degree rear screw countersinks"
+      ],
+      "status": "CAD orientation checked; not sliced or printed"
+    }
+  ],
+  "no_slicer_or_print_execution": true,
+  "parts_cover_every_source_printed_component": true
+}

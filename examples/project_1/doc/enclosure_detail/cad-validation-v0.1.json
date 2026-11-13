@@ -1,0 +1,825 @@
+{
+  "date": "2026-11-06",
+  "kernel": "OpenCascade via cadquery-ocp 7.8.1.1.post1",
+  "source_sha256": "9458217849cbb58488fe0d7ac9be9811b3d66fe5a63d871a7dab20397bcb0c86",
+  "parameters_sha256": "c2a06ed31966424e3fb9f38df6756426cc8e3ad3e95b317a4b4549bd5600e0dc",
+  "parts": [
+    {
+      "part": "case_front",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 61877.152004690455,
+        "bounds_mm": [
+          -60.0,
+          0.0,
+          0.0,
+          60.0,
+          57.6,
+          65.0
+        ],
+        "size_mm": [
+          120.0,
+          57.6,
+          65.0
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 61877.152004688636,
+        "bounds_mm": [
+          -60.0,
+          0.0,
+          0.0,
+          60.0,
+          57.6,
+          65.0
+        ],
+        "size_mm": [
+          120.0,
+          57.6,
+          65.0
+        ]
+      },
+      "mesh": {
+        "sha256": "6b638596563704cc38929890a6d61808ca67ae490ab0d15b44cee131aa367295",
+        "triangles": 3608,
+        "vertices": 1800,
+        "bounds_m": [
+          [
+            -0.06,
+            0.0,
+            0.0
+          ],
+          [
+            0.06,
+            0.057599998474121096,
+            0.065
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/case_front/assets/part.step",
+      "step_sha256": "5bead0cbdd7e8101c45b89f91f6315b43d2deaafb25a00383f71c81e42c30e30",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.case_front",
+        "revision": 1,
+        "content_hash": "5865a779872a16473e9ff0f603bed8a37fa00431ca5360da417222e5a8c8a075"
+      }
+    },
+    {
+      "part": "case_rear",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 17437.108031287768,
+        "bounds_mm": [
+          -60.0,
+          49.3,
+          0.0,
+          60.0,
+          60.0,
+          65.0
+        ],
+        "size_mm": [
+          120.0,
+          10.700000000000003,
+          65.0
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 17437.10803128774,
+        "bounds_mm": [
+          -60.0,
+          49.3,
+          0.0,
+          60.0,
+          60.0,
+          65.0
+        ],
+        "size_mm": [
+          120.0,
+          10.700000000000003,
+          65.0
+        ]
+      },
+      "mesh": {
+        "sha256": "a4e043af4b869b5643477f12f6e747bdeb1144f1b10c884e1e0a96375348185f",
+        "triangles": 6092,
+        "vertices": 2990,
+        "bounds_m": [
+          [
+            -0.06,
+            0.04929999923706055,
+            0.0
+          ],
+          [
+            0.06,
+            0.06,
+            0.065
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/case_rear/assets/part.step",
+      "step_sha256": "573f86697b7cd1ff2ecddc0f48f2755fb301ee0eaba21a182ba41c62b7245f49",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.case_rear",
+        "revision": 1,
+        "content_hash": "bba34827d84dbe115c8d98f3fc77a54f014a0670c47c5e62bbb6a8383d3d7888"
+      }
+    },
+    {
+      "part": "inner_tray",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 7115.549183485331,
+        "bounds_mm": [
+          -48.0,
+          12.0,
+          2.4,
+          50.0,
+          51.0,
+          20.1
+        ],
+        "size_mm": [
+          98.0,
+          39.0,
+          17.700000000000003
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 7115.549183485316,
+        "bounds_mm": [
+          -48.0,
+          12.0,
+          2.4,
+          50.0,
+          51.0,
+          20.1
+        ],
+        "size_mm": [
+          98.0,
+          39.0,
+          17.700000000000003
+        ]
+      },
+      "mesh": {
+        "sha256": "27e6a7cb5ef1297f7ee5fd744cd1f1606c475e1c8f059910a5ed466f097f985c",
+        "triangles": 1246,
+        "vertices": 607,
+        "bounds_m": [
+          [
+            -0.048,
+            0.012,
+            0.0024000000953674316
+          ],
+          [
+            0.05,
+            0.051000000000000004,
+            0.020100000381469727
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/inner_tray/assets/part.step",
+      "step_sha256": "19a014696a39c92853ba633a474b71ea7fb59bececff2ad97f7d8184ede6f9f3",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.inner_tray",
+        "revision": 1,
+        "content_hash": "501df282b31b0171799284e7adf681b3f68963b251218bca9240773aa5fb7ee8"
+      }
+    },
+    {
+      "part": "battery_bridge",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 730.0243930943111,
+        "bounds_mm": [
+          10.0,
+          23.1,
+          6.0,
+          18.0,
+          50.9,
+          15.7
+        ],
+        "size_mm": [
+          8.0,
+          27.799999999999997,
+          9.7
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 730.0243930943142,
+        "bounds_mm": [
+          10.0,
+          23.1,
+          6.0,
+          18.0,
+          50.9,
+          15.7
+        ],
+        "size_mm": [
+          8.0,
+          27.799999999999997,
+          9.7
+        ]
+      },
+      "mesh": {
+        "sha256": "c8843da4f0e181f00476804b0e102d9ddcdaac37a87223f140516e5cbeab2f49",
+        "triangles": 324,
+        "vertices": 160,
+        "bounds_m": [
+          [
+            0.01,
+            0.023100000381469726,
+            0.006
+          ],
+          [
+            0.018000000000000002,
+            0.05090000152587891,
+            0.015699999809265137
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/battery_bridge/assets/part.step",
+      "step_sha256": "8d6c43ce06972b30be46f6fb33de5f416f4be451eb4ddb9f49eb7b1ed1843375",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.battery_bridge",
+        "revision": 1,
+        "content_hash": "bef477fa93c7884776941724f1a1547f5738fff2517131eb08a95b78c5d22873"
+      }
+    },
+    {
+      "part": "display_clamp",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 3903.178623156773,
+        "bounds_mm": [
+          -38.0,
+          9.8,
+          13.0,
+          38.0,
+          12.2,
+          61.0
+        ],
+        "size_mm": [
+          76.0,
+          2.3999999999999986,
+          48.0
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 3903.1786231567808,
+        "bounds_mm": [
+          -38.0,
+          9.8,
+          13.0,
+          38.0,
+          12.2,
+          61.0
+        ],
+        "size_mm": [
+          76.0,
+          2.3999999999999986,
+          48.0
+        ]
+      },
+      "mesh": {
+        "sha256": "1c24f621e31125ae866c2668ebc65576f353cddb70407998f53a3cf1cad4f69e",
+        "triangles": 576,
+        "vertices": 280,
+        "bounds_m": [
+          [
+            -0.038,
+            0.009800000190734863,
+            0.013000000000000001
+          ],
+          [
+            0.038,
+            0.012199999809265137,
+            0.061
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/display_clamp/assets/part.step",
+      "step_sha256": "f859eee6ea766a6a4a14ca458f06c627e2d46815e395fadc0aecb953e6d0874c",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.display_clamp",
+        "revision": 1,
+        "content_hash": "248b78ca8db4a4792966785c113101ffadfe34f92f111f3d04f2a69ca8771a8b"
+      }
+    },
+    {
+      "part": "key_guide_large",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 4476.995721450454,
+        "bounds_mm": [
+          -16.0,
+          -16.0,
+          -7.0,
+          16.0,
+          16.0,
+          5.4
+        ],
+        "size_mm": [
+          32.0,
+          32.0,
+          12.4
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 4476.995721450487,
+        "bounds_mm": [
+          -16.0,
+          -16.0,
+          -7.0,
+          16.0,
+          16.0,
+          5.4
+        ],
+        "size_mm": [
+          32.0,
+          32.0,
+          12.4
+        ]
+      },
+      "mesh": {
+        "sha256": "f0ff244a2d2546161bc703a00f4544a12d81bc72b12a12ec2030a0bce289d6e1",
+        "triangles": 1456,
+        "vertices": 724,
+        "bounds_m": [
+          [
+            -0.016,
+            -0.016,
+            -0.007
+          ],
+          [
+            0.016,
+            0.016,
+            0.005400000095367432
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/key_guide_large/assets/part.step",
+      "step_sha256": "0d06059e21ac536c198a43cdcd6a5b28423e34a0fb9dd98b731da28792b4bc2c",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_guide_large",
+        "revision": 1,
+        "content_hash": "b78ea511338454286f0c2273e236baf002fc08c2888f4a884c269cdeaeef84f2"
+      }
+    },
+    {
+      "part": "key_gate_large",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 666.4592470519702,
+        "bounds_mm": [
+          -16.0,
+          -10.0,
+          -7.0,
+          16.0,
+          -8.0,
+          5.4
+        ],
+        "size_mm": [
+          32.0,
+          2.0,
+          12.4
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 666.45924705197,
+        "bounds_mm": [
+          -16.0,
+          -10.0,
+          -7.0,
+          16.0,
+          -8.0,
+          5.4
+        ],
+        "size_mm": [
+          32.0,
+          2.0,
+          12.4
+        ]
+      },
+      "mesh": {
+        "sha256": "b800a0bec2d99f4dd3d2de6f4df8cb42369cce15616e9797fafa97bbdf34bd51",
+        "triangles": 456,
+        "vertices": 224,
+        "bounds_m": [
+          [
+            -0.016,
+            -0.01,
+            -0.007
+          ],
+          [
+            0.016,
+            -0.008,
+            0.005400000095367432
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/key_gate_large/assets/part.step",
+      "step_sha256": "571602a4ddb472ef2a933e61cf616a99525854f6f5b493c72408e5bc5ad80e6a",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_gate_large",
+        "revision": 1,
+        "content_hash": "aaa00ce13fb6f52a0168af6abaf70cc729ab630190ca3ad24e5a01f7b385aae4"
+      }
+    },
+    {
+      "part": "keycap_large",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 3159.837157897848,
+        "bounds_mm": [
+          -26.0,
+          -10.0,
+          2.3,
+          26.0,
+          10.0,
+          9.0
+        ],
+        "size_mm": [
+          52.0,
+          20.0,
+          6.7
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 3159.8371578978617,
+        "bounds_mm": [
+          -26.0,
+          -10.0,
+          2.3,
+          26.0,
+          10.0,
+          9.0
+        ],
+        "size_mm": [
+          52.0,
+          20.0,
+          6.7
+        ]
+      },
+      "mesh": {
+        "sha256": "22427a2d36cd64e10442b5de68e29f8a1a9c26184cc578115fa8f42942c57b40",
+        "triangles": 204,
+        "vertices": 104,
+        "bounds_m": [
+          [
+            -0.026000000000000002,
+            -0.01,
+            0.002299999952316284
+          ],
+          [
+            0.026000000000000002,
+            0.01,
+            0.009000000000000001
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/keycap_large/assets/part.step",
+      "step_sha256": "8d2ef1e4f529c0ce1160ef00a548c642d5f37823c9079f4fda50657fe3a1df29",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.keycap_large",
+        "revision": 1,
+        "content_hash": "0e82f69479bc70fd622940539b7b65c7c1c635546a444f71cff08d58b9147e7c"
+      }
+    },
+    {
+      "part": "key_guide_small",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 2099.597973891419,
+        "bounds_mm": [
+          -9.7,
+          -16.0,
+          -7.0,
+          9.7,
+          16.0,
+          5.4
+        ],
+        "size_mm": [
+          19.4,
+          32.0,
+          12.4
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 2099.597973891428,
+        "bounds_mm": [
+          -9.7,
+          -16.0,
+          -7.0,
+          9.700000000000001,
+          16.0,
+          5.4
+        ],
+        "size_mm": [
+          19.4,
+          32.0,
+          12.4
+        ]
+      },
+      "mesh": {
+        "sha256": "18ad8400f9827a42575ef1158334291f6de43f4440486927b66fcc6e116780a7",
+        "triangles": 1584,
+        "vertices": 788,
+        "bounds_m": [
+          [
+            -0.00969984245300293,
+            -0.016,
+            -0.007
+          ],
+          [
+            0.00969984245300293,
+            0.016,
+            0.005400000095367432
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/key_guide_small/assets/part.step",
+      "step_sha256": "b2379a3226be0ee4fafb2985ba06ceb54fd5cd8efd928e8c4d66465ab606b4db",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_guide_small",
+        "revision": 1,
+        "content_hash": "7dac29f8e7cecf51b01fadd802c1de239907b2e2275bef7a2d4a62e72bed3213"
+      }
+    },
+    {
+      "part": "key_gate_small",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 300.89924705197006,
+        "bounds_mm": [
+          -8.0,
+          -10.0,
+          -7.0,
+          8.0,
+          -8.0,
+          5.4
+        ],
+        "size_mm": [
+          16.0,
+          2.0,
+          12.4
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 300.89924705196904,
+        "bounds_mm": [
+          -8.0,
+          -10.0,
+          -7.0,
+          8.0,
+          -8.0,
+          5.4
+        ],
+        "size_mm": [
+          16.0,
+          2.0,
+          12.4
+        ]
+      },
+      "mesh": {
+        "sha256": "0812ef33d24210c660a16c76fcddbbdb0a55eb66c03e53179e66d56e1406f5e8",
+        "triangles": 440,
+        "vertices": 216,
+        "bounds_m": [
+          [
+            -0.008,
+            -0.01,
+            -0.007
+          ],
+          [
+            0.008,
+            -0.008,
+            0.005400000095367432
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/key_gate_small/assets/part.step",
+      "step_sha256": "54e99b1839d7bd5e8dc1175660dba789495e441f4296a22dd06c67fb7f2f0e17",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_gate_small",
+        "revision": 1,
+        "content_hash": "7fae0493e2f0a93cbf54073f89037e0a50e87a64432b101ba0bbba421dafd015"
+      }
+    },
+    {
+      "part": "keycap_small",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 440.451290033289,
+        "bounds_mm": [
+          -6.0,
+          -6.0,
+          2.3,
+          6.0,
+          6.0,
+          9.0
+        ],
+        "size_mm": [
+          12.0,
+          12.0,
+          6.7
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 440.45129003329555,
+        "bounds_mm": [
+          -6.0,
+          -6.0,
+          2.3,
+          6.0,
+          6.0,
+          9.0
+        ],
+        "size_mm": [
+          12.0,
+          12.0,
+          6.7
+        ]
+      },
+      "mesh": {
+        "sha256": "1db157b8709103da3cb3593cae9e88d488fadaad3c8f71f802dda50ba7cf1345",
+        "triangles": 636,
+        "vertices": 320,
+        "bounds_m": [
+          [
+            -0.006,
+            -0.006,
+            0.002299999952316284
+          ],
+          [
+            0.006,
+            0.006,
+            0.009000000000000001
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/keycap_small/assets/part.step",
+      "step_sha256": "38aa9be1f9fade1d8c880008ad39d59bdaa78e48d63fb372aa82629966f3820b",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.keycap_small",
+        "revision": 1,
+        "content_hash": "bb6ebff024df081bf2c3d1f3174030a2b141281fb3e83ef5653dee16ea401400"
+      }
+    },
+    {
+      "part": "switch_pcb_retainer",
+      "source": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 477.5377442766866,
+        "bounds_mm": [
+          -10.0,
+          -10.0,
+          -8.6,
+          10.0,
+          10.0,
+          -3.7499999999999996
+        ],
+        "size_mm": [
+          20.0,
+          20.0,
+          4.85
+        ]
+      },
+      "step_reread": {
+        "valid": true,
+        "solids": 1,
+        "volume_mm3": 477.537744276684,
+        "bounds_mm": [
+          -10.0,
+          -10.0,
+          -8.6,
+          10.0,
+          10.0,
+          -3.75
+        ],
+        "size_mm": [
+          20.0,
+          20.0,
+          4.85
+        ]
+      },
+      "mesh": {
+        "sha256": "aff058745c4978c0153a078a6ec70977f11f7d8804988c2a4199b1afba49afbd",
+        "triangles": 1096,
+        "vertices": 540,
+        "bounds_m": [
+          [
+            -0.01,
+            -0.01,
+            -0.008600000381469727
+          ],
+          [
+            0.01,
+            0.01,
+            -0.00375
+          ]
+        ],
+        "watertight": true,
+        "volume_candidate": true,
+        "unit": "mm",
+        "warnings": []
+      },
+      "step_path": "element/switch_pcb_retainer/assets/part.step",
+      "step_sha256": "01c6b66e6fc0c7568dcaf466a8d5b13a924f98608ba2fd150a194fc2bf14f5d0",
+      "native_ref": {
+        "library_id": "project2",
+        "element_id": "clock.switch_pcb_retainer",
+        "revision": 1,
+        "content_hash": "950683792e79621a0184b219723bb99c2d3700cb876fe5153a03c7e950ff52e0"
+      }
+    }
+  ],
+  "scope": "Executed BRep generation, single-solid validity, STEP reimport, volume/bounds and watertight STL; not slicing or manufacture."
+}

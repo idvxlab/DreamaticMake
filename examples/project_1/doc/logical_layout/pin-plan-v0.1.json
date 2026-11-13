@@ -1,0 +1,43 @@
+{
+  "revision": "0.1",
+  "controller_revision": 2,
+  "gpio_outputs": {
+    "18": "SPI0 SCK",
+    "19": "SPI0 MOSI",
+    "9": "OLED CS",
+    "10": "OLED DC",
+    "11": "OLED RESET",
+    "8": "Piezo PWM4A"
+  },
+  "button_inputs": {
+    "6": "snooze",
+    "7": "stop",
+    "12": "set",
+    "24": "minus",
+    "25": "plus"
+  },
+  "i2c": {
+    "peripheral": "I2C1",
+    "sda": "GP02",
+    "scl": "GP03",
+    "address_7bit": "0x68",
+    "initial_frequency_hz": 100000
+  },
+  "spi": {
+    "peripheral": "SPI0",
+    "sck": "GP18",
+    "mosi": "GP19",
+    "cs": "GP09",
+    "dc": "GP10",
+    "rst": "GP11",
+    "initial_frequency_hz": 1000000,
+    "mode": 0
+  },
+  "pwm": {
+    "pin": "GP08",
+    "slice": "4A",
+    "frequency_hz": 4000,
+    "drive_strength_ma": 8
+  },
+  "status": "Proposed firmware settings only; not compiled, flashed or electrically tested."
+}

@@ -1,0 +1,484 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.oled_242_yellow",
+  "revision": 2,
+  "name": "Waveshare 2.42inch OLED Module (C), yellow",
+  "category": "display",
+  "aliases": [],
+  "subtype": null,
+  "form": "module",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": "Waveshare",
+    "model": "2.42inch OLED Module (C), yellow SSD1309",
+    "hardware_revision": null
+  },
+  "description_markdown": "Select the yellow C option, SPI factory configuration. Use 3.3V supply and 3.3V logic for the whole module, not the bare panel. Contrast command supports dimming; actual minimum brightness and power untested. Active area is smaller than appearance concept. Connector order and cable clearance require received-board verification.",
+  "parameters": {
+    "active_height": {
+      "status": "known",
+      "value": {
+        "value": 27.49,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "active_width": {
+      "status": "known",
+      "value": {
+        "value": 55.01,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "envelope_x": {
+      "status": "known",
+      "value": {
+        "value": 61.5,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_y": {
+      "status": "known",
+      "value": {
+        "value": 39.5,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_z": {
+      "status": "assumed",
+      "value": {
+        "value": 5.0,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "thickness": {
+      "status": "assumed",
+      "value": {
+        "value": 5.0,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "Placeholder package thickness only, not a measured or complete keepout."
+    },
+    "worst_case_current": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "Module full-white and dim clock-screen current are not published in the consulted source; measure at 3.3V."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "width_px": 128,
+    "height_px": 64,
+    "supply_terminals": [
+      "vcc",
+      "gnd"
+    ],
+    "spec": {
+      "kind": "oled",
+      "active_size_m": [
+        0.05501,
+        0.02749
+      ],
+      "refresh": "continuous",
+      "bus": "spi",
+      "cable_exit": null
+    }
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Nominal body envelope; excludes leads, plugs and assembly clearances.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {},
+        "collisions": {
+          "nominal": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "box",
+              "size_m": [
+                0.0615,
+                0.0395,
+                0.005
+              ]
+            },
+            "interpretation": "solid",
+            "approximation": "unknown",
+            "margin_m": 0.0,
+            "evidence_refs": [
+              "design"
+            ]
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {
+      "clk": {
+        "number": "CLK",
+        "name": "CLK",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "cs": {
+        "number": "CS",
+        "name": "CS",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "dc": {
+        "number": "DC",
+        "name": "DC",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "din": {
+        "number": "DIN",
+        "name": "DIN",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gnd": {
+        "number": "GND",
+        "name": "GND",
+        "electrical_type": "passive",
+        "power": {
+          "role": "reference"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "rst": {
+        "number": "RST",
+        "name": "RST",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "vcc": {
+        "number": "VCC",
+        "name": "VCC",
+        "electrical_type": "power_in",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 3.3,
+              "unit": "V"
+            },
+            "max": {
+              "value": 5.0,
+              "unit": "V"
+            }
+          },
+          "role": "sink"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      }
+    },
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {
+      "text": {
+        "kind": "constant",
+        "ref": null,
+        "channel": null,
+        "value": "",
+        "output": "value"
+      }
+    },
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "fef50a3ee58ace0caa4aa01da4a011ac49795cd7c6edd1b31112ae201514fab0",
+    "category_parameters": [
+      "active_height",
+      "active_width",
+      "envelope_x",
+      "envelope_y",
+      "envelope_z",
+      "thickness",
+      "worst_case_current"
+    ],
+    "category_sources": [
+      "oled",
+      "oled_pins",
+      "ssd1309"
+    ],
+    "category_evidence": [
+      "design",
+      "rated"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.oled_242_yellow",
+      "revision": 1,
+      "content_hash": "086d5cefacaba8d321191ff0b064f9a45a94770bd76dc6371a78bfe08ec113f4"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/oled_242_yellow/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.oled_242_yellow",
+        "revision": 1,
+        "content_hash": "086d5cefacaba8d321191ff0b064f9a45a94770bd76dc6371a78bfe08ec113f4"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": {
+    "metadata_version": "1",
+    "manufacturer": "Waveshare",
+    "model": "2.42inch OLED Module (C), yellow SSD1309",
+    "supplier": null,
+    "sku": null,
+    "purchase_url": "https://www.waveshare.com/2.42inch-oled-module.htm",
+    "price": null,
+    "currency": "CNY",
+    "price_observed_at": null,
+    "availability": null,
+    "description": "",
+    "tags": []
+  },
+  "sources": {
+    "oled": {
+      "title": "Waveshare 2.42inch OLED Module, yellow C option",
+      "url": "https://www.waveshare.com/2.42inch-oled-module.htm",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    },
+    "oled_pins": {
+      "title": "Waveshare OLED module wiki",
+      "url": "https://www.waveshare.com/wiki/2.42inch_OLED_Module",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    },
+    "ssd1309": {
+      "title": "SSD1309 contrast command, Rev 1.1",
+      "url": "https://files.waveshare.com/wiki/2.42inch-OLED-Module/SSD1309Datasheet.pdf",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    }
+  },
+  "evidence": {
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "Project design assumptions, unverified.",
+      "note": "Primitive envelope is for rough planning only. No mounting holes, contact dynamics, connector locations or tolerances are inferred."
+    },
+    "rated": {
+      "kind": "manufacturer_rated",
+      "source_ref": "oled",
+      "locator": null,
+      "conditions": "Published product nominal data; no sample measurement.",
+      "note": "Select the yellow C option, SPI factory configuration. Use 3.3V supply and 3.3V logic for the whole module, not the bare panel. Contrast command supports dimming; actual minimum brightness and power untested. Active area is smaller than appearance concept. Connector order and cable clearance require received-board verification."
+    }
+  }
+}

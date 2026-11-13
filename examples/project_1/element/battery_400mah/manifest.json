@@ -1,0 +1,7 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "Adafruit 3898 protected 1S 400mAh pack",
+  "category": "power",
+  "element_path": "element.json"
+}

@@ -1,0 +1,13 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "key gate small",
+  "category": "structure",
+  "element_path": "element.json",
+  "supplemental_cad": {
+    "path": "assets/part.step",
+    "sha256": "54e99b1839d7bd5e8dc1175660dba789495e441f4296a22dd06c67fb7f2f0e17",
+    "unit": "mm",
+    "scope": "Executed prototype design, dimensions still require received-hardware checks."
+  }
+}

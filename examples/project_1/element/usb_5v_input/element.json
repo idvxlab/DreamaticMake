@@ -1,0 +1,205 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.usb_5v_input",
+  "revision": 2,
+  "name": "External USB 5V 1A input specification",
+  "category": "power",
+  "aliases": [],
+  "subtype": null,
+  "form": "part",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": null,
+    "model": null,
+    "hardware_revision": null
+  },
+  "description_markdown": "External adapter/cable contract only, outside clock envelope. Final regional adapter and USB-A to USB-C power cable not selected. No ideal source in this project proves USB negotiation, current limiting, charging or mains compliance. All mains circuitry remains external.",
+  "parameters": {
+    "available_current": {
+      "status": "assumed",
+      "value": {
+        "value": 1000.0,
+        "unit": "mA"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "Design input requirement including charging; actual adapter and cable are procurement TBD."
+    },
+    "output_voltage": {
+      "status": "assumed",
+      "value": {
+        "value": 5.0,
+        "unit": "V"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "Design input contract, not a selected purchased adapter."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "source_kind": "usb",
+    "voltage": {
+      "value": 5.0,
+      "unit": "V"
+    }
+  },
+  "mechanical": {
+    "root_link": null,
+    "links": {},
+    "joints": {},
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {
+      "ground": {
+        "number": "USB GND",
+        "name": "USB GND",
+        "electrical_type": "passive",
+        "power": {
+          "role": "reference"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "positive": {
+        "number": "USB VBUS",
+        "name": "USB VBUS",
+        "electrical_type": "power_out",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 4.75,
+              "unit": "V"
+            },
+            "max": {
+              "value": 5.25,
+              "unit": "V"
+            }
+          },
+          "role": "source"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      }
+    },
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {},
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "25f8dc6142b4a5d775c7572184fa523b195ddd6b0b0c989a3f7919906474458f",
+    "category_parameters": [
+      "available_current",
+      "output_voltage"
+    ],
+    "category_sources": [
+      "feather_power"
+    ],
+    "category_evidence": [
+      "design",
+      "rated"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.usb_5v_input",
+      "revision": 1,
+      "content_hash": "48a26b189877338ea0e8d04786c864664c0c5a68b89e13ae19c8441256264a33"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/usb_5v_input/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.usb_5v_input",
+        "revision": 1,
+        "content_hash": "48a26b189877338ea0e8d04786c864664c0c5a68b89e13ae19c8441256264a33"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": {
+    "metadata_version": "1",
+    "manufacturer": null,
+    "model": null,
+    "supplier": null,
+    "sku": null,
+    "purchase_url": null,
+    "price": null,
+    "currency": "CNY",
+    "price_observed_at": null,
+    "availability": null,
+    "description": "",
+    "tags": []
+  },
+  "sources": {
+    "feather_power": {
+      "title": "Feather RP2040 USB and battery switchover",
+      "url": "https://learn.adafruit.com/adafruit-feather-rp2040-pico/power-management",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    }
+  },
+  "evidence": {
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "Project design assumptions, unverified.",
+      "note": "Primitive envelope is for rough planning only. No mounting holes, contact dynamics, connector locations or tolerances are inferred."
+    },
+    "rated": {
+      "kind": "manufacturer_rated",
+      "source_ref": "feather_power",
+      "locator": null,
+      "conditions": "Published product nominal data; no sample measurement.",
+      "note": "External adapter/cable contract only, outside clock envelope. Final regional adapter and USB-A to USB-C power cable not selected. No ideal source in this project proves USB negotiation, current limiting, charging or mains compliance. All mains circuitry remains external."
+    }
+  }
+}

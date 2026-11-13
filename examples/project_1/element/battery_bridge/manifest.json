@@ -1,0 +1,13 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "battery bridge",
+  "category": "structure",
+  "element_path": "element.json",
+  "supplemental_cad": {
+    "path": "assets/part.step",
+    "sha256": "8d6c43ce06972b30be46f6fb33de5f416f4be451eb4ddb9f49eb7b1ed1843375",
+    "unit": "mm",
+    "scope": "Executed prototype design, dimensions still require received-hardware checks."
+  }
+}

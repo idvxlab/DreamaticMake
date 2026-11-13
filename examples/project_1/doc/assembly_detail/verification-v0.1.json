@@ -1,0 +1,181 @@
+{
+  "status": "passed",
+  "project_snapshot_id": "611c4cc1582d6c9aeeb3e927088322ca200824ab28e1a62c6a98e8c3b0c1833b",
+  "instances": 38,
+  "printed_definitions": 12,
+  "printed_instances": 25,
+  "physical_bodies": 37,
+  "joints": 36,
+  "mount_connections": 54,
+  "step_files": [
+    {
+      "path": "element/case_front/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 61877.152004688636
+    },
+    {
+      "path": "element/case_front/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 61877.15200468867
+    },
+    {
+      "path": "element/case_rear/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 17437.10803128774
+    },
+    {
+      "path": "element/case_rear/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 17437.108031287757
+    },
+    {
+      "path": "element/inner_tray/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 7115.549183485316
+    },
+    {
+      "path": "element/inner_tray/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 7115.549183485314
+    },
+    {
+      "path": "element/battery_bridge/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 730.0243930943142
+    },
+    {
+      "path": "element/battery_bridge/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 730.0243930943143
+    },
+    {
+      "path": "element/display_clamp/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 3903.1786231567808
+    },
+    {
+      "path": "element/display_clamp/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 3903.1786231567844
+    },
+    {
+      "path": "element/key_guide_large/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 4476.995721450487
+    },
+    {
+      "path": "element/key_guide_large/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 4476.995721450486
+    },
+    {
+      "path": "element/key_gate_large/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 666.45924705197
+    },
+    {
+      "path": "element/key_gate_large/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 666.45924705197
+    },
+    {
+      "path": "element/keycap_large/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 3159.8371578978617
+    },
+    {
+      "path": "element/keycap_large/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 3159.8371578978613
+    },
+    {
+      "path": "element/key_guide_small/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 2099.597973891428
+    },
+    {
+      "path": "element/key_guide_small/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 2099.597973891429
+    },
+    {
+      "path": "element/key_gate_small/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 300.89924705196904
+    },
+    {
+      "path": "element/key_gate_small/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 300.899247051969
+    },
+    {
+      "path": "element/keycap_small/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 440.45129003329555
+    },
+    {
+      "path": "element/keycap_small/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 440.4512900332955
+    },
+    {
+      "path": "element/switch_pcb_retainer/assets/part.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 477.537744276684
+    },
+    {
+      "path": "element/switch_pcb_retainer/assets/print.step",
+      "valid": true,
+      "solids": 1,
+      "volume_mm3": 477.53774427668395
+    },
+    {
+      "path": "doc/assembly_detail/assets/printed-assembly.step",
+      "valid": true,
+      "solids": 25,
+      "volume_mm3": 113117.78712740338
+    }
+  ],
+  "press_samples": 15,
+  "scope": "Native references, asset hashes, recorded exact-CAD checks, actual STEP reread, mount frames, topology and discrete motion. Not slicing, physical fitting or manufacturing.",
+  "repository_checks": [
+    {
+      "command": ".\\npm.cmd run check",
+      "exit_code": 0
+    },
+    {
+      "command": ".\\npm.cmd test",
+      "exit_code": 0,
+      "note": "One symlink test skipped because this Windows environment does not support its creation."
+    },
+    {
+      "command": ".\\npm.cmd run build",
+      "exit_code": 0,
+      "note": "Vite reports a bundle-size warning."
+    }
+  ],
+  "visual_preview_inspected": true
+}

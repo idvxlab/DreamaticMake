@@ -1,0 +1,811 @@
+{
+  "revision": "0.1",
+  "project_snapshot_id": "611c4cc1582d6c9aeeb3e927088322ca200824ab28e1a62c6a98e8c3b0c1833b",
+  "root": "case_front/body",
+  "joint_count": 36,
+  "kinematics": {
+    "kind": "motion",
+    "diagnostics": [],
+    "joint_positions": {
+      "mount/case_rear": 0.0,
+      "mount/inner_tray": 0.0,
+      "mount/display_clamp": 0.0,
+      "mount/battery_bridge": 0.0,
+      "mount/controller": 0.0,
+      "mount/rtc": 0.0,
+      "mount/battery": 0.0,
+      "mount/buzzer_r1": 0.0,
+      "mount/buzzer_r2": 0.0,
+      "mount/buzzer": 0.0,
+      "mount/display": 0.0,
+      "mount/guide_snooze": 0.0,
+      "mount/gate_snooze": 0.0,
+      "mount/pcb_snooze": 0.0,
+      "mount/button_snooze": 0.0,
+      "press/snooze": 0.0,
+      "mount/guide_stop": 0.0,
+      "mount/gate_stop": 0.0,
+      "mount/pcb_stop": 0.0,
+      "mount/button_stop": 0.0,
+      "press/stop": 0.0,
+      "mount/guide_set": 0.0,
+      "mount/gate_set": 0.0,
+      "mount/pcb_set": 0.0,
+      "mount/button_set": 0.0,
+      "press/set": 0.0,
+      "mount/guide_minus": 0.0,
+      "mount/gate_minus": 0.0,
+      "mount/pcb_minus": 0.0,
+      "mount/button_minus": 0.0,
+      "press/minus": 0.0,
+      "mount/guide_plus": 0.0,
+      "mount/gate_plus": 0.0,
+      "mount/pcb_plus": 0.0,
+      "mount/button_plus": 0.0,
+      "press/plus": 0.0
+    },
+    "accepted": [
+      "mount/case_rear",
+      "mount/inner_tray",
+      "mount/display_clamp",
+      "mount/battery_bridge",
+      "mount/controller",
+      "mount/rtc",
+      "mount/battery",
+      "mount/buzzer_r1",
+      "mount/buzzer_r2",
+      "mount/buzzer",
+      "mount/display",
+      "mount/guide_snooze",
+      "mount/gate_snooze",
+      "mount/pcb_snooze",
+      "mount/button_snooze",
+      "press/snooze",
+      "mount/guide_stop",
+      "mount/gate_stop",
+      "mount/pcb_stop",
+      "mount/button_stop",
+      "press/stop",
+      "mount/guide_set",
+      "mount/gate_set",
+      "mount/pcb_set",
+      "mount/button_set",
+      "press/set",
+      "mount/guide_minus",
+      "mount/gate_minus",
+      "mount/pcb_minus",
+      "mount/button_minus",
+      "press/minus",
+      "mount/guide_plus",
+      "mount/gate_plus",
+      "mount/pcb_plus",
+      "mount/button_plus",
+      "press/plus"
+    ],
+    "status": "completed"
+  },
+  "printed_intersections": [],
+  "nominal_hardware_intersections": [],
+  "root_follow_test": {
+    "translation_m": [
+      0.01,
+      0,
+      0
+    ],
+    "checked_bodies": 37,
+    "failures": []
+  },
+  "assembly_step": {
+    "path": "doc/assembly_detail/assets/printed-assembly.step",
+    "sha256": "7c67b78682c3b2db5b3f38c08547cffe954c37241bb46a02eb325feec5d2febd",
+    "reread": {
+      "valid": true,
+      "solids": 25,
+      "volume_mm3": 113117.78712740338,
+      "bounds_mm": [
+        -60.0,
+        0.0,
+        0.0,
+        63.0,
+        63.0,
+        69.0
+      ],
+      "size_mm": [
+        123.0,
+        63.0,
+        69.0
+      ]
+    }
+  },
+  "relations": {
+    "mount/case_rear": {
+      "kind": "fixed",
+      "parent": "case_front/body",
+      "child": "case_rear/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/inner_tray": {
+      "kind": "fixed",
+      "parent": "case_front/body",
+      "child": "inner_tray/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/display_clamp": {
+      "kind": "fixed",
+      "parent": "case_front/body",
+      "child": "display_clamp/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/battery_bridge": {
+      "kind": "fixed",
+      "parent": "inner_tray/body",
+      "child": "battery_bridge/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/controller": {
+      "kind": "fixed",
+      "parent": "inner_tray/body",
+      "child": "controller/body",
+      "parent_anchor": {
+        "translation_m": [
+          -0.028,
+          0.032,
+          0.00855
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          -0.7071067811865476,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/rtc": {
+      "kind": "fixed",
+      "parent": "inner_tray/body",
+      "child": "rtc/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.031,
+          0.0245,
+          0.022
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/battery": {
+      "kind": "fixed",
+      "parent": "inner_tray/body",
+      "child": "battery/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.014,
+          0.037,
+          0.008
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ]
+      }
+    },
+    "mount/buzzer_r1": {
+      "kind": "fixed",
+      "parent": "inner_tray/body",
+      "child": "buzzer_r1/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.038,
+          0.037,
+          0.022
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/buzzer_r2": {
+      "kind": "fixed",
+      "parent": "inner_tray/body",
+      "child": "buzzer_r2/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.038,
+          0.043,
+          0.022
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/buzzer": {
+      "kind": "fixed",
+      "parent": "case_rear/body",
+      "child": "buzzer/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.042,
+          0.053,
+          0.036
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/display": {
+      "kind": "fixed",
+      "parent": "case_front/body",
+      "child": "display/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.007,
+          0.036
+        ],
+        "rotation_xyzw": [
+          0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/guide_snooze": {
+      "kind": "fixed",
+      "parent": "case_front/body",
+      "child": "guide_snooze/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.027,
+          0.06
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/gate_snooze": {
+      "kind": "fixed",
+      "parent": "guide_snooze/body",
+      "child": "gate_snooze/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/pcb_snooze": {
+      "kind": "fixed",
+      "parent": "guide_snooze/body",
+      "child": "pcb_snooze/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/button_snooze": {
+      "kind": "fixed",
+      "parent": "guide_snooze/body",
+      "child": "button_snooze/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "press/snooze": {
+      "kind": "prismatic",
+      "parent": "guide_snooze/body",
+      "child": "cap_snooze/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "lower": 0,
+      "upper": 0.0004,
+      "initial": 0
+    },
+    "mount/guide_stop": {
+      "kind": "fixed",
+      "parent": "case_front/body",
+      "child": "guide_stop/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.054,
+          0.025,
+          0.035
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.7071067811865476,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/gate_stop": {
+      "kind": "fixed",
+      "parent": "guide_stop/body",
+      "child": "gate_stop/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/pcb_stop": {
+      "kind": "fixed",
+      "parent": "guide_stop/body",
+      "child": "pcb_stop/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/button_stop": {
+      "kind": "fixed",
+      "parent": "guide_stop/body",
+      "child": "button_stop/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "press/stop": {
+      "kind": "prismatic",
+      "parent": "guide_stop/body",
+      "child": "cap_stop/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "lower": 0,
+      "upper": 0.0004,
+      "initial": 0
+    },
+    "mount/guide_set": {
+      "kind": "fixed",
+      "parent": "case_rear/body",
+      "child": "guide_set/body",
+      "parent_anchor": {
+        "translation_m": [
+          -0.024,
+          0.054,
+          0.046
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/gate_set": {
+      "kind": "fixed",
+      "parent": "guide_set/body",
+      "child": "gate_set/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/pcb_set": {
+      "kind": "fixed",
+      "parent": "guide_set/body",
+      "child": "pcb_set/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/button_set": {
+      "kind": "fixed",
+      "parent": "guide_set/body",
+      "child": "button_set/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "press/set": {
+      "kind": "prismatic",
+      "parent": "guide_set/body",
+      "child": "cap_set/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "lower": 0,
+      "upper": 0.0004,
+      "initial": 0
+    },
+    "mount/guide_minus": {
+      "kind": "fixed",
+      "parent": "case_rear/body",
+      "child": "guide_minus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.054,
+          0.046
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/gate_minus": {
+      "kind": "fixed",
+      "parent": "guide_minus/body",
+      "child": "gate_minus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/pcb_minus": {
+      "kind": "fixed",
+      "parent": "guide_minus/body",
+      "child": "pcb_minus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/button_minus": {
+      "kind": "fixed",
+      "parent": "guide_minus/body",
+      "child": "button_minus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "press/minus": {
+      "kind": "prismatic",
+      "parent": "guide_minus/body",
+      "child": "cap_minus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "lower": 0,
+      "upper": 0.0004,
+      "initial": 0
+    },
+    "mount/guide_plus": {
+      "kind": "fixed",
+      "parent": "case_rear/body",
+      "child": "guide_plus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.024,
+          0.054,
+          0.046
+        ],
+        "rotation_xyzw": [
+          -0.7071067811865476,
+          0.0,
+          0.0,
+          0.7071067811865476
+        ]
+      }
+    },
+    "mount/gate_plus": {
+      "kind": "fixed",
+      "parent": "guide_plus/body",
+      "child": "gate_plus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/pcb_plus": {
+      "kind": "fixed",
+      "parent": "guide_plus/body",
+      "child": "pcb_plus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "mount/button_plus": {
+      "kind": "fixed",
+      "parent": "guide_plus/body",
+      "child": "button_plus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "press/plus": {
+      "kind": "prismatic",
+      "parent": "guide_plus/body",
+      "child": "cap_plus/body",
+      "parent_anchor": {
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "axis": [
+        0,
+        0,
+        -1
+      ],
+      "lower": 0,
+      "upper": 0.0004,
+      "initial": 0
+    }
+  },
+  "constraints": "Fixed constraints express designed assembly relations. PCB holes/connectors, soft pads, screws and leads are not detailed vendor CAD."
+}

@@ -1,42 +1,276 @@
 {
   "record_kind": "project_elements",
-  "schema_version": "1",
-  "elements": {
-    "base": {
-      "kind": "custom",
-      "path": "base"
-    },
-    "yaw": {
-      "kind": "custom",
-      "path": "servo"
-    },
-    "shoulder": {
-      "kind": "custom",
-      "path": "servo"
-    },
-    "elbow": {
-      "kind": "custom",
-      "path": "servo"
-    },
-    "upper": {
-      "kind": "custom",
-      "path": "upper_link"
-    },
-    "forearm": {
-      "kind": "custom",
-      "path": "forearm"
-    },
-    "gripper": {
-      "kind": "library",
-      "path": "gripper.json"
-    },
+  "schema_version": "2",
+  "instances": {
     "controller": {
-      "kind": "custom",
-      "path": "controller"
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.feather_rp2040",
+        "revision": 3,
+        "content_hash": "dcd32e41e7066649440d31ae60cf23bcf8b515441f9af57b47b4270de56f0899"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "feather_rp2040/element.json"
+      },
+      "name": "Adafruit Feather RP2040 4884",
+      "refdes": null,
+      "config": {}
     },
-    "supply": {
-      "kind": "custom",
-      "path": "supply"
+    "display": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.oled_242_yellow",
+        "revision": 2,
+        "content_hash": "57be68c93767120d717106e3c4a932172416ba1863547f0254a49d034a33e739"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "oled_242_yellow/element.json"
+      },
+      "name": "Waveshare 2.42inch OLED Module (C), yellow",
+      "refdes": null,
+      "config": {}
+    },
+    "rtc": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.rtc_ds3231",
+        "revision": 3,
+        "content_hash": "90f2b8d539832f68b3308435d2746a338d01a5439b1b68e9ac03e87555f23a12"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "rtc_ds3231/element.json"
+      },
+      "name": "Adafruit DS3231 STEMMA QT 5188",
+      "refdes": null,
+      "config": {}
+    },
+    "battery": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.battery_400mah",
+        "revision": 2,
+        "content_hash": "2fe9fee53a24beb8b87f2e858ef3e7220ea4586f062f38a2677dcb629bfb70d3"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "battery_400mah/element.json"
+      },
+      "name": "Adafruit 3898 protected 1S 400mAh pack",
+      "refdes": null,
+      "config": {}
+    },
+    "buzzer": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.piezo_ps1240",
+        "revision": 2,
+        "content_hash": "12858ce25442a4d81b73dab112f92258feff5e2f8af25126ce8b4802f9c1a514"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "piezo_ps1240/element.json"
+      },
+      "name": "Adafruit PS1240 piezo 160",
+      "refdes": null,
+      "config": {}
+    },
+    "usb_input": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.usb_5v_input",
+        "revision": 2,
+        "content_hash": "a5800495c77997455694cb0498142f9bb5c7146ec7a0fc496bfbf341632270ba"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "usb_5v_input/element.json"
+      },
+      "name": "External USB 5V 1A input specification",
+      "refdes": null,
+      "config": {}
+    },
+    "buzzer_r1": {
+      "element_ref": {
+        "library_id": "arduino_basic",
+        "element_id": "arduino_kit.resistor_220ohm",
+        "revision": 2,
+        "content_hash": "a9561b0327d75e4fb46f54150d13c4d45276e1314344669a035798e89d0721fe"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "resistor_220ohm/element.json"
+      },
+      "name": "220Ω 轴向电阻",
+      "refdes": null,
+      "config": {}
+    },
+    "buzzer_r2": {
+      "element_ref": {
+        "library_id": "arduino_basic",
+        "element_id": "arduino_kit.resistor_220ohm",
+        "revision": 2,
+        "content_hash": "a9561b0327d75e4fb46f54150d13c4d45276e1314344669a035798e89d0721fe"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "resistor_220ohm/element.json"
+      },
+      "name": "220Ω 轴向电阻",
+      "refdes": null,
+      "config": {}
+    },
+    "case_front": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.case_front",
+        "revision": 2,
+        "content_hash": "7ebe1181f97200d117a1a4eb5dcecc56058dbdbf502b2772f3df2ef043537598"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "case_front/element.json"
+      },
+      "name": "case front",
+      "refdes": null,
+      "config": {}
+    },
+    "case_rear": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.case_rear",
+        "revision": 2,
+        "content_hash": "d8f93c4d68655f9fe27d30da26c93075313c94859cd3e9fc7c133494f4e41a11"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "case_rear/element.json"
+      },
+      "name": "case rear",
+      "refdes": null,
+      "config": {}
+    },
+    "inner_tray": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.inner_tray",
+        "revision": 2,
+        "content_hash": "9cf2c9be91ee1bd3a2227c853549a7a50105416c4ba7a782c52cc94d0c0d23ac"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "inner_tray/element.json"
+      },
+      "name": "inner tray",
+      "refdes": null,
+      "config": {}
+    },
+    "battery_bridge": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.battery_bridge",
+        "revision": 2,
+        "content_hash": "994656b77fe33094edc8091751163bd4e391516137f80412d654724262584c24"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "battery_bridge/element.json"
+      },
+      "name": "battery bridge",
+      "refdes": null,
+      "config": {}
+    },
+    "display_clamp": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.display_clamp",
+        "revision": 2,
+        "content_hash": "434c9b817535ac9342b9cc596f586568876e2848ee595cf408248431605643dd"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "display_clamp/element.json"
+      },
+      "name": "display clamp",
+      "refdes": null,
+      "config": {}
+    },
+    "button_snooze": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.button_assembly_large",
+        "revision": 1,
+        "content_hash": "6a3031ddbf9e3757e76e4c4cbfe2f02668ef8c53aaec759438965fb464c2a245"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "button_assembly_large/element.json"
+      },
+      "name": "snooze button assembly",
+      "refdes": null,
+      "config": {}
+    },
+    "button_stop": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.button_assembly_small",
+        "revision": 1,
+        "content_hash": "5699c79241dc5b49aa26d38420f9042a2f235a694f8409c23fa5c5eaf7fbe0d9"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "button_assembly_small/element.json"
+      },
+      "name": "stop button assembly",
+      "refdes": null,
+      "config": {}
+    },
+    "button_set": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.button_assembly_small",
+        "revision": 1,
+        "content_hash": "5699c79241dc5b49aa26d38420f9042a2f235a694f8409c23fa5c5eaf7fbe0d9"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "button_assembly_small/element.json"
+      },
+      "name": "set button assembly",
+      "refdes": null,
+      "config": {}
+    },
+    "button_minus": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.button_assembly_small",
+        "revision": 1,
+        "content_hash": "5699c79241dc5b49aa26d38420f9042a2f235a694f8409c23fa5c5eaf7fbe0d9"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "button_assembly_small/element.json"
+      },
+      "name": "minus button assembly",
+      "refdes": null,
+      "config": {}
+    },
+    "button_plus": {
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.button_assembly_small",
+        "revision": 1,
+        "content_hash": "5699c79241dc5b49aa26d38420f9042a2f235a694f8409c23fa5c5eaf7fbe0d9"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "button_assembly_small/element.json"
+      },
+      "name": "plus button assembly",
+      "refdes": null,
+      "config": {}
     }
   }
 }

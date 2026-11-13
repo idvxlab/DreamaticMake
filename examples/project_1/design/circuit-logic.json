@@ -1,21 +1,180 @@
 {
+  "record_id": "electrical",
+  "revision": 2,
+  "schema_version": "3.0.0-draft",
   "nets": {
-    "power": {
+    "usb_5v": {
       "kind": "power",
-      "members": ["supply/positive", "controller/vcc", "yaw/vcc", "shoulder/vcc", "elbow/vcc"]
+      "nodes": [
+        "usb_input/positive",
+        "controller/vbus"
+      ]
+    },
+    "battery_raw": {
+      "kind": "power",
+      "nodes": [
+        "battery/positive",
+        "controller/bat",
+        "rtc/bat"
+      ]
+    },
+    "logic_3v3": {
+      "kind": "power",
+      "nodes": [
+        "controller/v3",
+        "display/vcc",
+        "rtc/vin"
+      ]
     },
     "ground": {
       "kind": "ground",
-      "members": ["supply/ground", "controller/ground", "yaw/ground", "shoulder/ground", "elbow/ground"]
+      "nodes": [
+        "usb_input/ground",
+        "controller/gnd",
+        "battery/ground",
+        "display/gnd",
+        "rtc/gnd",
+        "buzzer/b",
+        "button_snooze/pin4",
+        "button_stop/pin4",
+        "button_set/pin4",
+        "button_minus/pin4",
+        "button_plus/pin4"
+      ]
     },
-    "yaw_pwm": {
-      "members": ["controller/yaw_pwm", "yaw/pwm"]
+    "key_snooze": {
+      "nodes": [
+        "controller/gp06",
+        "button_snooze/pin1"
+      ]
     },
-    "shoulder_pwm": {
-      "members": ["controller/shoulder_pwm", "shoulder/pwm"]
+    "key_stop": {
+      "nodes": [
+        "controller/gp07",
+        "button_stop/pin1"
+      ]
     },
-    "elbow_pwm": {
-      "members": ["controller/elbow_pwm", "elbow/pwm"]
+    "key_set": {
+      "nodes": [
+        "controller/gp12",
+        "button_set/pin1"
+      ]
+    },
+    "key_minus": {
+      "nodes": [
+        "controller/gp24",
+        "button_minus/pin1"
+      ]
+    },
+    "key_plus": {
+      "nodes": [
+        "controller/gp25",
+        "button_plus/pin1"
+      ]
+    },
+    "oled_clk": {
+      "nodes": [
+        "controller/gp18",
+        "display/clk"
+      ]
+    },
+    "oled_din": {
+      "nodes": [
+        "controller/gp19",
+        "display/din"
+      ]
+    },
+    "oled_cs": {
+      "nodes": [
+        "controller/gp09",
+        "display/cs"
+      ]
+    },
+    "oled_dc": {
+      "nodes": [
+        "controller/gp10",
+        "display/dc"
+      ]
+    },
+    "oled_rst": {
+      "nodes": [
+        "controller/gp11",
+        "display/rst"
+      ]
+    },
+    "rtc_sda": {
+      "nodes": [
+        "controller/gp02",
+        "rtc/sda"
+      ]
+    },
+    "rtc_scl": {
+      "nodes": [
+        "controller/gp03",
+        "rtc/scl"
+      ]
+    },
+    "piezo_pwm": {
+      "nodes": [
+        "controller/gp08",
+        "buzzer_r1/a"
+      ]
+    },
+    "piezo_series": {
+      "nodes": [
+        "buzzer_r1/b",
+        "buzzer_r2/a"
+      ]
+    },
+    "piezo_drive": {
+      "nodes": [
+        "buzzer_r2/b",
+        "buzzer/a"
+      ]
     }
-  }
+  },
+  "unconnected": [
+    {
+      "pins": [
+        "button_minus/pin2",
+        "button_minus/pin3",
+        "button_plus/pin2",
+        "button_plus/pin3",
+        "button_set/pin2",
+        "button_set/pin3",
+        "button_snooze/pin2",
+        "button_snooze/pin3",
+        "button_stop/pin2",
+        "button_stop/pin3"
+      ],
+      "intentional": true,
+      "reason": "Unused duplicate physical contact; do not assume pin pairing until continuity check. Leave pad unwired."
+    },
+    {
+      "pins": [
+        "controller/aref",
+        "controller/en",
+        "controller/gp00",
+        "controller/gp01",
+        "controller/gp13",
+        "controller/gp20",
+        "controller/gp26",
+        "controller/gp27",
+        "controller/gp28",
+        "controller/gp29",
+        "controller/rst"
+      ],
+      "intentional": true,
+      "reason": "Reserved GPIO or EN/RST/AREF kept at board defaults; do not connect to external network."
+    },
+    {
+      "pins": [
+        "rtc/clk32",
+        "rtc/rst",
+        "rtc/sqw"
+      ],
+      "intentional": true,
+      "reason": "RTC optional 32kHz/SQW/reset output unused; polling I2C time, no alarm interrupt or external reset connection."
+    }
+  ]
 }

@@ -1,0 +1,239 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.keycap_large",
+  "revision": 2,
+  "name": "keycap large",
+  "category": "structure",
+  "aliases": [],
+  "subtype": null,
+  "form": "part",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": null,
+    "model": null,
+    "hardware_revision": null
+  },
+  "description_markdown": "Printable CAD prototype. STEP in mm; original source and validation indexed in doc/enclosure_detail. No manufactured success.",
+  "parameters": {
+    "wall_target": {
+      "status": "assumed",
+      "value": {
+        "value": 2.4,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "PLA prototype wall target, not certified strength or minimum-wall analysis."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "structural_role": "other",
+    "spec": {
+      "kind": "other",
+      "standard": null,
+      "dimensions": {},
+      "material": "PLA",
+      "color": "#E8AA56"
+    }
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Executed OpenCascade solid; local CAD mm, mesh declared mm; native poses m.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {
+          "surface": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "mesh",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.stl",
+                "sha256": "22427a2d36cd64e10442b5de68e29f8a1a9c26184cc578115fa8f42942c57b40",
+                "media_type": "model/stl"
+              },
+              "unit": "mm"
+            }
+          },
+          "cad_step_0": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "brep",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.step",
+                "sha256": "8d2ef1e4f529c0ce1160ef00a548c642d5f37823c9079f4fda50657fe3a1df29",
+                "media_type": "model/step"
+              },
+              "format": "step",
+              "unit": "mm",
+              "selection": null
+            }
+          }
+        },
+        "collisions": {
+          "solid": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "mesh",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.stl",
+                "sha256": "22427a2d36cd64e10442b5de68e29f8a1a9c26184cc578115fa8f42942c57b40",
+                "media_type": "model/stl"
+              },
+              "unit": "mm"
+            },
+            "interpretation": "solid",
+            "approximation": "outer",
+            "margin_m": 0.0,
+            "evidence_refs": []
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {
+      "datum": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "kind": "plane",
+        "allowed_mates": [],
+        "dimensions": {},
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      }
+    },
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {},
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {},
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "48f77cbd4d2aaeedbd3becc7afbd6f983f8fe280b2e5e1b893557a385de11af5",
+    "category_parameters": [
+      "wall_target"
+    ],
+    "category_sources": [],
+    "category_evidence": [
+      "cad_execution",
+      "design"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.keycap_large",
+      "revision": 1,
+      "content_hash": "cf5cecf988a8f61bd325607f713ed0bc46fed1339212b1819add15a56e3d3bf4"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/keycap_large/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.keycap_large",
+        "revision": 1,
+        "content_hash": "cf5cecf988a8f61bd325607f713ed0bc46fed1339212b1819add15a56e3d3bf4"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": null,
+  "sources": {},
+  "evidence": {
+    "cad_execution": {
+      "kind": "calculated",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "OpenCascade BRep build, STEP reread and STL inspection executed.",
+      "note": "Valid single solid with positive volume; not a print or physical fit test."
+    },
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "User chose PLA FDM, 0.4mm nozzle, 0.2mm layers.",
+      "note": "Trial fit and actual hardware dimensions still required."
+    }
+  }
+}

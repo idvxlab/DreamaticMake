@@ -1,0 +1,630 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.case_rear",
+  "revision": 2,
+  "name": "case rear",
+  "category": "structure",
+  "aliases": [],
+  "subtype": null,
+  "form": "part",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": null,
+    "model": null,
+    "hardware_revision": null
+  },
+  "description_markdown": "Printable CAD prototype. STEP in mm; original source and validation indexed in doc/enclosure_detail. No manufactured success.",
+  "parameters": {
+    "wall_target": {
+      "status": "assumed",
+      "value": {
+        "value": 2.4,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "PLA prototype wall target, not certified strength or minimum-wall analysis."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "structural_role": "housing"
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Executed OpenCascade solid; local CAD mm, mesh declared mm; native poses m.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {
+          "surface": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "mesh",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.stl",
+                "sha256": "a4e043af4b869b5643477f12f6e747bdeb1144f1b10c884e1e0a96375348185f",
+                "media_type": "model/stl"
+              },
+              "unit": "mm"
+            }
+          },
+          "cad_step_0": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "brep",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.step",
+                "sha256": "573f86697b7cd1ff2ecddc0f48f2755fb301ee0eaba21a182ba41c62b7245f49",
+                "media_type": "model/step"
+              },
+              "format": "step",
+              "unit": "mm",
+              "selection": null
+            }
+          }
+        },
+        "collisions": {
+          "solid": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "mesh",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/part.stl",
+                "sha256": "a4e043af4b869b5643477f12f6e747bdeb1144f1b10c884e1e0a96375348185f",
+                "media_type": "model/stl"
+              },
+              "unit": "mm"
+            },
+            "interpretation": "solid",
+            "approximation": "outer",
+            "margin_m": 0.0,
+            "evidence_refs": []
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {
+      "datum": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "kind": "plane",
+        "allowed_mates": [],
+        "dimensions": {},
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "key_minus_0": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.0,
+            0.056,
+            0.059
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "threaded_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 1.8,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "key_minus_1": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.0,
+            0.055999999999999994,
+            0.033
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "threaded_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 1.8,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "key_plus_0": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.024,
+            0.056,
+            0.059
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "threaded_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 1.8,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "key_plus_1": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.024,
+            0.055999999999999994,
+            0.033
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "threaded_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 1.8,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "key_set_0": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.024,
+            0.056,
+            0.059
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "threaded_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 1.8,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "key_set_1": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.024,
+            0.055999999999999994,
+            0.033
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "threaded_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 1.8,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "lid_0": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.051,
+            0.0576,
+            0.009
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "through_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 2.9,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "lid_1": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.051,
+            0.0576,
+            0.056
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "through_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 2.9,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "lid_2": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.051,
+            0.0576,
+            0.009
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "through_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 2.9,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      },
+      "lid_3": {
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.051,
+            0.0576,
+            0.056
+          ],
+          "rotation_xyzw": [
+            -0.7071067811865476,
+            0.0,
+            0.0,
+            0.7071067811865476
+          ]
+        },
+        "kind": "through_hole",
+        "allowed_mates": [],
+        "dimensions": {
+          "diameter": {
+            "status": "assumed",
+            "value": {
+              "value": 2.9,
+              "unit": "mm"
+            },
+            "range": null,
+            "configurable": false,
+            "evidence_refs": [
+              "design"
+            ],
+            "conditions": "CAD design diameter; printed result requires calibration."
+          }
+        },
+        "thread": null,
+        "evidence_refs": [
+          "design"
+        ]
+      }
+    },
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {},
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {},
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "3edbaeb9e6726b558f3fb6b9dbf6dfd39e221ce614518a610dd5345fc8ef51d7",
+    "category_parameters": [
+      "wall_target"
+    ],
+    "category_sources": [],
+    "category_evidence": [
+      "cad_execution",
+      "design"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.case_rear",
+      "revision": 1,
+      "content_hash": "97d0a0762a19b8f265f28ad216b581e11d2e69f70aa0305d9c95c1243653862c"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/case_rear/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.case_rear",
+        "revision": 1,
+        "content_hash": "97d0a0762a19b8f265f28ad216b581e11d2e69f70aa0305d9c95c1243653862c"
+      }
+    }
+  },
+  "manufacturing": {
+    "cad_housing": {
+      "schema_version": "0.1.0-draft",
+      "material": {
+        "name": "PLA",
+        "color": "#D4CABA",
+        "density": null,
+        "elastic_modulus": null,
+        "yield_strength": null,
+        "poisson_ratio": null,
+        "notes": "Physical properties unknown; no strength or charging-temperature qualification."
+      },
+      "source_asset": {
+        "artifact_id": null,
+        "relative_path": "source-parameters.json",
+        "sha256": "91e0c1e31388de346814f014b14dc3ae0cf48f44d7a06e2f60d92135af6f0128",
+        "media_type": "application/json"
+      },
+      "cad_assets": [
+        {
+          "artifact_id": null,
+          "relative_path": "assets/part.step",
+          "sha256": "573f86697b7cd1ff2ecddc0f48f2755fb301ee0eaba21a182ba41c62b7245f49",
+          "media_type": "model/step"
+        }
+      ],
+      "manufacturing_process": "FDM, PLA, 0.4mm nozzle, 0.2mm layers"
+    }
+  },
+  "procurement": null,
+  "sources": {},
+  "evidence": {
+    "cad_execution": {
+      "kind": "calculated",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "OpenCascade BRep build, STEP reread and STL inspection executed.",
+      "note": "Valid single solid with positive volume; not a print or physical fit test."
+    },
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "User chose PLA FDM, 0.4mm nozzle, 0.2mm layers.",
+      "note": "Trial fit and actual hardware dimensions still required."
+    }
+  }
+}

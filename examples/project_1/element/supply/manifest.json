@@ -1,7 +1,0 @@
-{
-  "record_kind": "element_package",
-  "package_version": "1",
-  "name": "5V USB 电源模块（假设）",
-  "category": "power",
-  "component_path": "component.json"
-}

@@ -1,0 +1,55 @@
+{
+  "part": "keycap_large",
+  "parameters": {
+    "revision": "0.1",
+    "cad_kernel": "cadquery-ocp 7.8.1.1.post1 / OpenCascade",
+    "units": "mm",
+    "outer_mm": [
+      120,
+      60,
+      65
+    ],
+    "wall_mm": 2.4,
+    "outer_profile_radius_mm": 8,
+    "lid_lip_radial_clearance_mm": 0.3,
+    "key_guide_side_clearance_mm": 0.3,
+    "cap_travel_mm": 0.4,
+    "cap_contact_rest_gap_mm": 0.15,
+    "contact_compression_at_max_mm": 0.25,
+    "guide_mount_clearance_diameter_mm": 2.4,
+    "M2_trial_pilot_diameter_mm": 1.8,
+    "M2p5_trial_pilot_diameter_mm": 2.0,
+    "switch_carrier_board_mm": [
+      12,
+      12,
+      1.6
+    ],
+    "process": {
+      "process": "fdm",
+      "material": "PLA",
+      "nozzle_mm": 0.4,
+      "layer_height_mm": 0.2,
+      "build_volume_m": [
+        0.22,
+        0.22,
+        0.25
+      ],
+      "build_volume_status": "assumed; actual printer not specified",
+      "min_feature_m": 0.0012,
+      "resolution_m": 0.0002,
+      "max_unsupported_angle_deg": 45,
+      "infill_percent": 20,
+      "perimeters": 4,
+      "status": "design/slicing starting assumptions; no slicer run"
+    },
+    "unknowns": [
+      "actual OLED thickness and mounting detail",
+      "received PCB component and connector clearance",
+      "switch travel/contact force/lead footprint",
+      "PLA dimensional accuracy and material properties",
+      "printed thread pullout, wire routing and heat under charging"
+    ]
+  },
+  "authoring_script": "doc/enclosure_detail/build_cad.py",
+  "authoring_script_sha256": "9458217849cbb58488fe0d7ac9be9811b3d66fe5a63d871a7dab20397bcb0c86"
+}

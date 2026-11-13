@@ -19,6 +19,7 @@ coverage/
 
 # Local AI collaboration documents
 /agent/
+/overleaf/
 
 # Python and CAD / firmware tool caches
 .venv/

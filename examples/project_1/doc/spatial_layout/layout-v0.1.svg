@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1000" viewBox="0 0 1200 1000">
+<rect width="1200" height="1000" fill="#f7f8fa" />
+<style>text{font-family:Segoe UI,Arial,sans-serif;fill:#202b3d}.label{font-size:13px}.head{font-size:20px;font-weight:600}</style>
+<text x="40" y="35" class="head">CLOCK / SPATIAL LAYOUT v0.1</text>
+<text x="40" y="60" class="label">120 W x 60 D x 65 H mm | concept body envelopes | +Y rear, +Z up</text>
+<text x="40" y="95" class="head">TOP / X-Y</text>
+<rect x="40" y="110" width="480" height="240" rx="18" fill="white" stroke="#69788d" stroke-width="2" />
+<rect x="122.00" y="136.00" width="92.00" height="204.00" fill="#a4c9fa" fill-opacity=".65" stroke="#53627a" />
+<text x="168.0" y="243.0" font-size="14" text-anchor="middle" font-weight="600">01</text>
+<rect x="157.00" y="128.00" width="246.00" height="20.00" fill="#a8dfd4" fill-opacity=".65" stroke="#53627a" />
+<text x="280.0" y="143.0" font-size="14" text-anchor="middle" font-weight="600">02</text>
+<rect x="361.20" y="162.40" width="101.60" height="71.20" fill="#e8c3f5" fill-opacity=".65" stroke="#53627a" />
+<text x="412.0" y="203.0" font-size="14" text-anchor="middle" font-weight="600">03</text>
+<rect x="262.00" y="223.00" width="148.00" height="70.00" fill="#f6d088" fill-opacity=".65" stroke="#53627a" />
+<text x="336.0" y="263.0" font-size="14" text-anchor="middle" font-weight="600">04</text>
+<rect x="416.20" y="308.94" width="47.60" height="26.12" fill="#fab7ac" fill-opacity=".65" stroke="#53627a" />
+<text x="440.0" y="327.0" font-size="14" text-anchor="middle" font-weight="600">05</text>
+<rect x="268.00" y="206.00" width="24.00" height="24.00" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="280.0" y="223.0" font-size="14" text-anchor="middle" font-weight="600">06</text>
+<rect x="483.40" y="198.00" width="17.20" height="24.00" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="492.0" y="215.0" font-size="14" text-anchor="middle" font-weight="600">07</text>
+<rect x="172.00" y="317.40" width="24.00" height="17.20" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="184.0" y="331.0" font-size="14" text-anchor="middle" font-weight="600">08</text>
+<rect x="268.00" y="317.40" width="24.00" height="17.20" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="280.0" y="331.0" font-size="14" text-anchor="middle" font-weight="600">09</text>
+<rect x="364.00" y="317.40" width="24.00" height="17.20" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="376.0" y="331.0" font-size="14" text-anchor="middle" font-weight="600">10</text>
+<text x="40" y="372" class="label">Projection only; overlapping projections may occupy different heights.</text>
+<text x="640" y="95" class="head">FRONT / X-Z</text>
+<rect x="640" y="110" width="480" height="260" rx="18" fill="white" stroke="#69788d" stroke-width="2" />
+<rect x="722.00" y="323.00" width="92.00" height="30.00" fill="#a4c9fa" fill-opacity=".65" stroke="#53627a" />
+<text x="768.0" y="343.0" font-size="14" text-anchor="middle" font-weight="600">01</text>
+<rect x="757.00" y="147.00" width="246.00" height="158.00" fill="#a8dfd4" fill-opacity=".65" stroke="#53627a" />
+<text x="880.0" y="231.0" font-size="14" text-anchor="middle" font-weight="600">02</text>
+<rect x="961.20" y="266.40" width="101.60" height="31.20" fill="#e8c3f5" fill-opacity=".65" stroke="#53627a" />
+<text x="1012.0" y="287.0" font-size="14" text-anchor="middle" font-weight="600">03</text>
+<rect x="862.00" y="321.60" width="148.00" height="32.80" fill="#f6d088" fill-opacity=".65" stroke="#53627a" />
+<text x="936.0" y="343.0" font-size="14" text-anchor="middle" font-weight="600">04</text>
+<rect x="1016.20" y="202.20" width="47.60" height="47.60" fill="#fab7ac" fill-opacity=".65" stroke="#53627a" />
+<text x="1040.0" y="231.0" font-size="14" text-anchor="middle" font-weight="600">05</text>
+<rect x="868.00" y="121.40" width="24.00" height="17.20" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="880.0" y="135.0" font-size="14" text-anchor="middle" font-weight="600">06</text>
+<rect x="1083.40" y="218.00" width="17.20" height="24.00" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="1092.0" y="235.0" font-size="14" text-anchor="middle" font-weight="600">07</text>
+<rect x="772.00" y="162.00" width="24.00" height="24.00" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="784.0" y="179.0" font-size="14" text-anchor="middle" font-weight="600">08</text>
+<rect x="868.00" y="162.00" width="24.00" height="24.00" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="880.0" y="179.0" font-size="14" text-anchor="middle" font-weight="600">09</text>
+<rect x="964.00" y="162.00" width="24.00" height="24.00" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="976.0" y="179.0" font-size="14" text-anchor="middle" font-weight="600">10</text>
+<text x="640" y="392" class="label">Projection only; overlapping projections may occupy different heights.</text>
+<text x="40" y="520" class="head">RIGHT / Y-Z</text>
+<rect x="40" y="535" width="240" height="260" rx="18" fill="white" stroke="#69788d" stroke-width="2" />
+<rect x="66.00" y="748.00" width="204.00" height="30.00" fill="#a4c9fa" fill-opacity=".65" stroke="#53627a" />
+<text x="168.0" y="768.0" font-size="14" text-anchor="middle" font-weight="600">01</text>
+<rect x="58.00" y="572.00" width="20.00" height="158.00" fill="#a8dfd4" fill-opacity=".65" stroke="#53627a" />
+<text x="68.0" y="656.0" font-size="14" text-anchor="middle" font-weight="600">02</text>
+<rect x="92.40" y="691.40" width="71.20" height="31.20" fill="#e8c3f5" fill-opacity=".65" stroke="#53627a" />
+<text x="128.0" y="712.0" font-size="14" text-anchor="middle" font-weight="600">03</text>
+<rect x="153.00" y="746.60" width="70.00" height="32.80" fill="#f6d088" fill-opacity=".65" stroke="#53627a" />
+<text x="188.0" y="768.0" font-size="14" text-anchor="middle" font-weight="600">04</text>
+<rect x="238.94" y="627.20" width="26.12" height="47.60" fill="#fab7ac" fill-opacity=".65" stroke="#53627a" />
+<text x="252.0" y="656.0" font-size="14" text-anchor="middle" font-weight="600">05</text>
+<rect x="136.00" y="546.40" width="24.00" height="17.20" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="148.0" y="560.0" font-size="14" text-anchor="middle" font-weight="600">06</text>
+<rect x="128.00" y="643.00" width="24.00" height="24.00" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="140.0" y="660.0" font-size="14" text-anchor="middle" font-weight="600">07</text>
+<rect x="247.40" y="587.00" width="17.20" height="24.00" fill="#c6cdd9" fill-opacity=".65" stroke="#53627a" />
+<text x="272.6" y="604.0" font-size="12" text-anchor="start" font-weight="600">08-10</text>
+<text x="40" y="817" class="label">Projection only; overlapping projections may occupy different heights.</text>
+<text x="640" y="560" font-size="17">01  主控（USB端朝后）</text><text x="640" y="588" font-size="17">02  显示板（发光面朝前）</text><text x="640" y="616" font-size="17">03  RTC</text><text x="640" y="644" font-size="17">04  备用电池</text><text x="640" y="672" font-size="17">05  压电器</text><text x="640" y="700" font-size="17">06  顶部贪睡开关</text><text x="640" y="728" font-size="17">07  右侧停止开关</text><text x="640" y="756" font-size="17">08—10  后部设置 / 减 / 加开关</text><text x="640" y="820" font-size="15">图中重叠可为不同高度的投影，不表示本体相交。</text><text x="640" y="850" font-size="15">电阻与外部抽象电源无碰撞包络，未画作实体。</text><text x="640" y="880" font-size="15">仅为名义本体布局，不是制造 CAD。</text></svg>

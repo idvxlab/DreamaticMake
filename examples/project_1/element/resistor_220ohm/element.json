@@ -1,0 +1,648 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "arduino_basic",
+  "element_id": "arduino_kit.resistor_220ohm",
+  "revision": 2,
+  "name": "220Ω 轴向电阻",
+  "category": "circuit_element",
+  "aliases": [
+    "Viking CFR0623 220Ω 1/4W 5% selection"
+  ],
+  "subtype": null,
+  "form": "part",
+  "origin": "catalog",
+  "roles": [],
+  "tags": [
+    "reference_geometry",
+    "source_backed",
+    "not_manufacturing_validated"
+  ],
+  "product": {
+    "manufacturer": "Viking",
+    "model": "Viking CFR0623 220Ω 1/4W 5% selection",
+    "hardware_revision": null
+  },
+  "description_markdown": "由厂商资料提取的元件定义，参考几何及型号匹配限制见structured.json；未制造、未测量电气兼容、未编译固件。",
+  "parameters": {
+    "body_diameter_nominal": {
+      "status": "known",
+      "value": {
+        "value": 2.3,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_body_diameter_nominal"
+      ],
+      "conditions": "±0.3mm；通用模型2.5mm仅参考。"
+    },
+    "body_length_nominal": {
+      "status": "known",
+      "value": {
+        "value": 6.3,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_body_length_nominal"
+      ],
+      "conditions": "±0.5mm。"
+    },
+    "continuous_dissipation": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "未获得与具体散热、温度和安装条件一致的持续耗散额定。"
+    },
+    "mass": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "未提取或未验证该完整料号的质量。"
+    },
+    "maximum_working_voltage_series": {
+      "status": "known",
+      "value": {
+        "value": 250.0,
+        "unit": "V"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_maximum_working_voltage_series"
+      ],
+      "conditions": "实际还受sqrt(P*R)限制。"
+    },
+    "power_limited_voltage_at_nominal_R": {
+      "status": "known",
+      "value": {
+        "value": 7.416198487095663,
+        "unit": "V"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_power_limited_voltage_at_nominal_R"
+      ],
+      "conditions": "220Ω、0.25W、额定温度下计算，不是独立厂商额定。"
+    },
+    "rated_power": {
+      "status": "known",
+      "value": {
+        "value": 0.25,
+        "unit": "W"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_rated_power"
+      ],
+      "conditions": "CFR0623标准功率，70°C。"
+    },
+    "reference_mesh_extent_x": {
+      "status": "known",
+      "value": {
+        "value": 0.008218861737987027,
+        "unit": "m"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_reference_mesh_extent_x"
+      ],
+      "conditions": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。"
+    },
+    "reference_mesh_extent_y": {
+      "status": "known",
+      "value": {
+        "value": 0.00249762914609164,
+        "unit": "m"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_reference_mesh_extent_y"
+      ],
+      "conditions": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。"
+    },
+    "reference_mesh_extent_z": {
+      "status": "known",
+      "value": {
+        "value": 0.005499407183378935,
+        "unit": "m"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_reference_mesh_extent_z"
+      ],
+      "conditions": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。"
+    },
+    "resistance_selected": {
+      "status": "known",
+      "value": {
+        "value": 220.0,
+        "unit": "ohm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_resistance_selected"
+      ],
+      "conditions": "选用220Ω，不是系列所有器件均为此值。"
+    },
+    "tolerance_selected": {
+      "status": "known",
+      "value": {
+        "value": 0.05,
+        "unit": "1"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "e_tolerance_selected"
+      ],
+      "conditions": "±5%订货选择。"
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "spec": {
+      "package": "CFR0623 axial",
+      "kind": "resistor",
+      "resistance": {
+        "value": 220.0,
+        "unit": "ohm"
+      },
+      "tolerance": 0.05,
+      "rated_power": {
+        "value": 0.25,
+        "unit": "W"
+      }
+    }
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "元件本体；本地坐标沿用参考CAD，未建立测量坐标系。",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {
+          "reference_1": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "mesh",
+              "asset_ref": {
+                "artifact_id": null,
+                "relative_path": "assets/reference.m.stl",
+                "sha256": "7b5fb63d6eb0cd2831dedc745ccc87b703c5c1d757769ec5fedc26eaf128afbc",
+                "media_type": "model/stl"
+              },
+              "unit": "m"
+            }
+          }
+        },
+        "collisions": {},
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {
+      "a": {
+        "number": "end1",
+        "name": "end1",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": {
+          "link": "body",
+          "origin": null
+        },
+        "reference_pin": null,
+        "evidence_refs": [
+          "e_pin_a"
+        ]
+      },
+      "b": {
+        "number": "end2",
+        "name": "end2",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": {
+          "link": "body",
+          "origin": null
+        },
+        "reference_pin": null,
+        "evidence_refs": [
+          "e_pin_b"
+        ]
+      }
+    },
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {},
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "5a4d8aef19a14816b994a05cee5a672bf6d654d0f22cf91de60165affb3bf319",
+    "category_parameters": [
+      "body_diameter_nominal",
+      "body_length_nominal",
+      "continuous_dissipation",
+      "mass",
+      "maximum_working_voltage_series",
+      "power_limited_voltage_at_nominal_R",
+      "rated_power",
+      "reference_mesh_extent_x",
+      "reference_mesh_extent_y",
+      "reference_mesh_extent_z",
+      "resistance_selected",
+      "tolerance_selected"
+    ],
+    "category_sources": [
+      "cad_audit",
+      "s1",
+      "s2"
+    ],
+    "category_evidence": [
+      "e_body_diameter_nominal",
+      "e_body_length_nominal",
+      "e_geometry",
+      "e_maximum_working_voltage_series",
+      "e_pin_a",
+      "e_pin_b",
+      "e_power_limited_voltage_at_nominal_R",
+      "e_rated_power",
+      "e_reference_mesh_extent_x",
+      "e_reference_mesh_extent_y",
+      "e_reference_mesh_extent_z",
+      "e_resistance_selected",
+      "e_tolerance_selected"
+    ],
+    "source_definition_ref": {
+      "library_id": "arduino_basic",
+      "element_id": "arduino_kit.resistor_220ohm",
+      "revision": 1,
+      "content_hash": "e4565ba7e87c8c092e979ced86d7d384a4de8c5fe9f84f03dca71f999e5bd9a7"
+    },
+    "migration_provenance": {
+      "kind": "library_snapshot",
+      "ref": {
+        "library_id": "arduino_basic",
+        "element_id": "arduino_kit.resistor_220ohm",
+        "revision": 1,
+        "content_hash": "e4565ba7e87c8c092e979ced86d7d384a4de8c5fe9f84f03dca71f999e5bd9a7"
+      },
+      "folder": "resistor_220ohm",
+      "unit_evidence": {
+        "length_unit": "m",
+        "orientation": "original_STEP_orientation",
+        "origin": "original_STEP_origin",
+        "pose_identity_is": "local authoring convention, not measured placement"
+      },
+      "sources": [
+        {
+          "id": "s1",
+          "license": "copyright retained by publisher; no redistribution license inferred",
+          "local_path": "sources/s1_datasheet.pdf",
+          "original_status": "downloaded",
+          "sha256": "8682a01140d097a42ffde38df94228a7fb295a4e11a5c3824f17345c150ec269",
+          "title": "Viking CFR0623 220Ω 1/4W 5% selection technical documentation",
+          "url": "https://www.viking.com.tw/Templates/att/CFR_Series.pdf?lng=en"
+        },
+        {
+          "id": "s2",
+          "license": "KiCad library license; see ../../_sources/KiCad-LICENSE.md",
+          "local_path": "sources/s2_17_resistor_220ohm.step",
+          "original_status": "downloaded",
+          "sha256": "46710ac36957e4073ef7e80153823ef7db1ea12932074cb71f43bc4b476a74dc",
+          "title": "Viking CFR0623 220Ω 1/4W 5% selection 3D STEP asset",
+          "url": "https://raw.githubusercontent.com/KiCad/kicad-packages3D/master/Resistor_THT.3dshapes/R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal.step"
+        }
+      ]
+    }
+  },
+  "manufacturing": {},
+  "procurement": {
+    "metadata_version": "1",
+    "manufacturer": "Viking",
+    "model": "Viking CFR0623 220Ω 1/4W 5% selection",
+    "supplier": null,
+    "sku": null,
+    "purchase_url": null,
+    "price": null,
+    "currency": "CNY",
+    "price_observed_at": null,
+    "availability": null,
+    "description": "资料整理选型；不包含实时供应商报价。",
+    "tags": []
+  },
+  "sources": {
+    "cad_audit": {
+      "title": "实际STEP加载、网格和单位核验记录",
+      "url": null,
+      "asset_ref": {
+        "artifact_id": null,
+        "relative_path": "geometry_audit.json",
+        "sha256": "c8f33ab95d6fe6614d44d1610e70c800d2fb1c8220cfc3b72dd5f608d0c680d5",
+        "media_type": "application/json"
+      },
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": null,
+      "locator": "cad and mesh; CAD topology validity does not prove manufacturer match"
+    },
+    "s1": {
+      "title": "Viking CFR0623 220Ω 1/4W 5% selection technical documentation",
+      "url": "https://www.viking.com.tw/Templates/att/CFR_Series.pdf?lng=en",
+      "asset_ref": {
+        "artifact_id": null,
+        "relative_path": "sources/s1_datasheet.pdf",
+        "sha256": "8682a01140d097a42ffde38df94228a7fb295a4e11a5c3824f17345c150ec269",
+        "media_type": "application/pdf"
+      },
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-02T08:10:16.8072026Z",
+      "locator": "documents/datasheet.pdf"
+    },
+    "s2": {
+      "title": "Viking CFR0623 220Ω 1/4W 5% selection 3D STEP asset",
+      "url": "https://raw.githubusercontent.com/KiCad/kicad-packages3D/master/Resistor_THT.3dshapes/R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal.step",
+      "asset_ref": {
+        "artifact_id": null,
+        "relative_path": "sources/s2_17_resistor_220ohm.step",
+        "sha256": "46710ac36957e4073ef7e80153823ef7db1ea12932074cb71f43bc4b476a74dc",
+        "media_type": "model/step"
+      },
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-02T08:10:16.9601422Z",
+      "locator": "models/17_resistor_220ohm.step"
+    },
+    "definition__cad_audit": {
+      "title": "实际STEP加载、网格和单位核验记录",
+      "locator": "cad and mesh; CAD topology validity does not prove manufacturer match",
+      "source_revision": null,
+      "retrieved_at": "2026-11-02"
+    },
+    "definition__s1": {
+      "title": "Viking CFR0623 220Ω 1/4W 5% selection technical documentation",
+      "locator": "https://www.viking.com.tw/Templates/att/CFR_Series.pdf?lng=en",
+      "source_revision": null,
+      "retrieved_at": "2026-11-02"
+    },
+    "definition__s2": {
+      "title": "Viking CFR0623 220Ω 1/4W 5% selection 3D STEP asset",
+      "locator": "https://raw.githubusercontent.com/KiCad/kicad-packages3D/master/Resistor_THT.3dshapes/R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal.step",
+      "source_revision": null,
+      "retrieved_at": "2026-11-02"
+    }
+  },
+  "evidence": {
+    "e_body_diameter_nominal": {
+      "kind": "manufacturer_rated",
+      "source_ref": "s1",
+      "locator": "PDF pp2–3",
+      "conditions": "±0.3mm；通用模型2.5mm仅参考。",
+      "note": "±0.3mm；通用模型2.5mm仅参考。"
+    },
+    "e_body_length_nominal": {
+      "kind": "manufacturer_rated",
+      "source_ref": "s1",
+      "locator": "PDF pp2–3",
+      "conditions": "±0.5mm。",
+      "note": "±0.5mm。"
+    },
+    "e_geometry": {
+      "kind": "calculated",
+      "source_ref": "cad_audit",
+      "locator": "CAD / mesh",
+      "conditions": "目标读入单位mm，导出STL单位m；原生STEP保留。",
+      "note": "OCP读取并网格化；几何有效不等于实物型号一致。"
+    },
+    "e_maximum_working_voltage_series": {
+      "kind": "manufacturer_rated",
+      "source_ref": "s1",
+      "locator": "PDF pp2–3",
+      "conditions": "实际还受sqrt(P*R)限制。",
+      "note": "实际还受sqrt(P*R)限制。"
+    },
+    "e_pin_a": {
+      "kind": "manufacturer_rated",
+      "source_ref": "s1",
+      "locator": "Pin configuration / terminal identification",
+      "conditions": "",
+      "note": "end1 / end1"
+    },
+    "e_pin_b": {
+      "kind": "manufacturer_rated",
+      "source_ref": "s1",
+      "locator": "Pin configuration / terminal identification",
+      "conditions": "",
+      "note": "end2 / end2"
+    },
+    "e_power_limited_voltage_at_nominal_R": {
+      "kind": "calculated",
+      "source_ref": "s1",
+      "locator": "sqrt(P*R)",
+      "conditions": "220Ω、0.25W、额定温度下计算，不是独立厂商额定。",
+      "note": "220Ω、0.25W、额定温度下计算，不是独立厂商额定。"
+    },
+    "e_rated_power": {
+      "kind": "manufacturer_rated",
+      "source_ref": "s1",
+      "locator": "PDF pp2–3",
+      "conditions": "CFR0623标准功率，70°C。",
+      "note": "CFR0623标准功率，70°C。"
+    },
+    "e_reference_mesh_extent_x": {
+      "kind": "calculated",
+      "source_ref": "cad_audit",
+      "locator": "mesh.extents_m",
+      "conditions": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。",
+      "note": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。"
+    },
+    "e_reference_mesh_extent_y": {
+      "kind": "calculated",
+      "source_ref": "cad_audit",
+      "locator": "mesh.extents_m",
+      "conditions": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。",
+      "note": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。"
+    },
+    "e_reference_mesh_extent_z": {
+      "kind": "calculated",
+      "source_ref": "cad_audit",
+      "locator": "mesh.extents_m",
+      "conditions": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。",
+      "note": "仅为下载参考模型的网格尺寸，不是制造公差或实物测量。"
+    },
+    "e_resistance_selected": {
+      "kind": "manufacturer_rated",
+      "source_ref": "s1",
+      "locator": "PDF pp2–3",
+      "conditions": "选用220Ω，不是系列所有器件均为此值。",
+      "note": "选用220Ω，不是系列所有器件均为此值。"
+    },
+    "e_tolerance_selected": {
+      "kind": "manufacturer_rated",
+      "source_ref": "s1",
+      "locator": "PDF pp2–3",
+      "conditions": "±5%订货选择。",
+      "note": "±5%订货选择。"
+    },
+    "definition__e_body_diameter_nominal": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "datasheet",
+      "statement": "PDF pp2–3; ±0.3mm；通用模型2.5mm仅参考。; ±0.3mm；通用模型2.5mm仅参考。",
+      "artifact_refs": []
+    },
+    "definition__e_body_length_nominal": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "datasheet",
+      "statement": "PDF pp2–3; ±0.5mm。; ±0.5mm。",
+      "artifact_refs": []
+    },
+    "definition__e_geometry": {
+      "source_ids": [
+        "definition__cad_audit"
+      ],
+      "basis": "derived",
+      "statement": "CAD / mesh; 目标读入单位mm，导出STL单位m；原生STEP保留。; OCP读取并网格化；几何有效不等于实物型号一致。",
+      "artifact_refs": []
+    },
+    "definition__e_maximum_working_voltage_series": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "datasheet",
+      "statement": "PDF pp2–3; 实际还受sqrt(P*R)限制。; 实际还受sqrt(P*R)限制。",
+      "artifact_refs": []
+    },
+    "definition__e_pin_a": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "datasheet",
+      "statement": "Pin configuration / terminal identification; ; end1 / end1",
+      "artifact_refs": []
+    },
+    "definition__e_pin_b": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "datasheet",
+      "statement": "Pin configuration / terminal identification; ; end2 / end2",
+      "artifact_refs": []
+    },
+    "definition__e_power_limited_voltage_at_nominal_R": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "derived",
+      "statement": "sqrt(P*R); 220Ω、0.25W、额定温度下计算，不是独立厂商额定。; 220Ω、0.25W、额定温度下计算，不是独立厂商额定。",
+      "artifact_refs": []
+    },
+    "definition__e_rated_power": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "datasheet",
+      "statement": "PDF pp2–3; CFR0623标准功率，70°C。; CFR0623标准功率，70°C。",
+      "artifact_refs": []
+    },
+    "definition__e_reference_mesh_extent_x": {
+      "source_ids": [
+        "definition__cad_audit"
+      ],
+      "basis": "derived",
+      "statement": "mesh.extents_m; 仅为下载参考模型的网格尺寸，不是制造公差或实物测量。; 仅为下载参考模型的网格尺寸，不是制造公差或实物测量。",
+      "artifact_refs": []
+    },
+    "definition__e_reference_mesh_extent_y": {
+      "source_ids": [
+        "definition__cad_audit"
+      ],
+      "basis": "derived",
+      "statement": "mesh.extents_m; 仅为下载参考模型的网格尺寸，不是制造公差或实物测量。; 仅为下载参考模型的网格尺寸，不是制造公差或实物测量。",
+      "artifact_refs": []
+    },
+    "definition__e_reference_mesh_extent_z": {
+      "source_ids": [
+        "definition__cad_audit"
+      ],
+      "basis": "derived",
+      "statement": "mesh.extents_m; 仅为下载参考模型的网格尺寸，不是制造公差或实物测量。; 仅为下载参考模型的网格尺寸，不是制造公差或实物测量。",
+      "artifact_refs": []
+    },
+    "definition__e_resistance_selected": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "datasheet",
+      "statement": "PDF pp2–3; 选用220Ω，不是系列所有器件均为此值。; 选用220Ω，不是系列所有器件均为此值。",
+      "artifact_refs": []
+    },
+    "definition__e_tolerance_selected": {
+      "source_ids": [
+        "definition__s1"
+      ],
+      "basis": "datasheet",
+      "statement": "PDF pp2–3; ±5%订货选择。; ±5%订货选择。",
+      "artifact_refs": []
+    }
+  }
+}

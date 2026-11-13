@@ -1,0 +1,464 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.rtc_ds3231",
+  "revision": 3,
+  "name": "Adafruit DS3231 STEMMA QT 5188",
+  "category": "controller",
+  "aliases": [],
+  "subtype": null,
+  "form": "module",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": "Adafruit",
+    "model": "5188 DS3231 STEMMA QT",
+    "hardware_revision": null
+  },
+  "description_markdown": "RTC is a controller/peripheral, not a simulated time source. Powered from maintained 3.3V rail during outage. CR1220 is NOT fitted. Revision 2 uses the protected main LiPo (3.0-4.2V) on VBAT, within its published 2.3-5.5V input range, while VIN is supplied by 3.3V. The coin-cell holder stays empty; no separate cell is connected in parallel. This keeps RTC backup independent of the 3.3V regulator but not of main-pack depletion. After main battery depletion time validity must be checked. Optional coin cell would preserve time only, not run the clock or sound.",
+  "parameters": {
+    "envelope_x": {
+      "status": "known",
+      "value": {
+        "value": 25.4,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_y": {
+      "status": "known",
+      "value": {
+        "value": 17.8,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_z": {
+      "status": "known",
+      "value": {
+        "value": 7.8,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "i2c_address": {
+      "status": "known",
+      "value": {
+        "value": 104.0,
+        "unit": "1"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "whole_module_current": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "Chip and module LED/pullups are different loads; measure the whole module."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "platform": "ds3231-rtc-peripheral",
+    "firmware": null
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Nominal body envelope; excludes leads, plugs and assembly clearances.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {},
+        "collisions": {
+          "nominal": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "box",
+              "size_m": [
+                0.0254,
+                0.0178,
+                0.0078
+              ]
+            },
+            "interpretation": "solid",
+            "approximation": "unknown",
+            "margin_m": 0.0,
+            "evidence_refs": [
+              "design"
+            ]
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {
+      "bat": {
+        "number": "BAT",
+        "name": "BAT",
+        "electrical_type": "power_in",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 2.3,
+              "unit": "V"
+            },
+            "max": {
+              "value": 5.5,
+              "unit": "V"
+            }
+          },
+          "role": "sink"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "clk32": {
+        "number": "32K",
+        "name": "32K",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "open_drain",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "gnd": {
+        "number": "GND",
+        "name": "GND",
+        "electrical_type": "passive",
+        "power": {
+          "role": "reference"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "rst": {
+        "number": "RST",
+        "name": "RST",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "open_drain",
+          "pull": "up"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "scl": {
+        "number": "SCL",
+        "name": "SCL",
+        "electrical_type": "input",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "up"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "sda": {
+        "number": "SDA",
+        "name": "SDA",
+        "electrical_type": "bidirectional",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "open_drain",
+          "pull": "up"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "sqw": {
+        "number": "SQW",
+        "name": "SQW",
+        "electrical_type": "output",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 0.0,
+              "unit": "V"
+            },
+            "max": {
+              "value": 3.3,
+              "unit": "V"
+            }
+          }
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "open_drain",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "vin": {
+        "number": "VIN",
+        "name": "VIN",
+        "electrical_type": "power_in",
+        "power": {
+          "voltage_limits": {
+            "min": {
+              "value": 3.3,
+              "unit": "V"
+            },
+            "max": {
+              "value": 5.0,
+              "unit": "V"
+            }
+          },
+          "role": "sink"
+        },
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      }
+    },
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {
+      "control_functions": {}
+    },
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 2,
+    "source_hash": "ae36699acfe89e646987f8c62a61fc2b5b71ff55fbf1f0dcabc55267b9af7404",
+    "category_parameters": [
+      "envelope_x",
+      "envelope_y",
+      "envelope_z",
+      "i2c_address",
+      "whole_module_current"
+    ],
+    "category_sources": [
+      "rtc",
+      "rtc_chip",
+      "rtc_pins"
+    ],
+    "category_evidence": [
+      "design",
+      "rated"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.rtc_ds3231",
+      "revision": 2,
+      "content_hash": "a6e3cfc3f7ef73aa3b6302e3c77c484b2c1c9876b4e393541990c6153cdfc8ae"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/rtc_ds3231/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.rtc_ds3231",
+        "revision": 2,
+        "content_hash": "a6e3cfc3f7ef73aa3b6302e3c77c484b2c1c9876b4e393541990c6153cdfc8ae"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": {
+    "metadata_version": "1",
+    "manufacturer": "Adafruit",
+    "model": "5188 DS3231 STEMMA QT",
+    "supplier": null,
+    "sku": null,
+    "purchase_url": "https://www.adafruit.com/product/5188",
+    "price": null,
+    "currency": "CNY",
+    "price_observed_at": null,
+    "availability": null,
+    "description": "",
+    "tags": []
+  },
+  "sources": {
+    "rtc": {
+      "title": "Adafruit DS3231 STEMMA QT PID 5188",
+      "url": "https://www.adafruit.com/product/5188",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    },
+    "rtc_chip": {
+      "title": "DS3231 datasheet",
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/ds3231.pdf",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    },
+    "rtc_pins": {
+      "title": "DS3231 breakout pinouts",
+      "url": "https://learn.adafruit.com/adafruit-ds3231-precision-rtc-breakout/pinouts",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    }
+  },
+  "evidence": {
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "Project design assumptions, unverified.",
+      "note": "Primitive envelope is for rough planning only. No mounting holes, contact dynamics, connector locations or tolerances are inferred."
+    },
+    "rated": {
+      "kind": "manufacturer_rated",
+      "source_ref": "rtc",
+      "locator": null,
+      "conditions": "Published product nominal data; no sample measurement.",
+      "note": "RTC is a controller/peripheral, not a simulated time source. Powered from maintained 3.3V rail during outage. CR1220 is NOT fitted. Revision 2 uses the protected main LiPo (3.0-4.2V) on VBAT, within its published 2.3-5.5V input range, while VIN is supplied by 3.3V. The coin-cell holder stays empty; no separate cell is connected in parallel. This keeps RTC backup independent of the 3.3V regulator but not of main-pack depletion. After main battery depletion time validity must be checked. Optional coin cell would preserve time only, not run the clock or sound."
+    }
+  }
+}

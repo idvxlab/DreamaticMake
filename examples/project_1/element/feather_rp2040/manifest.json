@@ -1,0 +1,7 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "Adafruit Feather RP2040 4884",
+  "category": "controller",
+  "element_path": "element.json"
+}

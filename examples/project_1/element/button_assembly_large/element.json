@@ -1,0 +1,677 @@
+{
+  "name": "Large button assembly",
+  "category": "structure",
+  "aliases": [],
+  "subtype": null,
+  "form": "assembly",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": null,
+    "model": null,
+    "hardware_revision": null
+  },
+  "description_markdown": "Reusable local button assembly. Source geometry and switch behavior are unchanged. Keycap travel does not imply a simulated electrical contact or physical fit.",
+  "parameters": {},
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {},
+  "mechanical": {
+    "root_link": null,
+    "links": {},
+    "joints": {
+      "mount_gate": {
+        "type": "fixed",
+        "parent": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "child": {
+          "unit_path": [
+            "gate"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "origin": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "child_origin": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "axis": null,
+        "limit": null,
+        "evidence_refs": []
+      },
+      "mount_retainer": {
+        "type": "fixed",
+        "parent": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "child": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "origin": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "child_origin": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "axis": null,
+        "limit": null,
+        "evidence_refs": []
+      },
+      "mount_switch": {
+        "type": "fixed",
+        "parent": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "child": {
+          "unit_path": [
+            "switch"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "origin": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "child_origin": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "axis": null,
+        "limit": null,
+        "evidence_refs": []
+      },
+      "press": {
+        "type": "prismatic",
+        "parent": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "child": {
+          "unit_path": [
+            "cap"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "origin": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "child_origin": {
+          "translation_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation_xyzw": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "limit": {
+          "lower": 0.0,
+          "upper": 0.0004,
+          "velocity": null,
+          "effort": null
+        },
+        "evidence_refs": []
+      }
+    },
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {
+      "press": 0.0
+    },
+    "drives": {},
+    "mount_connections": {
+      "fastener_0": {
+        "status": "Explicit native printed mount references; thread fit and hardware not physically tested",
+        "source_record": "doc/assembly_detail/mount-connections-v0.1.json",
+        "connection_id": "fastener/0",
+        "a": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "gate_0"
+        },
+        "b": {
+          "unit_path": [
+            "gate"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "gate_0"
+        },
+        "hardware": "M2x6 self-tapping",
+        "datum_position_mismatch_m": 0.0
+      },
+      "fastener_1": {
+        "status": "Explicit native printed mount references; thread fit and hardware not physically tested",
+        "source_record": "doc/assembly_detail/mount-connections-v0.1.json",
+        "connection_id": "fastener/1",
+        "a": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "gate_1"
+        },
+        "b": {
+          "unit_path": [
+            "gate"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "gate_1"
+        },
+        "hardware": "M2x6 self-tapping",
+        "datum_position_mismatch_m": 0.0
+      },
+      "fastener_2": {
+        "status": "Explicit native printed mount references; thread fit and hardware not physically tested",
+        "source_record": "doc/assembly_detail/mount-connections-v0.1.json",
+        "connection_id": "fastener/2",
+        "a": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_0"
+        },
+        "b": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_0"
+        },
+        "hardware": "M2x4 self-tapping",
+        "datum_position_mismatch_m": 0.0
+      },
+      "fastener_3": {
+        "status": "Explicit native printed mount references; thread fit and hardware not physically tested",
+        "source_record": "doc/assembly_detail/mount-connections-v0.1.json",
+        "connection_id": "fastener/3",
+        "a": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_1"
+        },
+        "b": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_1"
+        },
+        "hardware": "M2x4 self-tapping",
+        "datum_position_mismatch_m": 0.0
+      },
+      "fastener_4": {
+        "status": "Explicit native printed mount references; thread fit and hardware not physically tested",
+        "source_record": "doc/assembly_detail/mount-connections-v0.1.json",
+        "connection_id": "fastener/4",
+        "a": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_2"
+        },
+        "b": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_2"
+        },
+        "hardware": "M2x4 self-tapping",
+        "datum_position_mismatch_m": 0.0
+      },
+      "fastener_5": {
+        "status": "Explicit native printed mount references; thread fit and hardware not physically tested",
+        "source_record": "doc/assembly_detail/mount-connections-v0.1.json",
+        "connection_id": "fastener/5",
+        "a": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_3"
+        },
+        "b": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_3"
+        },
+        "hardware": "M2x4 self-tapping",
+        "datum_position_mismatch_m": 0.0
+      }
+    }
+  },
+  "electrical": {
+    "pins": {},
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {},
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {},
+  "authoring": {},
+  "manufacturing": {},
+  "procurement": null,
+  "sources": {},
+  "evidence": {},
+  "units": {
+    "guide": {
+      "kind": "reference",
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_guide_large",
+        "revision": 2,
+        "content_hash": "85e643e1583bf0d8f4c8fc8b4a592ccc9195e898576815ed9732ba0900e351ff"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "key_guide_large/element.json"
+      }
+    },
+    "gate": {
+      "kind": "reference",
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.key_gate_large",
+        "revision": 2,
+        "content_hash": "e3209f261d5d9396c6da9a75fcb18cce173a8d88f21fc3fcb2684b0fa0ca9c64"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "key_gate_large/element.json"
+      }
+    },
+    "cap": {
+      "kind": "reference",
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.keycap_large",
+        "revision": 2,
+        "content_hash": "7a67b7bb059ebce6b68539ae4850b4d1f1f1ed4d3a2793b4aa0dc3024ae48093"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "keycap_large/element.json"
+      }
+    },
+    "retainer": {
+      "kind": "reference",
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.switch_pcb_retainer",
+        "revision": 2,
+        "content_hash": "b663ac575dbfc1ef123b85d6bba55856cec8fd01f77463eea3d3078f8f9a7a9d"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "switch_pcb_retainer/element.json"
+      }
+    },
+    "switch": {
+      "kind": "reference",
+      "element_ref": {
+        "library_id": "project2",
+        "element_id": "clock.button_pts645",
+        "revision": 2,
+        "content_hash": "1922ffce57bce8be1cc73a28aa05bf75540e741cb9159d8c94ec417c789ddc57"
+      },
+      "location": {
+        "kind": "custom",
+        "path": "button_pts645/element.json"
+      }
+    }
+  },
+  "exports": {
+    "mechanical": {
+      "links": {
+        "body": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        },
+        "moving": {
+          "unit_path": [
+            "cap"
+          ],
+          "domain": "mechanical",
+          "collection": "links",
+          "id": "body"
+        }
+      },
+      "mounts": {
+        "guide_datum": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "datum"
+        },
+        "guide_gate_0": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "gate_0"
+        },
+        "guide_gate_1": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "gate_1"
+        },
+        "guide_pcb_0": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_0"
+        },
+        "guide_pcb_1": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_1"
+        },
+        "guide_pcb_2": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_2"
+        },
+        "guide_pcb_3": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_3"
+        },
+        "guide_shell_0": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "shell_0"
+        },
+        "guide_shell_1": {
+          "unit_path": [
+            "guide"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "shell_1"
+        },
+        "gate_datum": {
+          "unit_path": [
+            "gate"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "datum"
+        },
+        "gate_gate_0": {
+          "unit_path": [
+            "gate"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "gate_0"
+        },
+        "gate_gate_1": {
+          "unit_path": [
+            "gate"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "gate_1"
+        },
+        "cap_datum": {
+          "unit_path": [
+            "cap"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "datum"
+        },
+        "retainer_datum": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "datum"
+        },
+        "retainer_pcb_0": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_0"
+        },
+        "retainer_pcb_1": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_1"
+        },
+        "retainer_pcb_2": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_2"
+        },
+        "retainer_pcb_3": {
+          "unit_path": [
+            "retainer"
+          ],
+          "domain": "mechanical",
+          "collection": "mounts",
+          "id": "pcb_3"
+        }
+      },
+      "joints": {
+        "press": {
+          "domain": "mechanical",
+          "collection": "joints",
+          "id": "press"
+        }
+      }
+    },
+    "electrical": {
+      "pins": {
+        "pin1": {
+          "unit_path": [
+            "switch"
+          ],
+          "domain": "electrical",
+          "collection": "pins",
+          "id": "pin1"
+        },
+        "pin2": {
+          "unit_path": [
+            "switch"
+          ],
+          "domain": "electrical",
+          "collection": "pins",
+          "id": "pin2"
+        },
+        "pin3": {
+          "unit_path": [
+            "switch"
+          ],
+          "domain": "electrical",
+          "collection": "pins",
+          "id": "pin3"
+        },
+        "pin4": {
+          "unit_path": [
+            "switch"
+          ],
+          "domain": "electrical",
+          "collection": "pins",
+          "id": "pin4"
+        }
+      }
+    }
+  },
+  "bom": {
+    "policy": "children"
+  },
+  "record_kind": "element_definition",
+  "schema_version": "3.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.button_assembly_large",
+  "revision": 1
+}

@@ -1,0 +1,342 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.button_pts645",
+  "revision": 2,
+  "name": "C&K PTS645SL43-2 LFS tactile switch",
+  "category": "human_input",
+  "aliases": [],
+  "subtype": null,
+  "form": "part",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": "C&K / Littelfuse",
+    "model": "PTS645SL43-2 LFS",
+    "hardware_revision": null
+  },
+  "description_markdown": "New project definition fixes THT, round actuator, 4.3mm height and full ordering code. It does not promote blocked library partial data or reuse mismatched CAD. Four physical passive pins, normally-open contact; duplicated contact pairs must be confirmed from schematic and continuity before wiring. Native input uses pre-debounced fixture events, no physical contact or debounce simulation. Five instances reuse this definition; keycaps and mounting PCBs are later custom parts.",
+  "parameters": {
+    "actuation_force": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "Ordering code L indicates 1.3N; latest selection table contains conflicting entries. Confirm full part and revision before claiming force."
+    },
+    "envelope_x": {
+      "status": "known",
+      "value": {
+        "value": 6.0,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_y": {
+      "status": "known",
+      "value": {
+        "value": 6.0,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_z": {
+      "status": "known",
+      "value": {
+        "value": 4.3,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "height_above_pcb": {
+      "status": "known",
+      "value": {
+        "value": 4.3,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Published nominal value; not measured."
+    },
+    "lead_keepout": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "Body box excludes THT leads; pad and lead envelope must be established before layout."
+    },
+    "sampling_period": {
+      "status": "assumed",
+      "value": {
+        "value": 1.0,
+        "unit": "ms"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "Application pre-debounced fixture sampling policy, not physical switch performance."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "input_kind": "button",
+    "debounce_s": 0.0
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Nominal body envelope; excludes leads, plugs and assembly clearances.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {},
+        "collisions": {
+          "nominal": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "box",
+              "size_m": [
+                0.006,
+                0.006,
+                0.0043
+              ]
+            },
+            "interpretation": "solid",
+            "approximation": "unknown",
+            "margin_m": 0.0,
+            "evidence_refs": [
+              "design"
+            ]
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {
+      "pin1": {
+        "number": "1",
+        "name": "1",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "pin2": {
+        "number": "2",
+        "name": "2",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "pin3": {
+        "number": "3",
+        "name": "3",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "pin4": {
+        "number": "4",
+        "name": "4",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      }
+    },
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {},
+    "sensors": {
+      "controls": {
+        "pressed": {
+          "quantity": "pressed",
+          "signal_type": {
+            "kind": "boolean",
+            "unit": null,
+            "protocol": null
+          },
+          "location": null,
+          "source": {
+            "kind": "environment",
+            "channel": "pressed",
+            "joint_ref": null
+          },
+          "sample_period_s": 0.001,
+          "latency_s": 0.0,
+          "evidence_refs": [
+            "design"
+          ]
+        }
+      }
+    },
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "3f6216adc3044d8e53f083d0cf20b6eed5ec85faecab5742b6f69bc3b09fb3a6",
+    "category_parameters": [
+      "actuation_force",
+      "envelope_x",
+      "envelope_y",
+      "envelope_z",
+      "height_above_pcb",
+      "lead_keepout",
+      "sampling_period"
+    ],
+    "category_sources": [
+      "button"
+    ],
+    "category_evidence": [
+      "design",
+      "rated"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.button_pts645",
+      "revision": 1,
+      "content_hash": "1971f9d4d4cb78bfc7c910221191f22ecca7788577e4563788cf47ddb941504b"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/button_pts645/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.button_pts645",
+        "revision": 1,
+        "content_hash": "1971f9d4d4cb78bfc7c910221191f22ecca7788577e4563788cf47ddb941504b"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": {
+    "metadata_version": "1",
+    "manufacturer": "C&K / Littelfuse",
+    "model": "PTS645SL43-2 LFS",
+    "supplier": null,
+    "sku": null,
+    "purchase_url": "https://www.ckswitches.com/media/1471/pts645.pdf",
+    "price": null,
+    "currency": "CNY",
+    "price_observed_at": null,
+    "availability": null,
+    "description": "",
+    "tags": []
+  },
+  "sources": {
+    "button": {
+      "title": "C&K PTS645 series, THT ordering and drawing",
+      "url": "https://www.ckswitches.com/media/1471/pts645.pdf",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    }
+  },
+  "evidence": {
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "Project design assumptions, unverified.",
+      "note": "Primitive envelope is for rough planning only. No mounting holes, contact dynamics, connector locations or tolerances are inferred."
+    },
+    "rated": {
+      "kind": "manufacturer_rated",
+      "source_ref": "button",
+      "locator": null,
+      "conditions": "Published product nominal data; no sample measurement.",
+      "note": "New project definition fixes THT, round actuator, 4.3mm height and full ordering code. It does not promote blocked library partial data or reuse mismatched CAD. Four physical passive pins, normally-open contact; duplicated contact pairs must be confirmed from schematic and continuity before wiring. Native input uses pre-debounced fixture events, no physical contact or debounce simulation. Five instances reuse this definition; keycaps and mounting PCBs are later custom parts."
+    }
+  }
+}

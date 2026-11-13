@@ -1,0 +1,270 @@
+{
+  "record_kind": "element_definition",
+  "schema_version": "2.0.0-draft",
+  "library_id": "project2",
+  "element_id": "clock.piezo_ps1240",
+  "revision": 2,
+  "name": "Adafruit PS1240 piezo 160",
+  "category": "sound",
+  "aliases": [],
+  "subtype": null,
+  "form": "part",
+  "origin": "custom",
+  "roles": [],
+  "tags": [],
+  "product": {
+    "manufacturer": "Adafruit",
+    "model": "160 PS1240",
+    "hardware_revision": null
+  },
+  "description_markdown": "Passive piezo, not active magnetic buzzer. Candidate single-ended 3.3V square wave via two series 220ohm resistors, other lead to ground; no inductive flyback claim. 4kHz initial tone. Confirm waveform amplitude across piezo and loudness with enclosure; add dedicated driver or change sound part if inadequate.",
+  "parameters": {
+    "envelope_x": {
+      "status": "known",
+      "value": {
+        "value": 11.9,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_y": {
+      "status": "known",
+      "value": {
+        "value": 11.9,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "envelope_z": {
+      "status": "known",
+      "value": {
+        "value": 6.53,
+        "unit": "mm"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "rated"
+      ],
+      "conditions": "Nominal package dimension; envelope is an approximation and excludes leads/connectors/clearances."
+    },
+    "excitation_frequency": {
+      "status": "assumed",
+      "value": {
+        "value": 4000.0,
+        "unit": "Hz"
+      },
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [
+        "design"
+      ],
+      "conditions": "Initial selected tone, acoustic result untested."
+    },
+    "sound_pressure": {
+      "status": "unknown",
+      "value": null,
+      "range": null,
+      "configurable": false,
+      "evidence_refs": [],
+      "conditions": "Must be measured at selected waveform, voltage, resistor network and enclosure."
+    }
+  },
+  "functions": {},
+  "principles": {},
+  "realizations": {},
+  "capabilities": {},
+  "specification": {
+    "transducer": "buzzer",
+    "supply_terminals": []
+  },
+  "mechanical": {
+    "root_link": "body",
+    "links": {
+      "body": {
+        "description": "Nominal body envelope; excludes leads, plugs and assembly clearances.",
+        "color": null,
+        "mass": null,
+        "inertia_ref": null,
+        "visuals": {},
+        "collisions": {
+          "nominal": {
+            "origin": {
+              "translation_m": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "rotation_xyzw": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            },
+            "geometry": {
+              "type": "cylinder",
+              "radius_m": 0.00595,
+              "length_m": 0.00653
+            },
+            "interpretation": "solid",
+            "approximation": "unknown",
+            "margin_m": 0.0,
+            "evidence_refs": [
+              "design"
+            ]
+          }
+        },
+        "spaces": {}
+      }
+    },
+    "joints": {},
+    "mounts": {},
+    "couplings": {},
+    "initial_positions": {},
+    "drives": {}
+  },
+  "electrical": {
+    "pins": {
+      "a": {
+        "number": "lead A",
+        "name": "lead A",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      },
+      "b": {
+        "number": "lead B",
+        "name": "lead B",
+        "electrical_type": "passive",
+        "power": null,
+        "capabilities": {},
+        "default_config": {
+          "drive": "none",
+          "pull": "none"
+        },
+        "physical": null,
+        "reference_pin": null,
+        "evidence_refs": [
+          "rated"
+        ]
+      }
+    },
+    "connectors": {},
+    "interfaces": {}
+  },
+  "behavior": {
+    "models": {
+      "frequency": {
+        "kind": "constant",
+        "ref": null,
+        "channel": null,
+        "value": 0.0,
+        "output": "value"
+      }
+    },
+    "sensors": {},
+    "effects": {}
+  },
+  "flow": {
+    "information_ports": {},
+    "energy_ports": {}
+  },
+  "authoring": {
+    "category_adapter": "component_design/1",
+    "wiring_field": "wiring",
+    "source_revision": 1,
+    "source_hash": "049465cd2592ca4a1f7aae77cbc99892f4c43ea3ab28de829bcafd0f6d0a7df3",
+    "category_parameters": [
+      "envelope_x",
+      "envelope_y",
+      "envelope_z",
+      "excitation_frequency",
+      "sound_pressure"
+    ],
+    "category_sources": [
+      "piezo"
+    ],
+    "category_evidence": [
+      "design",
+      "rated"
+    ],
+    "source_definition_ref": {
+      "library_id": "project2",
+      "element_id": "clock.piezo_ps1240",
+      "revision": 1,
+      "content_hash": "3d6f3ab107e29dfeba928acb2a5cc0cf1a519b6b047f0ec99a0e12a6363f04f8"
+    },
+    "migration_provenance": {
+      "kind": "custom",
+      "path": "element/piezo_ps1240/element.json",
+      "ref": {
+        "library_id": "project2",
+        "element_id": "clock.piezo_ps1240",
+        "revision": 1,
+        "content_hash": "3d6f3ab107e29dfeba928acb2a5cc0cf1a519b6b047f0ec99a0e12a6363f04f8"
+      }
+    }
+  },
+  "manufacturing": {},
+  "procurement": {
+    "metadata_version": "1",
+    "manufacturer": "Adafruit",
+    "model": "160 PS1240",
+    "supplier": null,
+    "sku": null,
+    "purchase_url": "https://www.adafruit.com/product/160",
+    "price": null,
+    "currency": "CNY",
+    "price_observed_at": null,
+    "availability": null,
+    "description": "",
+    "tags": []
+  },
+  "sources": {
+    "piezo": {
+      "title": "Adafruit piezo PS1240 PID 160",
+      "url": "https://www.adafruit.com/product/160",
+      "asset_ref": null,
+      "publisher": null,
+      "source_revision": null,
+      "retrieved_at": "2026-11-06",
+      "locator": null
+    }
+  },
+  "evidence": {
+    "design": {
+      "kind": "assumed",
+      "source_ref": null,
+      "locator": null,
+      "conditions": "Project design assumptions, unverified.",
+      "note": "Primitive envelope is for rough planning only. No mounting holes, contact dynamics, connector locations or tolerances are inferred."
+    },
+    "rated": {
+      "kind": "manufacturer_rated",
+      "source_ref": "piezo",
+      "locator": null,
+      "conditions": "Published product nominal data; no sample measurement.",
+      "note": "Passive piezo, not active magnetic buzzer. Candidate single-ended 3.3V square wave via two series 220ohm resistors, other lead to ground; no inductive flyback claim. 4kHz initial tone. Confirm waveform amplitude across piezo and loudness with enclosure; add dedicated driver or change sound part if inadequate."
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "record_kind": "element_package",
+  "package_version": "1",
+  "name": "220Ω 轴向电阻",
+  "category": "circuit_element",
+  "element_path": "element.json"
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": "project-task-context/1",
+  "tasks": {
+    "collision.classify": {
+      "queries": [
+        "project.overview",
+        "elements.inspect",
+        "layout.inspect",
+        "evidence.query"
+      ],
+      "references": [
+        {
+          "source_id": "doc/requirements/README.md",
+          "start_line": 1,
+          "end_line": 18
+        },
+        {
+          "source_id": "doc/assembly_detail/README.md",
+          "start_line": 1,
+          "end_line": 18
+        }
+      ]
+    },
+    "spatial_layout.refine": {
+      "queries": [
+        "project.overview",
+        "elements.inspect",
+        "layout.inspect",
+        "circuit.inspect"
+      ],
+      "references": [
+        {
+          "source_id": "doc/requirements/README.md",
+          "start_line": 1,
+          "end_line": 18
+        },
+        {
+          "source_id": "doc/spatial_layout/README.md",
+          "start_line": 1,
+          "end_line": 18
+        }
+      ]
+    },
+    "motion_detail.initial": {
+      "queries": [
+        "project.overview",
+        "elements.inspect",
+        "layout.inspect",
+        "evidence.query"
+      ],
+      "references": [
+        {
+          "source_id": "doc/requirements/README.md",
+          "start_line": 1,
+          "end_line": 18
+        },
+        {
+          "source_id": "doc/motion_detail/README.md",
+          "start_line": 1,
+          "end_line": 18
+        }
+      ]
+    }
+  }
+}
