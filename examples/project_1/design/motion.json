@@ -1,0 +1,76 @@
+{
+  "joints": {
+    "mount/base_yaw": {
+      "kind": "fixed",
+      "parent": "base/body",
+      "child": "yaw/case",
+      "parent_anchor": {
+        "translation_m": [0, 0, 0.023]
+      }
+    },
+    "mount/yaw_shoulder": {
+      "kind": "fixed",
+      "parent": "yaw/shaft",
+      "child": "shoulder/case",
+      "parent_anchor": {
+        "translation_m": [0, 0, 0.025],
+        "rotation_xyzw": [-0.7071067811865476, 0, 0, 0.7071067811865476]
+      }
+    },
+    "mount/shoulder_upper": {
+      "kind": "fixed",
+      "parent": "shoulder/shaft",
+      "child": "upper/body"
+    },
+    "mount/upper_elbow": {
+      "kind": "fixed",
+      "parent": "upper/body",
+      "child": "elbow/case",
+      "parent_anchor": {
+        "translation_m": [0.105, 0, 0]
+      }
+    },
+    "mount/elbow_forearm": {
+      "kind": "fixed",
+      "parent": "elbow/shaft",
+      "child": "forearm/body"
+    },
+    "mount/forearm_gripper": {
+      "kind": "fixed",
+      "parent": "forearm/body",
+      "child": "gripper/palm",
+      "parent_anchor": {
+        "translation_m": [0.09, 0, 0]
+      }
+    },
+    "gripper/joints/left": {
+      "kind": "prismatic",
+      "parent": "gripper/palm",
+      "child": "gripper/left",
+      "axis": [0, 1, 0],
+      "initial": 0.02,
+      "lower": 0.008,
+      "upper": 0.035
+    },
+    "gripper/joints/right": {
+      "kind": "prismatic",
+      "parent": "gripper/palm",
+      "child": "gripper/right",
+      "axis": [0, 1, 0],
+      "initial": -0.02,
+      "lower": -0.035,
+      "upper": -0.008
+    }
+  },
+  "configuration": {
+    "yaw/axis": {
+      "initial": 0.0
+    },
+    "shoulder/axis": {
+      "initial": 0.0
+    },
+    "elbow/axis": {
+      "initial": 0.0
+    }
+  }
+}

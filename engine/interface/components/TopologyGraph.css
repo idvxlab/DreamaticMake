@@ -1,0 +1,75 @@
+.topology-panel {
+  border: 1px solid #d6ddcc;
+  border-radius: 12px;
+  background: #fafbf7;
+  padding: 10px;
+}
+.topology-scroll {
+  overflow: auto;
+  max-height: 570px;
+  min-height: 400px;
+  background-image: radial-gradient(#d6dccb 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.topology-scroll svg {
+  width: 100%;
+  min-width: 700px;
+  touch-action: none;
+}
+.topology-scroll text {
+  font:
+    12px system-ui,
+    sans-serif;
+  fill: #3d4835;
+  pointer-events: none;
+}
+.topology-scroll .graph-port-label {
+  font-size: 12px;
+  fill: #34534f;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.topology-scroll .graph-entity-key { font-size: 11px; fill: #68827c; }
+.topology-scroll .graph-node-title { font-size: 13px; font-weight: 600; }
+.topology-scroll .graph-empty-ports { font-size: 11px; fill: #85928c; }
+.topology-scroll .graph-net-label { font-size: 10px; paint-order: stroke; stroke: #fafbf7; stroke-width: 3px; }
+.graph-node-divider { stroke: #e3ebe4; }
+.graph-port { cursor: pointer; outline: none; }
+.graph-pin-stub { stroke-width: 2px; }
+.graph-pin-hit { fill: transparent; }
+.graph-pin-dot { stroke-width: 2px; }
+.graph-port.selected .graph-pin-dot, .graph-port:focus .graph-pin-dot, .graph-port:hover .graph-pin-dot { stroke: #146e68; stroke-width: 3px; r: 7px; }
+.topology-scroll .graph-port.selected .graph-port-label, .topology-scroll .graph-port:focus .graph-port-label { fill: #146e68; font-weight: 700; }
+.port-legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 0 12px 12px; font-size: 11px; color: #64796e; }
+.port-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.port-legend-dot { width: 10px; height: 10px; display: inline-block; border: 2px solid #bd8940; border-radius: 50%; background: white; }
+.port-legend-dot.connected { background: #bd8940; }
+.port-inspector { border-top: 1px solid #dce5e5; margin-top: 20px; }
+.port-connection { padding: 2px 0 8px; }
+.port-connection ul { padding-left: 18px; }
+.port-connection li { margin: 6px 0; }
+.graph-node {
+  cursor: grab;
+  outline: none;
+}
+.graph-node rect {
+  fill: #fff;
+  stroke: #bfcbae;
+  stroke-width: 1.5;
+}
+.graph-node.selected rect,
+.graph-node:focus rect,
+.graph-node:hover rect {
+  stroke: #6d8d37;
+  stroke-width: 3;
+  fill: #f5f9ed;
+}
+.graph-node.missing rect {
+  stroke: #bc765d;
+  stroke-dasharray: 5 3;
+  fill: #fff4ec;
+}
+.topology-panel small {
+  font-size: 10px;
+  color: #6d7565;
+}

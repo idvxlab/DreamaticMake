@@ -1,0 +1,94 @@
+{
+  "record_kind": "component_design",
+  "design_version": "1",
+  "id": "demo.usb5v",
+  "name": "5V USB 电源模块（假设）",
+  "category": "power",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "工作台概念案例",
+      "note": "尺寸、接口和功能用于设计演示，非厂家数据或制造验证。"
+    }
+  },
+  "source_kind": "usb",
+  "voltage": {
+    "value": 5,
+    "unit": "V"
+  },
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "solid": {
+        "body_ref": "body",
+        "shape": {
+          "kind": "box",
+          "size_m": [
+            0.034,
+            0.025,
+            0.016
+          ]
+        },
+        "pose": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "approximation": "outer"
+      }
+    }
+  },
+  "wiring": {
+    "terminals": {
+      "positive": {
+        "physical_pin_number": "1",
+        "label": "5V",
+        "electrical_role": "power_out",
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.012,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "ground": {
+        "physical_pin_number": "2",
+        "label": "GND",
+        "electrical_role": "ground",
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.008,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      }
+    }
+  }
+}

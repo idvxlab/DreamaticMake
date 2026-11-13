@@ -1,0 +1,180 @@
+{
+  "record_kind": "component_design",
+  "design_version": "1",
+  "id": "demo.micro_servo",
+  "name": "微型位置舵机（假设）",
+  "category": "actuator",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "工作台概念案例",
+      "note": "尺寸、接口和功能用于设计演示，非厂家数据或制造验证。"
+    }
+  },
+  "technology": "servo",
+  "geometry": {
+    "root_body": "case",
+    "bodies": {
+      "case": {},
+      "shaft": {}
+    },
+    "envelopes": {
+      "case": {
+        "body_ref": "case",
+        "shape": {
+          "kind": "box",
+          "size_m": [
+            0.028,
+            0.022,
+            0.024
+          ]
+        },
+        "pose": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "approximation": "outer"
+      },
+      "shaft": {
+        "body_ref": "shaft",
+        "shape": {
+          "kind": "cylinder",
+          "radius_m": 0.005,
+          "length_m": 0.006
+        },
+        "pose": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "approximation": "outer"
+      }
+    }
+  },
+  "wiring": {
+    "terminals": {
+      "vcc": {
+        "physical_pin_number": "1",
+        "label": "vcc",
+        "electrical_role": "power_in",
+        "body_ref": "case",
+        "pose": {
+          "translation_m": [
+            -0.012,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "ground": {
+        "physical_pin_number": "2",
+        "label": "ground",
+        "electrical_role": "ground",
+        "body_ref": "case",
+        "pose": {
+          "translation_m": [
+            -0.008,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "pwm": {
+        "physical_pin_number": "3",
+        "label": "pwm",
+        "electrical_role": "input",
+        "body_ref": "case",
+        "pose": {
+          "translation_m": [
+            -0.004,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      }
+    }
+  },
+  "joint": {
+    "kind": "revolute",
+    "parent_body": {
+      "collection": "bodies",
+      "object_id": "case"
+    },
+    "child_body": {
+      "collection": "bodies",
+      "object_id": "shaft"
+    },
+    "axis": [
+      0,
+      0,
+      1
+    ],
+    "parent_anchor": {
+      "translation_m": [
+        0,
+        0,
+        0.022
+      ],
+      "rotation_xyzw": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "position_limit": {
+      "min": {
+        "value": -100,
+        "unit": "deg"
+      },
+      "max": {
+        "value": 100,
+        "unit": "deg"
+      }
+    },
+    "initial_position": {
+      "value": 0,
+      "unit": "rad"
+    },
+    "velocity_limit": {
+      "value": 3,
+      "unit": "rad/s"
+    },
+    "drive_mode": "position"
+  }
+}

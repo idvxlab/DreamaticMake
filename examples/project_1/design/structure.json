@@ -1,0 +1,13 @@
+{
+  "placements": {
+    "base": {
+      "translation_m": [0, 0, 0.008]
+    },
+    "controller": {
+      "translation_m": [-0.09, -0.03, 0.012]
+    },
+    "supply": {
+      "translation_m": [-0.09, 0.025, 0.012]
+    }
+  }
+}

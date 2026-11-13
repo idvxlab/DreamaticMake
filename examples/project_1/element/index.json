@@ -1,0 +1,42 @@
+{
+  "record_kind": "project_elements",
+  "schema_version": "1",
+  "elements": {
+    "base": {
+      "kind": "custom",
+      "path": "base"
+    },
+    "yaw": {
+      "kind": "custom",
+      "path": "servo"
+    },
+    "shoulder": {
+      "kind": "custom",
+      "path": "servo"
+    },
+    "elbow": {
+      "kind": "custom",
+      "path": "servo"
+    },
+    "upper": {
+      "kind": "custom",
+      "path": "upper_link"
+    },
+    "forearm": {
+      "kind": "custom",
+      "path": "forearm"
+    },
+    "gripper": {
+      "kind": "library",
+      "path": "gripper.json"
+    },
+    "controller": {
+      "kind": "custom",
+      "path": "controller"
+    },
+    "supply": {
+      "kind": "custom",
+      "path": "supply"
+    }
+  }
+}

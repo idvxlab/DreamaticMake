@@ -1,419 +1,124 @@
-import {
-  mkdir,
-  readFile,
-  writeFile,
-  rename,
-  readdir,
-  appendFile,
-  rm,
-} from "node:fs/promises";
-import { join, resolve, relative, isAbsolute } from "node:path";
-import { createHash, randomUUID } from "node:crypto";
-import { existsSync } from "node:fs";
-import { EventEmitter } from "node:events";
-import {
-  stages,
-  defaultEnclosure,
-  enclosureSchema,
-  type Project,
-  type Event,
-  type Artifact,
-  type StageId,
-  type Part,
-} from "./contracts";
-export const hash = (value: unknown) =>
-  createHash("sha256")
-    .update(
-      typeof value === "string" || Buffer.isBuffer(value)
-        ? (value as string)
-        : JSON.stringify(value),
-    )
-    .digest("hex");
-export class HttpError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-export function validId(id: string) {
-  if (!/^[a-zA-Z0-9_-]{1,80}$/.test(id)) throw new HttpError(400, "无效标识");
-  return id;
-}
-export function within(root: string, path: string) {
-  const p = resolve(root, path),
-    r = relative(resolve(root), p);
-  if (r.startsWith("..") || isAbsolute(r)) throw new HttpError(400, "路径越界");
-  return p;
-}
-export class Store {
-  readonly events = new EventEmitter();
-  private queues = new Map<string, Promise<unknown>>();
-  private catalogQueues = new Map<string, Promise<unknown>>();
-  private eventQueues = new Map<string, Promise<unknown>>();
-  private sequences = new Map<string, number>();
-  constructor(
-    readonly root: string,
-    readonly defaultCatalog: Part[] = [],
-  ) {}
-  dir(id: string) {
-    const name = validId(id),
-      direct = join(this.root, name),
-      legacy = join(this.root, "projects", name);
-    return !existsSync(join(direct, "project.json")) &&
-      existsSync(join(legacy, "project.json"))
-      ? legacy
-      : direct;
-  }
-  async create(name: string, brief: string) {
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { dirname, join } from "node:path";
+import type { Project, ProjectSummary } from "./project";
+import { stageIds, type AgentRunEvent, type StageId } from "../../orchestrator/src/contracts";
+import { ownerFor } from "../../orchestrator/src/roles";
+
+export const productStages: readonly StageId[] = stageIds;
+
+export class ProjectStore {
+  constructor(readonly root: string) {}
+  private path(id: string) { return join(this.root, id, "project-state.json"); }
+
+  async create(name: string, brief: string, breakpoints: StageId[] = []): Promise<Project> {
     const id = randomUUID();
     const now = new Date().toISOString();
-    const p: Project = {
-      id,
-      name,
-      brief,
-      createdAt: now,
-      updatedAt: now,
-      version: 1,
-      archived: false,
-      stages: Object.fromEntries(
-        stages.map((id) => [
-          id,
-          { id, status: "not_started", revision: 1, artifacts: [] },
-        ]),
-      ) as unknown as Project["stages"],
-      messages: [
-        { id: randomUUID(), role: "user", text: brief, createdAt: now },
-      ],
-      approvals: [],
-      parameters: { ...defaultEnclosure },
-      selectedParts: [],
-      running: false,
+    const project: Project = {
+      id, name, brief, createdAt: now, updatedAt: now, activeStage: "requirements", events: [],
+      breakpoints: breakpoints.length ? breakpoints : undefined,
+      stages: productStages.map((stage) => ({ id: stage, owner: ownerFor(stage), state: "pending", revision: 0 })),
     };
-    await mkdir(this.dir(id), { recursive: true });
-    await this.save(p);
-    await this.ensureProject(id);
-    return p;
+    await this.save(project);
+    return project;
   }
-  async get(id: string): Promise<Project> {
-    try {
-      const p = JSON.parse(
-        await readFile(join(this.dir(id), "project.json"), "utf8"),
-      );
-      p.parameters = enclosureSchema.parse(p.parameters);
-      return p;
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === "ENOENT")
-        throw new HttpError(404, "项目不存在");
-      throw e;
-    }
-  }
-  async ensureProject(id: string) {
-    for (const name of [
-      "context",
-      "hardware",
-      "sources",
-      "uploads",
-      "sessions",
-      "jobs",
-      "artifacts",
-      "reports",
-      "exports",
-      "history",
-    ])
-      await mkdir(join(this.dir(id), name), { recursive: true });
-    if (
-      this.defaultCatalog.length &&
-      !existsSync(join(this.dir(id), "hardware/catalog.json"))
-    )
-      await this.saveCatalog(id, this.defaultCatalog);
-  }
-  async projectCatalog(
-    id: string,
-    fallback: Part[] = this.defaultCatalog,
-  ): Promise<Part[]> {
+
+  async moveToTrash(id: string): Promise<void> {
     await this.get(id);
-    try {
-      return JSON.parse(
-        await readFile(join(this.dir(id), "hardware/catalog.json"), "utf8"),
-      );
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === "ENOENT")
-        return structuredClone(fallback);
-      throw e;
-    }
+    const trash = join(this.root, ".trash");
+    await mkdir(trash, { recursive: true });
+    await rename(join(this.root, id), join(trash, id));
   }
-  async addCatalogPart(
-    id: string,
-    part: Part,
-    fallback: Part[] = this.defaultCatalog,
-  ) {
-    const previous = this.catalogQueues.get(id) ?? Promise.resolve();
-    const pending = previous
-      .catch(() => {})
-      .then(async () => {
-        const catalog = await this.projectCatalog(id, fallback);
-        if (catalog.some((item) => item.id === part.id))
-          throw new HttpError(409, "候选 ID 已存在");
-        catalog.push(part);
-        await this.saveCatalog(id, catalog);
-      });
-    this.catalogQueues.set(id, pending);
-    try {
-      await pending;
-    } finally {
-      if (this.catalogQueues.get(id) === pending) this.catalogQueues.delete(id);
-    }
+
+  async restore(id: string): Promise<void> {
+    if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error("Invalid project ID");
+    await rename(join(this.root, ".trash", id), join(this.root, id));
   }
-  async saveCatalog(id: string, parts: Part[]) {
-    await mkdir(join(this.dir(id), "hardware"), { recursive: true });
-    const tmp = join(this.dir(id), "hardware", randomUUID() + ".tmp");
-    await writeFile(tmp, JSON.stringify(parts, null, 2));
-    await rename(tmp, join(this.dir(id), "hardware/catalog.json"));
-  }
-  async initialize() {
+
+  async list(): Promise<ProjectSummary[]> {
     await mkdir(this.root, { recursive: true });
-    const legacy = join(this.root, "projects");
-    if (existsSync(legacy)) {
-      for (const id of await readdir(legacy)) {
-        if (
-          !/^[a-zA-Z0-9_-]{1,80}$/.test(id) ||
-          !existsSync(join(legacy, id, "project.json"))
-        )
-          continue;
-        const destination = join(this.root, id);
-        if (existsSync(destination))
-          throw new HttpError(
-            409,
-            "项目目录迁移发生冲突：" + id + "，原文件已保留",
-          );
-        await rename(join(legacy, id), destination);
-      }
-    }
-    for (const p of await this.list()) await this.ensureProject(p.id);
-  }
-  async list() {
-    await mkdir(this.root, { recursive: true });
-    const ids = new Set<string>();
-    for (const folder of [this.root, join(this.root, "projects")]) {
-      let names: string[];
+    const { readdir } = await import("node:fs/promises");
+    const entries = await readdir(this.root, { withFileTypes: true });
+    const projects: ProjectSummary[] = [];
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
       try {
-        names = await readdir(folder);
-      } catch (e) {
-        if ((e as NodeJS.ErrnoException).code === "ENOENT") continue;
-        throw e;
+        const project = await this.get(entry.name);
+        const { events, ...rest } = project;
+        projects.push({ ...rest, eventCount: events.length });
+      } catch {}
+    }
+    return projects.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }
+
+  async get(id: string): Promise<Project> {
+    if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error("Invalid project ID");
+    const project = JSON.parse(await readFile(this.path(id), "utf8")) as Project;
+    project.events = compactEvents(project.events);
+    if (project.importedRun) return project;
+    const existing = new Map(project.stages.map((stage) => [stage.id, stage]));
+    project.stages = productStages.map((stage) => existing.get(stage) ?? {
+      id: stage, owner: ownerFor(stage), state: "pending", revision: 0,
+    });
+    if (!productStages.includes(project.activeStage)) project.activeStage = "requirements";
+    // A project that completed the previous workflow can run just the new final stage.
+    if (project.activeStage === "print_optimization" && !existing.has("procurement_assembly_guide") &&
+        project.stages.slice(0, -1).every((stage) => stage.state === "completed" || stage.state === "approved")) {
+      project.activeStage = "procurement_assembly_guide";
+    }
+    // Older project files predate explicit thread bindings. Recover a binding
+    // only when a completed agent response matches that exact stage's output.
+    for (const event of project.events) {
+      if (event.type !== "completed") continue;
+      const payload = event.payload as { threadId?: string; turn?: { items?: { type: string; text?: string }[] } };
+      if (!payload?.threadId) continue;
+      const texts = payload.turn?.items?.filter((item) => item.type === "agentMessage" && item.text).map((item) => item.text!.trim()) ?? [];
+      for (const stage of project.stages) {
+        if (!stage.reviewerThreadId && texts.some((text) => text.length > 32 && stage.review?.markdown.trim().endsWith(text))) stage.reviewerThreadId = payload.threadId;
+        if (!stage.authorThreadId && texts.some((text) => text.length > 32 && stage.artifact?.markdown.trim().endsWith(text))) stage.authorThreadId = payload.threadId;
       }
-      for (const id of names)
-        if (
-          /^[a-zA-Z0-9_-]{1,80}$/.test(id) &&
-          existsSync(join(folder, id, "project.json"))
-        )
-          ids.add(id);
     }
-    const out = await Promise.all([...ids].map((id) => this.get(id)));
-    return out.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    // Recover feedback sent before projects stored author messages separately.
+    for (const event of project.events) rememberAuthorFeedback(project, event);
+    return project;
   }
-  async save(p: Project) {
-    const tmp = join(this.dir(p.id), `${randomUUID()}.tmp`);
-    await writeFile(tmp, JSON.stringify(p, null, 2));
-    await rename(tmp, join(this.dir(p.id), "project.json"));
-    await mkdir(join(this.dir(p.id), "context"), { recursive: true });
-    for (const stage of Object.values(p.stages))
-      if (stage.draft) {
-        const file = join(this.dir(p.id), "context", stage.id + ".json"),
-          draftTmp = file + "." + randomUUID() + ".tmp";
-        await writeFile(
-          draftTmp,
-          JSON.stringify(
-            {
-              revision: stage.revision,
-              status: stage.status,
-              draft: stage.draft,
-              review: stage.review,
-            },
-            null,
-            2,
-          ),
-        );
-        await rename(draftTmp, file);
-      }
+
+  async save(project: Project): Promise<void> {
+    project.updatedAt = new Date().toISOString();
+    const target = this.path(project.id);
+    await mkdir(dirname(target), { recursive: true });
+    const temporary = target + ".tmp";
+    await writeFile(temporary, JSON.stringify(project, null, 2), "utf8");
+    await rename(temporary, target);
   }
-  async update<T>(id: string, fn: (p: Project) => T | Promise<T>): Promise<T> {
-    const old = this.queues.get(id) ?? Promise.resolve();
-    const next = old
-      .catch(() => {})
-      .then(async () => {
-        const p = await this.get(id);
-        const previous = JSON.stringify(p, null, 2);
-        const result = await fn(p);
-        await mkdir(join(this.dir(id), "history"), { recursive: true });
-        const snapshot = join(this.dir(id), "history", `${randomUUID()}.tmp`);
-        await writeFile(snapshot, previous);
-        await rename(
-          snapshot,
-          join(this.dir(id), "history", String(p.version) + ".json"),
-        );
-        p.version++;
-        p.updatedAt = new Date().toISOString();
-        await this.save(p);
-        await this.emit(id, "project.updated", { version: p.version });
-        return result;
-      });
-    this.queues.set(id, next);
-    try {
-      return await next;
-    } finally {
-      if (this.queues.get(id) === next) this.queues.delete(id);
-    }
+
+  async appendEvent(id: string, event: AgentRunEvent): Promise<Project> {
+    const project = await this.get(id);
+    rememberAuthorFeedback(project, event);
+    project.events.push(event);
+    project.events = compactEvents(project.events);
+    await this.save(project);
+    return project;
   }
-  async delete(id: string, expectedName: string) {
-    const old = this.queues.get(id) ?? Promise.resolve();
-    const pending = old
-      .catch(() => {})
-      .then(async () => {
-        const p = await this.get(id);
-        if (p.running) throw new HttpError(409, "请先停止项目任务");
-        if (p.name !== expectedName)
-          throw new HttpError(409, "项目名称已变化，请重新确认删除");
-        await this.eventQueues.get(id)?.catch(() => {});
-        await rm(this.dir(id), { recursive: true, force: false });
-        this.sequences.delete(id);
-        this.events.emit(id, {
-          id: randomUUID(),
-          sequence: 0,
-          projectId: id,
-          type: "project.deleted",
-          timestamp: new Date().toISOString(),
-          payload: {},
-        });
-        this.events.removeAllListeners(id);
-      });
-    this.queues.set(id, pending);
-    try {
-      await pending;
-    } finally {
-      if (this.queues.get(id) === pending) this.queues.delete(id);
-    }
-  }
-  async emit(id: string, type: string, payload: unknown) {
-    const previous = this.eventQueues.get(id) ?? Promise.resolve();
-    const pending = previous
-      .catch(() => {})
-      .then(async () => {
-        let sequence = this.sequences.get(id);
-        if (sequence === undefined)
-          sequence = (await this.history(id)).at(-1)?.sequence ?? 0;
-        const event: Event = {
-          id: randomUUID(),
-          sequence: sequence + 1,
-          projectId: id,
-          type,
-          timestamp: new Date().toISOString(),
-          payload,
-        };
-        await appendFile(
-          join(this.dir(id), "events.jsonl"),
-          JSON.stringify(event) + "\n",
-        );
-        this.sequences.set(id, event.sequence);
-        this.events.emit(id, event);
-        return event;
-      });
-    this.eventQueues.set(id, pending);
-    try {
-      return await pending;
-    } finally {
-      if (this.eventQueues.get(id) === pending) this.eventQueues.delete(id);
-    }
-  }
-  async history(id: string) {
-    try {
-      return (await readFile(join(this.dir(id), "events.jsonl"), "utf8"))
-        .split("\n")
-        .filter(Boolean)
-        .map((s) => JSON.parse(s) as Event);
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === "ENOENT") return [];
-      throw e;
-    }
-  }
-  async artifact(
-    id: string,
-    stage: StageId,
-    revision: number,
-    name: string,
-    data: Buffer | string,
-    mime: string,
-  ): Promise<Artifact> {
-    const artifactId = randomUUID(),
-      path = `artifacts/${artifactId}/${name}`;
-    const full = within(this.dir(id), path);
-    await mkdir(resolve(full, ".."), { recursive: true });
-    await writeFile(full, data);
-    const bytes = Buffer.from(data);
-    return {
-      id: artifactId,
-      name,
-      path,
-      mime,
-      hash: hash(bytes),
-      size: bytes.length,
-      stage,
-      revision,
-    };
-  }
-  async versions(id: string) {
-    const folder = join(this.dir(id), "history");
-    try {
-      const files = await readdir(folder);
-      const items = [];
-      for (const f of files.filter((f) => /^\d+\.json$/.test(f))) {
-        const p: Project = JSON.parse(await readFile(join(folder, f), "utf8"));
-        items.push({
-          version: p.version,
-          updatedAt: p.updatedAt,
-          stages: Object.values(p.stages).map((s) => ({
-            id: s.id,
-            status: s.status,
-            revision: s.revision,
-            title: s.draft?.title,
-          })),
-          messageCount: p.messages.length,
-        });
-      }
-      return items.sort((a, b) => b.version - a.version);
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === "ENOENT") return [];
-      throw e;
-    }
-  }
-  async verify(id: string, artifacts: Artifact[]) {
-    for (const a of artifacts) {
-      const bytes = await readFile(within(this.dir(id), a.path));
-      if (hash(bytes) !== a.hash)
-        throw new HttpError(409, `产物已变更：${a.name}`);
-    }
-  }
-  async recover() {
-    for (const p of await this.list()) {
-      const eventFile = join(this.dir(p.id), "events.jsonl");
-      try {
-        const log = await readFile(eventFile, "utf8");
-        if (log && !log.endsWith("\n"))
-          await writeFile(eventFile, log.slice(0, log.lastIndexOf("\n") + 1));
-      } catch (e) {
-        if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
-      }
-      if (p.running)
-        await this.update(p.id, (p) => {
-          p.running = false;
-          for (const s of Object.values(p.stages))
-            if (s.status === "running") {
-              s.status = "failed";
-              s.error = "服务重启，任务已中断。可重新执行。";
-            }
-        });
-    }
-  }
+}
+
+function rememberAuthorFeedback(project: Project, event: AgentRunEvent) {
+  if (event.type !== "message" || !event.stage || project.importedRun) return;
+  const { threadId, message } = (event.payload ?? {}) as { threadId?: string; message?: string };
+  const stage = project.stages.find(({ id }) => id === event.stage);
+  if (!stage || !threadId || stage.authorThreadId !== threadId || !message?.trim()) return;
+  const feedback = stage.authorFeedback ?? [];
+  if (feedback.some(({ runId }) => runId === event.runId)) return;
+  stage.authorFeedback = [...feedback, { runId: event.runId, at: event.at, message }]
+    .sort((a, b) => a.at.localeCompare(b.at)).slice(-12);
+}
+
+function compactEvents(events: AgentRunEvent[]) {
+  let deltas = 0;
+  let records = 0;
+  return [...events].reverse().filter((event) => {
+    if (event.type === "item") return false;
+    if (event.type === "delta") return ++deltas <= 500;
+    return ++records <= 150;
+  }).reverse();
 }

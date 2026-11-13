@@ -13,5 +13,5 @@
     "noEmit": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["apps", "packages", "tests", "scripts", "vite.config.ts"]
+  "include": ["apps", "packages", "tests", "scripts", "engine/interface", "engine/custom_model"]
 }

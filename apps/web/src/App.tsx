@@ -1,1713 +1,728 @@
-import { ReviewReport } from "./components/ReviewReport";
-import { ChatResizeHandle, readChatWidth } from "./components/ChatResizeHandle";
-import { StageProgress } from "./components/StageProgress";
-import { StageStart } from "./components/StageStart";
-import { choiceQuestions } from "../../../packages/core/src/choice-questions";
-import { t, useLanguage, setLanguage } from "./i18n";
-import { MarkdownMessage } from "./components/MarkdownMessage";
-import { toolActivityLabel } from "../../../packages/core/src/tool-activity";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  lazy,
-  Suspense,
-} from "react";
-import {
-  Plus,
-  Trash2,
-  Search,
-  Settings,
-  ArrowUp,
-  Square,
-  Paperclip,
-  ChevronRight,
-  Check,
-  Box,
-  Layers3,
-  PanelRightClose,
-  PanelRightOpen,
-  Download,
-  ArrowRight,
-  Activity,
-  FolderOpen,
-  LayoutDashboard,
-  Cpu,
-  MessageSquare,
-  Sparkles,
-  LoaderCircle,
-  X,
-  Archive,
-  RotateCcw,
-  Image,
-  FileCode2,
-  Pencil,
-  BookOpen,
-} from "lucide-react";
-import {
-  stages,
-  stageLabels,
-  roleForStage,
-  type StageId,
-  type Project,
-  type Enclosure,
-  type Part,
-  type Event,
-} from "../../../packages/core/src/contracts";
-import { api, type ProjectView, type Upload, type SettingsView } from "./api";
-import {
-  QuestionCard,
-  ChoiceCards,
-  ApprovalCard,
-  ParameterEditor,
-  ArtifactList,
-  ArtifactPreview,
-  StructuralEditor,
-} from "./components/Interactions";
-import { BrandMenu } from "./components/BrandMenu";
-import { SettingsDialog } from "./components/SettingsDialog";
-const ModelViewer = lazy(() =>
-  import("./components/ModelViewer").then((m) => ({ default: m.ModelViewer })),
-);
-const statusLabels: Record<string, string> = {
-  not_started: "尚未开始",
-  running: "正在执行",
-  awaiting_confirmation: "等待确认",
-  approved: "已确认",
-  failed: "执行失败",
-  stale: "需要重新审阅",
-};
-const agentNames: Record<string, string> = {
-  orchestrator: "项目协调",
-  analyst: "需求分析",
-  "hardware-engineer": "电子硬件",
-  "industrial-designer": "工业设计",
-  "mechanical-engineer": "结构工程",
-  "cad-engineer": "CAD 工程",
-  "firmware-engineer": "固件工程",
-  reviewer: "工程审阅",
-};
-const suggestions = [
-  {
-    title: "桌面环境终端",
-    text: "设计一个 USB 供电的桌面环境显示终端，使用已有开源主控和传感器，3D 打印外壳。先和我确认需求与预算。",
-    icon: Cpu,
-  },
-  {
-    title: "专注计时器",
-    text: "我想做一个桌面专注计时器，有旋钮和小屏幕，使用现成开发板，外壳可以在家里 3D 打印。",
-    icon: Activity,
-  },
-  {
-    title: "从外壳开始",
-    text: "我想从一个 90×65×35mm 的打印外壳开始，壁厚 2mm，后续选择适配的开源硬件。",
-    icon: Box,
-  },
-];
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from "react";
+import type { Project, ProjectSummary, StageRecord } from "../../../packages/core/src/project";
+import type { PurchaseCandidate } from "../../../packages/design-engine/src/bridge";
+import { stageIds, type StageId } from "../../../packages/orchestrator/src/contracts";
+import type { RoleDefinition } from "../../../packages/orchestrator/src/roles";
+import type { ToolApproval } from "../../../packages/codex-server/src/executor";
+import { hasCadResults } from "../../../packages/core/src/cad-results";
+import { api } from "./api";
+import { Dialog } from "./WorkflowDialog";
+import { AppearancePreview } from "./AppearancePreview";
+import { CadResults } from "./CadResults";
+import { DesignDetailsForm } from "./DesignDetailsForm";
+import { WorkflowGraph } from "./WorkflowGraph";
+import { HardwareLibrary, PurchaseLinks } from "./HardwareLibrary";
+import { ImportedResults } from "./ImportedResults";
+import { MarkdownPreview } from "./MarkdownPreview";
+import { displayStageStatus, eventData, roleNames, runText, stageDescription, stageInputs, stageNames, stageRuns, threadRuns, workflowNodes } from "./workflow-model";
+
+type Panel = "left" | "right" | "bottom";
+type Conversation = "auto" | "author" | "research" | "coordinator";
+
+function phase(project: ProjectSummary | Project, disconnected = false) {
+  if (project.importedRun) return "原型成果";
+  if (project.stages.every((stage) => stage.state === "completed" || stage.state === "approved")) return "已完成";
+  const stage = project.stages.find((stage) => stage.id === project.activeStage);
+  return stage?.state === "paused" && stage.pauseReason === "breakpoint" ? "断点暂停" : displayStageStatus(stage?.state ?? "pending", disconnected);
+}
+
+function projectLocation(id?: string) {
+  const url = new URL(location.href);
+  if (id) url.searchParams.set("project", id);
+  else url.searchParams.delete("project");
+  history.replaceState(null, "", url);
+}
+
+function download(name: string, text: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function runningConversation(project: Project) {
+  const pending = new Set<string>();
+  for (const event of project.events) {
+    if (event.type === "message") pending.add(event.runId);
+    if (event.type === "completed" || event.type === "failed" || event.type === "stopped") pending.delete(event.runId);
+  }
+  return pending.size > 0;
+}
+
 export function App() {
-  const language = useLanguage();
-  const [revisionOpen, setRevisionOpen] = useState(false),
-    [revisionText, setRevisionText] = useState("");
-  const [list, setList] = useState<Project[]>([]),
-    [project, setProject] = useState<ProjectView>(),
-    [selected, setSelected] = useState(""),
-    [stage, setStage] = useState<StageId>("requirements"),
-    [tab, setTab] = useState("overview"),
-    [search, setSearch] = useState(""),
-    [archived, setArchived] = useState(false),
-    [settings, setSettings] = useState(false),
-    [newProject, setNewProject] = useState(false),
-    [name, setName] = useState(""),
-    [brief, setBrief] = useState(""),
-    [text, setText] = useState(""),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [chat, setChat] = useState(true),
-    [chatWidth, setChatWidth] = useState(readChatWidth),
-    [events, setEvents] = useState<Event[]>([]),
-    [live, setLive] = useState(""),
-    [catalog, setCatalog] = useState<Part[]>([]),
-    [agents, setAgents] = useState<any[]>([]),
-    [parameters, setParameters] = useState<Enclosure>(),
-    [uploads, setUploads] = useState<Upload[]>([]),
-    [width, setWidth] = useState(90),
-    [imageId, setImageId] = useState(""),
-    [candidate, setCandidate] = useState<any>(),
-    [cadText, setCadText] = useState(""),
-    [rename, setRename] = useState(false),
-    [deleteOpen, setDeleteOpen] = useState(false),
-    [deleteName, setDeleteName] = useState(""),
-    [history, setHistory] = useState<any[]>([]),
-    [measure, setMeasure] = useState(false),
-    [measurementId, setMeasurementId] = useState("rpi-pico"),
-    [measuredWidth, setMeasuredWidth] = useState(21),
-    [measuredDepth, setMeasuredDepth] = useState(51),
-    [measuredHeight, setMeasuredHeight] = useState(5),
-    [measureNote, setMeasureNote] = useState("");
-  const selectedRef = useRef(selected);
-  selectedRef.current = selected;
-  const scroll = useRef<HTMLDivElement>(null),
-    fileInput = useRef<HTMLInputElement>(null);
-  const current = project?.stages[stage];
-  const pendingQuestion = project?.messages.find(
-    (message) => message.interaction && !message.interaction.answers,
-  )?.interaction;
-  const refreshList = useCallback(
-    async () => setList(await api("/projects")),
-    [],
-  );
-  const refresh = useCallback(async (id: string) => {
-    const next = await api<ProjectView>("/projects/" + id);
-    if (selectedRef.current !== id) return;
-    setProject(next);
-    setParameters((old) => old ?? next.parameters);
-  }, []);
-  useEffect(() => {
-    void api<SettingsView>("/settings")
-      .then((view) => {
-        setLanguage(
-          view.fields.find((field) => field.key === "MAKE_LANGUAGE")?.value ??
-            "zh",
-        );
-      })
-      .catch((e) => setError(e.message));
-    void refreshList().catch((e) => setError(e.message));
-    void api<Part[]>("/catalog")
-      .then(setCatalog)
-      .catch((e) => setError(e.message));
-    void api<any[]>("/agents")
-      .then(setAgents)
-      .catch((e) => setError(e.message));
-  }, [refreshList]);
-  useEffect(() => {
-    if (!selected) {
-      setProject(undefined);
-      return;
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [project, setProject] = useState<Project>();
+  const [disconnectedId, setDisconnectedId] = useState<string>();
+  const [toolApprovals, setToolApprovals] = useState<{ projectId: string; requests: ToolApproval[] }>();
+  const [agents, setAgents] = useState<RoleDefinition[]>([]);
+  const [model, setModel] = useState<{ runtime: string; model: string | null }>();
+  const [modelDraft, setModelDraft] = useState("");
+  const [modelSaved, setModelSaved] = useState(false);
+  const [selected, setSelected] = useState<string>();
+  const [follow, setFollow] = useState(true);
+  const [conversation, setConversation] = useState<Conversation>("auto");
+  const [tab, setTab] = useState("当前工作");
+  const [brief, setBrief] = useState("");
+  const [newBreakpoints, setNewBreakpoints] = useState<StageId[]>([]);
+  const [breakpointDraft, setBreakpointDraft] = useState<StageId[]>();
+  const [stoppingId, setStoppingId] = useState<string>();
+  const [projectMenu, setProjectMenu] = useState<{ item: ProjectSummary; x: number; y: number }>();
+  const [deleteTarget, setDeleteTarget] = useState<ProjectSummary>();
+  const [removedProject, setRemovedProject] = useState<ProjectSummary>();
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState(false);
+  const [library, setLibrary] = useState(false);
+  const [briefOpen, setBriefOpen] = useState(false);
+  const [nav, setNav] = useState(false);
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+  const [resultsOpen, setResultsOpen] = useState(true);
+  const [canvasOpen, setCanvasOpen] = useState(true);
+  const [panelSize, setPanelSize] = useState({ left: 230, right: 360, bottom: 390 });
+  const activeId = useRef<string | undefined>(undefined);
+  const openSequence = useRef(0);
+  const resultsHost = useRef<HTMLElement>(null);
+
+  async function refreshList() {
+    const values = await api<ProjectSummary[]>("/projects");
+    setProjects(values);
+    return values;
+  }
+
+  async function open(id: string) {
+    const sequence = ++openSequence.current;
+    try {
+      const next = await api<Project>(`/projects/${id}`);
+      if (sequence !== openSequence.current) return;
+      activeId.current = id;
+      setProject(next);
+      setFollow(true);
+      setSelected(undefined);
+      setConversation("auto");
+      setNav(false);
+      setError("");
+      localStorage.setItem("dreamatic-project", id);
+      projectLocation(id);
+    } catch (failure) {
+      if (sequence === openSequence.current) setError(String(failure));
     }
-    let disposed = false;
+  }
+
+  function clearProject() {
+    ++openSequence.current;
+    activeId.current = undefined;
     setProject(undefined);
-    setParameters(undefined);
-    setEvents([]);
-    setLive("");
-    setUploads([]);
-    setCandidate(undefined);
-    void api<ProjectView>("/projects/" + selected)
-      .then((p) => {
-        if (!disposed) {
-          setProject(p);
-          setParameters(p.parameters);
-          setStage(p.currentStage ?? "delivery");
+    setSelected(undefined);
+    setFollow(true);
+    localStorage.removeItem("dreamatic-project");
+    projectLocation();
+  }
+
+  useEffect(() => {
+    let alive = true;
+    void Promise.all([refreshList(), api<RoleDefinition[]>("/agents"), api<{ runtime: string; model: string | null }>("/model")])
+      .then(([list, roles, config]) => {
+        if (!alive) return;
+        setAgents(roles);
+        setModel(config);
+        const saved = new URLSearchParams(location.search).get("project") ?? localStorage.getItem("dreamatic-project");
+        const previous = list.find((item) => item.id === saved);
+        if (previous) void open(previous.id);
+      })
+      .catch((failure) => { if (alive) setError(String(failure)); })
+      .finally(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!project?.id) return;
+    const id = project.id;
+    let version = 0;
+    let stream: EventSource | undefined;
+    let reconnect: ReturnType<typeof setTimeout> | undefined;
+    const refreshToolApprovals = async () => {
+      const request = ++version;
+      try {
+        const requests = await api<ToolApproval[]>(`/projects/${id}/tool-approvals`, {
+          headers: { "x-dreamatic-project-action": "tool-approval" },
+        });
+        if (request === version && activeId.current === id) setToolApprovals({ projectId: id, requests });
+      } catch (failure) {
+        if (request === version && activeId.current === id) setError(String(failure));
+      }
+    };
+    function connect() {
+      const connection = new EventSource(`/api/projects/${id}/events`);
+      stream = connection;
+      connection.onerror = () => {
+        connection.close();
+        if (activeId.current !== id) return;
+        version++;
+        setDisconnectedId(id);
+        setToolApprovals(undefined);
+        reconnect = setTimeout(connect, 2_000);
+      };
+      connection.onmessage = (message) => {
+        if (activeId.current !== id) return;
+        const update = JSON.parse(message.data);
+        if (update.type === "connected") setDisconnectedId(undefined);
+        if (update.type === "connected" || update.type === "tool-approvals-changed") void refreshToolApprovals();
+        if (update.type === "project-deleted") {
+          clearProject();
+          setProjects((items) => items.filter((item) => item.id !== id));
+          return;
         }
-      })
-      .catch((e) => setError(e.message));
-    void api<Part[]>(`/projects/${selected}/catalog`)
-      .then((parts) => {
-        if (!disposed) setCatalog(parts);
-      })
-      .catch((e) => {
-        if (!disposed) setError(e.message);
-      });
-    void api<Upload[]>(`/projects/${selected}/uploads`).then((v) => {
-      if (!disposed) setUploads(v);
-    });
-    const source = new EventSource(`/api/projects/${selected}/events`);
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    source.onmessage = (e) => {
-      const event = JSON.parse(e.data) as Event;
-      if (event.type === "project.deleted") {
-        source.close();
-        setSelected("");
-        setProject(undefined);
-        void refreshList();
+        if (update.project) {
+          setProject(update.project);
+          const { events, ...summary } = update.project as Project;
+          setProjects((items) => items.map((item) => item.id === id ? { ...summary, eventCount: events.length } : item));
+        }
+        if (update.type === "project-error") setError(update.error);
+      };
+    }
+    connect();
+    return () => { version++; clearTimeout(reconnect); stream?.close(); };
+  }, [project?.id]);
+
+  const importedRun = project?.importedRun;
+  const pickedId = follow ? importedRun?.selected ?? project?.activeStage : selected;
+  const importedWork = importedRun?.nodes.find((node) => node.id === pickedId);
+  const picked = project?.stages.find((stage) => stage.id === pickedId);
+  const disconnected = !!project && disconnectedId === project.id;
+  const graphNodes = workflowNodes(project, disconnected);
+  const active = project?.stages.find((stage) => stage.id === project.activeStage);
+  const detailsStage = !importedRun && active?.state === "awaiting_details" && active.questions?.length ? active : undefined;
+  const pendingToolApprovals = toolApprovals?.projectId === project?.id ? toolApprovals?.requests ?? [] : [];
+  const isRunning = !!project && !disconnected && (["running", "reviewing"].includes(active?.state ?? "") || runningConversation(project));
+  const blocked = pending || isRunning || disconnected;
+  const runs = project && importedWork ? threadRuns(project, importedWork.threadId) : project && picked ? stageRuns(project, picked.id) : [];
+  const researchRun = [...runs].reverse().find((run) => run.some((event) => eventData(event).agent === "research"));
+  const researchThread = researchRun?.map(eventData).find((data) => data.threadId)?.threadId;
+  const latestAgent = runs.flat().filter((event) => event.type === "started").map(eventData).at(-1)?.agent;
+  const lastStageEnd = runs.flat().filter(({ type }) => type === "completed" || type === "failed" || type === "stopped").at(-1);
+  const failureData = lastStageEnd?.type === "failed" ? eventData(lastStageEnd) : undefined;
+  const stageFailure = picked?.error === "Author agent turn failed" || picked?.error === "Research support turn failed"
+    ? failureData?.turn?.error?.message || failureData?.error || picked.error : picked?.error;
+  const automaticConversation = picked?.state === "running" && latestAgent === "research" ? "research" : "author";
+  const effectiveConversation = conversation === "auto" ? automaticConversation : conversation;
+  const threadId = importedWork?.threadId ?? (effectiveConversation === "research" ? researchThread
+    : effectiveConversation === "coordinator" ? picked?.hardwareBlocker?.coordinatorThreadId : picked?.authorThreadId);
+  const selectedRuns = runs.filter((run) => run.some((event) => eventData(event).threadId === threadId));
+  const messageKey = JSON.stringify([project?.id, pickedId, effectiveConversation, threadId]);
+  const message = drafts[messageKey] ?? "";
+  const transcript = selectedRuns.map((run) => ({
+    id: run[0].runId, at: run[0].at,
+    user: run.find((event) => event.type === "message"),
+    text: runText(run),
+    failed: run.find((event) => event.type === "failed"),
+    stopped: run.some((event) => event.type === "stopped"),
+  }));
+  const transcriptContent = transcript.length ? transcript.map((turn) => <div key={turn.id} className="wf-conversation-message">
+    <small>{new Date(turn.at).toLocaleString()}</small>
+    {turn.user && <div className="wf-user"><strong>你</strong><p>{eventData(turn.user).message}</p></div>}
+    {turn.text && <div className="wf-markdown">{turn.text}</div>}
+    {turn.failed && <p role="alert">{eventData(turn.failed).turn?.error?.message ?? eventData(turn.failed).error ?? "本次调用未完成。"}</p>}
+    {turn.stopped && <p>本次调用已停止。</p>}
+    {!turn.text && !turn.failed && !turn.stopped && <p>等待会话响应…</p>}
+  </div>) : <p>{threadId ? "已关联原会话。" : "该工作尚未创建会话。"}</p>;
+
+  useEffect(() => {
+    setTab("当前工作");
+    setConversation("auto");
+    resultsHost.current?.scrollTo({ top: 0 });
+  }, [project?.id, pickedId]);
+
+  useEffect(() => {
+    if (!isRunning && stoppingId === project?.id) setStoppingId(undefined);
+  }, [isRunning, project?.id, stoppingId]);
+
+  useEffect(() => {
+    if (!projectMenu) return;
+    function outside(event: globalThis.PointerEvent) {
+      if (!(event.target instanceof Element) || !event.target.closest(".wf-project-menu, .wf-project-menu-trigger")) setProjectMenu(undefined);
+    }
+    function escape(event: KeyboardEvent) {
+      if (event.key === "Escape") setProjectMenu(undefined);
+    }
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [projectMenu]);
+
+  async function syncProject(id: string, beforeDispatch?: string) {
+    // /run can acknowledge before its first persisted state or streamed event.
+    // Re-read briefly so the initiating tab can show the running card promptly.
+    for (let attempt = 0; attempt < (beforeDispatch ? 5 : 1); attempt++) {
+      if (activeId.current !== id) return;
+      const next = await api<Project>(`/projects/${id}`, { cache: "no-store" });
+      if (activeId.current !== id) return;
+      if (!beforeDispatch || next.updatedAt > beforeDispatch) {
+        setProject((current) => current?.id === id && current.updatedAt <= next.updatedAt ? next : current);
         return;
       }
-      if (disposed) return;
-      if (event.type === "agent.delta")
-        setLive((s) => (s + (event.payload as any).text).slice(-1800));
-      else {
-        setEvents((previous) =>
-          [...previous.filter((e) => e.id !== event.id), event].slice(-100),
-        );
-        if (event.type === "project.updated") {
-          clearTimeout(timer);
-          timer = setTimeout(() => {
-            void refresh(selected)
-              .then(refreshList)
-              .catch((e) => setError(e.message));
-          }, 120);
-        }
-      }
-    };
-    source.onerror = () => {};
-    return () => {
-      disposed = true;
-      clearTimeout(timer);
-      source.close();
-    };
-  }, [selected, refresh, refreshList]);
-  useEffect(() => {
-    scroll.current?.scrollTo({
-      top: scroll.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [project?.messages.length, live]);
-  async function action(fn: () => Promise<unknown>) {
-    setBusy(true);
-    setError("");
-    try {
-      await fn();
-      if (selectedRef.current) await refresh(selectedRef.current);
-      await refreshList();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
+      if (attempt < 4) await new Promise<void>((resolve) => setTimeout(resolve, 100));
     }
   }
-  async function create() {
-    await action(async () => {
-      const p = await api<ProjectView>("/projects", "POST", { name, brief });
-      setSelected(p.id);
-      setNewProject(false);
-      setName("");
-      setBrief("");
-      setTab("overview");
-    });
-  }
-  async function run() {
-    if (!project) return;
-    setLive("");
-    await api(`/projects/${project.id}/run`, "POST", {});
-  }
-  function selectChoice(choice: string) {
-    if (!project || !current || current.draft?.selectedChoice === choice)
-      return;
-    void action(async () => {
-      await api(`/projects/${project.id}/choice`, "POST", {
-        stage,
-        revision: current.revision,
-        choice,
-      });
-      await run();
-    });
-  }
-  async function decision(
-    decision: "approved" | "changes_requested",
-    comment?: string,
-  ) {
-    if (!project || !current) return;
-    await action(async () => {
-      await api(`/projects/${project.id}/approvals`, "POST", {
-        stage,
-        revision: current.revision,
-        inputHash: project.hashes[stage],
-        decision,
-        comment,
-        key: crypto.randomUUID(),
-      });
-      const p = await api<ProjectView>("/projects/" + project.id);
-      setStage(p.currentStage ?? stage);
-      setTab("overview");
-      if (p.currentStage) await api(`/projects/${project.id}/run`, "POST", {});
-    });
-  }
-  async function send() {
-    if (!text.trim() || !project) return;
-    const content = text;
-    setText("");
-    await action(async () => {
-      await api(`/projects/${project.id}/messages`, "POST", {
-        text: content,
-        mode: "steer",
-        attachments: uploads.slice(-5).map((u) => u.id),
-      });
-      if (!project.running && current?.status !== "approved") await run();
-    });
-  }
-  async function upload(file: File) {
-    if (!project) return;
-    await action(async () => {
-      const data = await new Promise<string>((accept, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => accept(String(reader.result).split(",")[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-      const result = await api<Upload>(
-        `/projects/${project.id}/uploads`,
-        "POST",
-        { name: file.name, mime: file.type || "text/plain", data },
-      );
-      setUploads((u) => [...u, result]);
-      setImageId(result.id);
-    });
-  }
-  function openWorkbench() {
-    selectedRef.current = "";
-    setSelected("");
-    setProject(undefined);
-    setParameters(undefined);
-    setEvents([]);
-    setLive("");
-    setUploads([]);
-    setCandidate(undefined);
+
+  async function act(path: string, body: unknown, headers?: HeadersInit) {
+    setPending(true);
     setError("");
-    setTab("overview");
-    setArchived(false);
-    setSearch("");
+    const id = activeId.current;
+    try {
+      await api(path, { method: "POST", headers, body: JSON.stringify(body) });
+      if (id) await syncProject(id, path === `/projects/${id}/run` ? project?.updatedAt : undefined);
+      await refreshList();
+      return true;
+    } catch (failure) {
+      setError(String(failure));
+      return false;
+    } finally {
+      setPending(false);
+    }
   }
-  const visible = list.filter(
-    (p) =>
-      p.archived === archived &&
-      p.name.toLowerCase().includes(search.toLowerCase()),
-  );
-  const isRunning = project?.running || busy;
-  const artifacts = project
-    ? Object.values(project.stages).flatMap((s) => s.artifacts)
-    : [];
-  const tools = events.filter(
-    (e) => e.type.startsWith("tool.") || e.type === "agent.started",
-  );
-  const latestTool = tools.at(-1);
-  const approved = project
-    ? stages.filter((id) => project.stages[id].status === "approved").length
-    : 0;
-  const activePart = catalog.find((p) => p.id === measurementId);
+
+  async function create() {
+    if (!brief.trim() || pending) return;
+    setPending(true);
+    setError("");
+    try {
+      const created = await api<Project>("/projects", {
+        method: "POST", body: JSON.stringify({ name: brief.trim().split("\n")[0].slice(0, 70), brief: brief.trim(), breakpoints: newBreakpoints }),
+      });
+      activeId.current = created.id;
+      setProject(created);
+      setFollow(true);
+      localStorage.setItem("dreamatic-project", created.id);
+      projectLocation(created.id);
+      setBrief("");
+      setNewBreakpoints([]);
+      await refreshList();
+      await api(`/projects/${created.id}/run`, { method: "POST", body: "{}" });
+      await syncProject(created.id, created.updatedAt);
+    } catch (failure) {
+      setError(String(failure));
+    } finally {
+      setPending(false);
+    }
+  }
+
+  function select(id: string) {
+    setSelected(id);
+    setFollow(false);
+    if (id === detailsStage?.id) setRightOpen(true);
+  }
+
+  function showProjectMenu(event: MouseEvent<HTMLButtonElement>, item: ProjectSummary) {
+    event.preventDefault();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.type === "contextmenu" && event.clientX ? event.clientX : rect.left;
+    const y = event.type === "contextmenu" && event.clientY ? event.clientY : rect.bottom;
+    setProjectMenu({ item, x: Math.min(x, window.innerWidth - 146), y: Math.min(y, window.innerHeight - 52) });
+  }
+
+  async function deleteProject(item: ProjectSummary) {
+    setPending(true);
+    setError("");
+    try {
+      await api(`/projects/${item.id}`, { method: "DELETE", headers: { "x-dreamatic-project-action": "delete" } });
+      if (activeId.current === item.id) clearProject();
+      setProjects((items) => items.filter((project) => project.id !== item.id));
+      setDeleteTarget(undefined);
+      setRemovedProject(item);
+    } catch (failure) {
+      setError(String(failure));
+    } finally { setPending(false); }
+  }
+
+  function resizePanel(event: PointerEvent<HTMLDivElement>, panel: Panel) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const initial = panelSize[panel];
+    element.setPointerCapture(event.pointerId);
+    function move(next: globalThis.PointerEvent) {
+      const delta = panel === "left" ? next.clientX - startX : panel === "right" ? startX - next.clientX : startY - next.clientY;
+      const maximum = panel === "bottom" ? window.innerHeight - 180 : window.innerWidth * 0.4;
+      const minimum = panel === "bottom" ? 100 : 180;
+      setPanelSize((old) => ({ ...old, [panel]: Math.max(minimum, Math.min(maximum, initial + delta)) }));
+    }
+    function end() {
+      element.removeEventListener("pointermove", move);
+      element.removeEventListener("pointerup", end);
+      element.removeEventListener("pointercancel", end);
+      element.removeEventListener("lostpointercapture", end);
+    }
+    element.addEventListener("pointermove", move);
+    element.addEventListener("pointerup", end);
+    element.addEventListener("pointercancel", end);
+    element.addEventListener("lostpointercapture", end);
+  }
+
+  function separator(panel: Panel, label: string, orientation: "vertical" | "horizontal") {
+    return <div className={`wf-splitter wf-splitter-${panel}`} role="separator" tabIndex={0}
+      aria-label={label} aria-orientation={orientation} aria-valuenow={panelSize[panel]}
+      onPointerDown={(event) => resizePanel(event, panel)}
+      onKeyDown={(event) => {
+        const direction = ({ ArrowLeft: -1, ArrowRight: 1, ArrowUp: 1, ArrowDown: -1 } as Record<string, number>)[event.key];
+        if (!direction) return;
+        event.preventDefault();
+        const amount = direction * (panel === "right" ? -16 : 16);
+        setPanelSize((old) => ({ ...old, [panel]: Math.max(100, old[panel] + amount) }));
+      }} />;
+  }
+
+  const classes = ["wf-app", "wf-flexible", !leftOpen && !nav && "wf-left-closed", !rightOpen && "wf-right-closed", !resultsOpen && "wf-results-closed", !canvasOpen && "wf-canvas-closed"].filter(Boolean).join(" ");
   return (
-    <div
-      className={`app-shell ${chat ? "" : "chat-hidden"}`}
-      style={
-        chatWidth
-          ? ({ "--chat-width": `${chatWidth}px` } as React.CSSProperties)
-          : undefined
-      }
-    >
-      <aside className="sidebar">
-        <BrandMenu
-          onSettings={() => setSettings(true)}
-          onWorkbench={openWorkbench}
-        />
-        <button
-          className="new-project"
-          onClick={() => {
-            setNewProject(true);
-            setName("");
-            setBrief("");
-          }}
-        >
-          <Plus size={16} />
-          {t("新建项目")}
-          <span>⌘ N</span>
-        </button>
-        <label className="search">
-          <Search size={14} />
-          <input
-            aria-label={t("搜索项目")}
-            placeholder={t("搜索项目")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </label>
-        <button
-          className={`nav-item workbench-nav ${!selected ? "active" : ""}`}
-          aria-label={t("工作台")}
-          title={t("工作台")}
-          aria-current={!selected ? "page" : undefined}
-          onClick={openWorkbench}
-        >
-          <LayoutDashboard size={16} />
-          {t("工作台")}{" "}
-        </button>
-        <div className="nav-caption">WORKSPACE</div>
-        <button
-          className={`nav-item ${selected && !archived ? "active" : ""}`}
-          onClick={() => setArchived(false)}
-        >
-          <FolderOpen size={16} />
-          {t("我的项目")}
-          <span>{list.filter((p) => !p.archived).length}</span>
-        </button>
-        <button
-          className={`nav-item ${selected && archived ? "active" : ""}`}
-          onClick={() => setArchived(true)}
-        >
-          <Archive size={16} />
-          {t("已归档")}
-          <span>{list.filter((p) => p.archived).length}</span>
-        </button>
-        <div className="nav-caption project-caption">
-          {archived ? "ARCHIVED PROJECTS" : "RECENT PROJECTS"}
-        </div>
-        <div className="project-list">
-          {visible.map((p) => (
-            <button
-              key={p.id}
-              className={`project-row ${selected === p.id ? "selected" : ""}`}
-              onClick={() => {
-                setSelected(p.id);
-                setTab("overview");
-              }}
-            >
-              <div className="project-icon">
-                <Box size={17} />
-              </div>
-              <div>
-                <strong>{p.name}</strong>
-                <small>
-                  {p.running
-                    ? t("正在执行")
-                    : t(
-                        stageLabels[
-                          stages.find(
-                            (s) => p.stages[s].status !== "approved",
-                          ) ?? "delivery"
-                        ],
-                      )}
-                </small>
-              </div>
-              {p.running && <LoaderCircle size={13} className="spin" />}
+    <div className={classes} style={{
+      "--wf-left": `${leftOpen ? panelSize.left : 44}px`,
+      "--wf-right": `${rightOpen ? panelSize.right : 44}px`,
+      "--wf-bottom": `${panelSize.bottom}px`,
+    } as CSSProperties}>
+      <aside className={`wf-sidebar ${nav ? "open" : ""}`}>
+        <button className="wf-panel-toggle" aria-label={leftOpen || nav ? "收起项目面板" : "展开项目面板"} onClick={() => nav ? setNav(false) : setLeftOpen(!leftOpen)}>{leftOpen || nav ? "‹ 收起项目" : "项目 ›"}</button>
+        {separator("left", "调整项目面板宽度", "vertical")}
+        <div className="wf-brand"><span>✦</span><b>Dreamatic · Make</b><button onClick={() => setNav(false)} aria-label="关闭导航">×</button></div>
+        <h3>项目</h3>
+        <button className="wf-new" onClick={() => {
+          clearProject();
+          setBrief("");
+          setNewBreakpoints([]);
+          setNav(false);
+        }}>＋ 新建项目</button>
+        <div className="wf-projects">
+          {projects.map((item) => <div key={item.id} className={`wf-project-row${project?.id === item.id ? " active" : ""}`}>
+            <button onClick={() => void open(item.id)} onContextMenu={(event) => showProjectMenu(event, item)}>
+              <strong>{item.name || item.brief}</strong><small>{phase(item, disconnected)} · {new Date(item.updatedAt).toLocaleString()}</small>
             </button>
-          ))}
-          {!visible.length && (
-            <p className="no-projects">
-              {archived ? t("还没有归档项目") : t("从一个想法开始你的项目")}
-            </p>
-          )}
+            <button className="wf-project-menu-trigger" aria-label={`${item.name}的项目菜单`} aria-haspopup="menu" aria-expanded={projectMenu?.item.id === item.id} onClick={(event) => showProjectMenu(event, item)}>⋯</button>
+          </div>)}
+          {!projects.length && <p>{loading ? "正在加载项目…" : "暂无项目"}</p>}
         </div>
-        <div className="sidebar-note">
-          <div className="local-dot" />
-          {t("本地工作空间")}
-          <small>{t("开源硬件 + 3D 打印")}</small>
-        </div>
-        <div className="sidebar-footer">
-          <span>DM</span>
-          <div>
-            Maker workspace<small>Pi harness · v1.3.0</small>
-          </div>
-          <i>LOCAL</i>
-        </div>
+        <button onClick={() => setLibrary(true)}>▣ 硬件资料库</button>
+        <button onClick={() => { setModelDraft(model?.model ?? ""); setModelSaved(false); setSettings(true); }}>⚙ 模型设置</button>
       </aside>
-      <main className="workspace">
-        <header className="workspace-header">
-          <div>
-            <span className="breadcrumb">{t("工作空间")}</span>
-            <ChevronRight size={13} />
-            {project ? (
-              <button className="project-title" onClick={() => setRename(true)}>
-                {project.name}
-                <Pencil size={12} />
-              </button>
-            ) : (
-              <strong>{t("工作台")}</strong>
-            )}
-          </div>
-          <div className="header-actions">
-            {project && (
-              <>
-                <button
-                  aria-label={project.archived ? t("恢复项目") : t("归档项目")}
-                  disabled={!!isRunning}
-                  onClick={() =>
-                    void action(() =>
-                      api("/projects/" + project.id, "PATCH", {
-                        archived: !project.archived,
-                      }),
-                    )
-                  }
-                >
-                  {project.archived ? (
-                    <RotateCcw size={15} />
-                  ) : (
-                    <Archive size={15} />
-                  )}
-                </button>
-                <button
-                  aria-label={t("彻底删除项目")}
-                  title={t("彻底删除项目")}
-                  disabled={!!isRunning}
-                  onClick={() => {
-                    setDeleteName("");
-                    setDeleteOpen(true);
-                  }}
-                >
-                  <Trash2 size={15} />
-                </button>
-                <a
-                  className="button"
-                  href={`/api/projects/${project.id}/export`}
-                >
-                  <Download size={14} />
-                  <span>{t("导出项目")}</span>
-                </a>
-              </>
-            )}
-            <button
-              aria-label={chat ? t("收起对话") : t("展开对话")}
-              onClick={() => setChat(!chat)}
-            >
-              {chat ? (
-                <PanelRightClose size={17} />
-              ) : (
-                <PanelRightOpen size={17} />
-              )}
-            </button>
-          </div>
+      <main className="wf-main">
+        <header className="wf-header">
+          <button className="wf-nav" aria-label="打开项目导航" onClick={() => setNav(true)}>☰</button>
+          <div><small>DESIGN WORKSPACE</small><strong>{project?.name || "新的产品探索"}</strong></div>
+          <button onClick={() => setCanvasOpen(!canvasOpen)}>{canvasOpen ? "收起画布" : "展开画布"}</button>
+          <button onClick={() => setResultsOpen(!resultsOpen)}>{resultsOpen ? "收起结果" : "展开结果"}</button>
+          {project && !importedRun && <button disabled={blocked} onClick={() => setBreakpointDraft(project.breakpoints ?? [])}>断点{project.breakpoints?.length ? ` · ${project.breakpoints.length}` : ""}</button>}
+          {project && isRunning && <button className="wf-stop" disabled={stoppingId === project.id} onClick={async () => {
+            const id = project.id;
+            setStoppingId(id);
+            if (!await act(`/projects/${id}/stop`, {}, { "x-dreamatic-project-action": "stop" })) setStoppingId(undefined);
+          }}>{stoppingId === project.id ? "停止中…" : "停止运行"}</button>}
+          {disconnected
+            ? <span role="status">服务连接中断，正在重连</span>
+            : pendingToolApprovals.length
+            ? <button className="wf-detail-notice" onClick={() => setRightOpen(true)}>待确认工具权限</button>
+            : detailsStage
+            ? <button className="wf-detail-notice" onClick={() => { setFollow(true); setRightOpen(true); }}>待确认细节</button>
+            : <span>{isRunning ? "工作进行中" : project ? phase(project) : "等待需求"}</span>}
         </header>
-        {project ? (
-          <>
-            <div className="progress-section">
-              <div className="progress-top">
-                <span>
-                  <i className={project.running ? "pulse" : ""} />
-                  {project.running
-                    ? t("智能体正在工作")
-                    : project.archived
-                      ? t("项目已归档")
-                      : t("项目进度")}
-                </span>
-                <small>
-                  {t("已确认")} <b>{Math.min(approved, 6)}</b>{" "}
-                  {t("/ 6 个设计阶段")}{" "}
-                </small>
-              </div>
-              <StageProgress
-                project={project}
-                selected={stage}
-                onSelect={(id) => {
-                  setStage(id);
-                  setTab("overview");
-                }}
-              />
+        {error && <div className="wf-error" role="alert"><b>操作未完成，请检查状态后重试。</b><details><summary>技术详情</summary>{error}</details><button onClick={() => setError("")}>关闭</button></div>}
+        {removedProject && <div className="wf-project-removed" role="status">
+          <span>已删除「{removedProject.name}」</span>
+          <button disabled={pending} onClick={async () => {
+            if (await act(`/projects/${removedProject.id}/restore`, {}, { "x-dreamatic-project-action": "restore" })) setRemovedProject(undefined);
+          }}>撤销</button>
+          <button aria-label="关闭删除提示" onClick={() => setRemovedProject(undefined)}>×</button>
+        </div>}
+        {project ? <>
+          <WorkflowGraph key={project.id} nodes={graphNodes} selected={pickedId} initialNode={importedRun?.selected}
+            followNode={follow && canvasOpen && picked?.state !== "pending" ? picked?.id : undefined}
+            onSelect={select} onBrief={() => setBriefOpen(true)} />
+          {separator("bottom", "调整结果面板高度", "horizontal")}
+          <section className="wf-results" ref={resultsHost}>
+            {importedRun && importedWork ? <ImportedResults key={importedWork.id} projectId={project.id} run={importedRun} node={importedWork} /> : <>
+            <div className="wf-section-head">
+              <div><small>当前工作</small><h2>{picked ? stageNames[picked.id] : "工作成果"}</h2></div>
+              <button onClick={() => { setFollow(true); setSelected(undefined); }}>{follow ? "正在跟随" : "跟随最新工作"}</button>
             </div>
-            <nav className="workspace-tabs">
-              {[
-                ["overview", t("阶段概览")],
-                ["hardware", t("硬件")],
-                ["cad", t("CAD 工作台")],
-                ["files", t("工程文件")],
-                ["agents", t("智能体")],
-                ["history", t("历史")],
-              ].map(([id, label]) => (
-                <button
-                  className={tab === id ? "active" : ""}
-                  key={id}
-                  onClick={() => {
-                    setTab(id);
-                    if (id === "history")
-                      void api<any[]>(`/projects/${project.id}/history`)
-                        .then(setHistory)
-                        .catch((e) => setError(e.message));
-                  }}
-                >
-                  {label}
-                  {id === "files" && artifacts.length > 0 && (
-                    <i>{artifacts.length}</i>
-                  )}
-                </button>
-              ))}
-              <span>{t(statusLabels[current?.status ?? "not_started"])}</span>
-            </nav>
-            <div className="workspace-body">
-              {tab === "overview" && (
-                <>
-                  <div className="section-heading">
-                    <div>
-                      <div className="eyebrow">
-                        STAGE{" "}
-                        {String(stages.indexOf(stage) + 1).padStart(2, "0")} /
-                        08
-                      </div>
-                      <h1>{t(stageLabels[stage])}</h1>
-                      <p>
-                        {current?.draft?.title ??
-                          t("让每一步设计，都有清晰的依据。")}
-                      </p>
-                    </div>
-                    <span className={`status-chip ${current?.status}`}>
-                      {t(statusLabels[current?.status ?? "not_started"])}
-                    </span>
-                  </div>
-                  {current?.draft ? (
-                    <>
-                      <div className="summary-card">
-                        <div className="summary-heading">
-                          <span className="summary-icon">
-                            <BookOpen size={17} strokeWidth={1.6} />
-                          </span>
-                          <h2>{t("设计说明")}</h2>
-                          <span
-                            className="summary-version"
-                            aria-label={`${t("版本")} ${current.revision}`}
-                          >
-                            V{current.revision}
-                          </span>
-                        </div>
-                        <MarkdownMessage text={current.draft.summary} card />
-                      </div>
-                      {current.draft.choices.length > 0 &&
-                        !choiceQuestions(current.draft.choices) && (
-                          <ChoiceCards
-                            choices={current.draft.choices}
-                            selected={current.draft.selectedChoice}
-                            disabled={
-                              !!isRunning || stage !== project.currentStage
-                            }
-                            onSelect={selectChoice}
-                          />
-                        )}
-                      <div className="facts-grid">
-                        {current.draft.facts.map((f, i) => (
-                          <div key={i}>
-                            <span>
-                              <MarkdownMessage text={f.label} card inline />
-                            </span>
-                            <MarkdownMessage text={f.value} card />
-                          </div>
-                        ))}
-                      </div>
-                      {current.draft.assumptions.length > 0 && (
-                        <div className="assumptions">
-                          <strong>{t("当前假设")}</strong>
-                          {current.draft.assumptions.map((s, i) => (
-                            <MarkdownMessage key={i} text={s} card />
-                          ))}
-                        </div>
-                      )}
-                      {current.review && (
-                        <ReviewReport review={current.review} />
-                      )}
-                      {["structure", "cad", "appearance"].includes(stage) && (
-                        <Suspense fallback={<p>{t("加载 3D 预览…")}</p>}>
-                          <ModelViewer
-                            parameters={project.parameters}
-                            artifacts={project.stages.cad.artifacts}
-                            projectId={project.id}
-                          />
-                        </Suspense>
-                      )}
-                      <ArtifactList
-                        projectId={project.id}
-                        artifacts={current.artifacts}
-                      />
-                    </>
-                  ) : (
-                    <StageStart
-                      stage={stage}
-                      active={stage === project.currentStage}
-                      running={project.running}
-                      busy={busy}
-                      archived={project.archived}
-                      pending={pendingQuestion}
-                      onRun={() => void action(run)}
-                      onAnswer={(answers) =>
-                        action(async () => {
-                          await api(`/projects/${project.id}/answers`, "POST", {
-                            interactionId: pendingQuestion!.id,
-                            answers,
-                          });
-                          await run();
-                        })
-                      }
-                    />
-                  )}
-                  {current?.status === "approved" && (
-                    <button
-                      className="button rerun"
-                      disabled={!!isRunning}
-                      onClick={() => {
-                        setRevisionText("");
-                        setRevisionOpen(true);
-                      }}
-                    >
-                      <Pencil size={14} />
-                      {t("修改此阶段")}{" "}
-                    </button>
-                  )}
-                  {current?.error && (
-                    <div className="error error-panel">{t(current.error)}</div>
-                  )}
-                  {current?.draft &&
-                    stage === project.currentStage &&
-                    current.status !== "approved" && (
-                      <button
-                        className="button rerun"
-                        disabled={!!isRunning || project.archived}
-                        onClick={() => void action(run)}
-                      >
-                        <RotateCcw size={14} />
-                        {current.status === "stale"
-                          ? t("更新并重新审阅")
-                          : t("重新执行当前阶段")}
-                      </button>
-                    )}
-                </>
-              )}
-              {tab === "hardware" && (
-                <>
-                  <div className="section-heading">
-                    <div>
-                      <div className="eyebrow">HARDWARE LIBRARY</div>
-                      <h1>{t("从已有硬件出发")}</h1>
-                      <p>{t("精确型号、可追溯资料，以及诚实的尺寸状态。")}</p>
-                    </div>
-                    <Cpu size={28} />
-                  </div>
-                  {catalog.map((part) => (
-                    <article className="part-card" key={part.id}>
-                      <div className="part-visual">
-                        <Cpu size={52} />
-                        <span>{part.manufacturer}</span>
-                      </div>
-                      <div className="part-info">
-                        <div className="card-kicker">
-                          {part.openHardware === "verified"
-                            ? t("开源许可已核验")
-                            : t("开源状态待核验")}
-                        </div>
-                        <h2>{part.name}</h2>
-                        <p>{part.revision}</p>
-                        <div className="part-specs">
-                          <span>
-                            {part.dimensions.width} × {part.dimensions.depth} ×{" "}
-                            {part.dimensions.height ?? "?"} mm
-                          </span>
-                          <span>
-                            {part.geometryVerified
-                              ? t("实测包络已记录")
-                              : t("完整安装几何待核验")}
-                          </span>
-                        </div>
-                        <MarkdownMessage text={part.notes} card />
-                        <div className="button-row">
-                          <a
-                            target="_blank"
-                            rel="noreferrer"
-                            href={part.source}
-                          >
-                            {t("查看资料 ↗")}{" "}
-                          </a>
-                          {
-                            <button
-                              disabled={!!isRunning}
-                              onClick={() => {
-                                setMeasurementId(part.id);
-                                setMeasuredWidth(part.dimensions.width);
-                                setMeasuredDepth(part.dimensions.depth);
-                                setMeasuredHeight(part.dimensions.height ?? 5);
-                                setMeasureNote("");
-                                setMeasure(true);
-                              }}
-                            >
-                              {t("补充实测尺寸")}{" "}
-                            </button>
-                          }
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                  <p className="muted footnote">
-                    {t(
-                      "部件检索、BOM 与引脚建议由电子硬件智能体生成。未核验的尺寸会阻止工程确认。",
-                    )}{" "}
-                  </p>
-                </>
-              )}
-              {tab === "cad" && parameters && (
-                <>
-                  <div className="section-heading">
-                    <div>
-                      <div className="eyebrow">PARAMETRIC DESIGN</div>
-                      <h1>{t("让设计成为实体")}</h1>
-                      <p>
-                        {t("参考图 / 自然语言 → 参数确认 → 真实 STEP 与 STL。")}
-                      </p>
-                    </div>
-                    <span className="badge">{t("毫米 · FDM")}</span>
-                  </div>
-                  <Suspense fallback={<p>{t("加载 3D 预览…")}</p>}>
-                    <ModelViewer
-                      parameters={parameters}
-                      artifacts={
-                        JSON.stringify(parameters) ===
-                        JSON.stringify(project.parameters)
-                          ? project.stages.cad.artifacts
-                          : []
-                      }
-                      projectId={project.id}
-                    />
-                  </Suspense>
-                  <div className="cad-panels">
-                    <div className="tool-card">
-                      <div className="card-kicker">
-                        <FileCode2 size={14} />
-                        {t("参数化外壳")}{" "}
-                      </div>
-                      <ParameterEditor
-                        value={parameters}
-                        onChange={setParameters}
-                        disabled={!!isRunning}
-                      />
-                      <StructuralEditor
-                        value={parameters}
-                        onChange={setParameters}
-                        disabled={!!isRunning}
-                        parts={catalog}
-                      />
-                      <p className="muted">
-                        {t(
-                          "通用上下壳模板。参数修改会使结构及后续确认失效。开孔、支柱和部件包络可展开编辑；实际装配仍需验证。",
-                        )}{" "}
-                      </p>
-                      <div className="button-row">
-                        <button
-                          disabled={!!isRunning || project.archived}
-                          onClick={() =>
-                            void action(() =>
-                              api(
-                                `/projects/${project.id}/parameters`,
-                                "PUT",
-                                parameters,
-                              ),
-                            )
-                          }
-                        >
-                          {t("保存参数")}{" "}
-                        </button>
-                        <button
-                          className="primary"
-                          disabled={!!isRunning || project.archived}
-                          onClick={() =>
-                            void action(async () => {
-                              if (
-                                JSON.stringify(parameters) !==
-                                JSON.stringify(project.parameters)
-                              )
-                                await api(
-                                  `/projects/${project.id}/parameters`,
-                                  "PUT",
-                                  parameters,
-                                );
-                              await api(
-                                `/projects/${project.id}/cad`,
-                                "POST",
-                                {},
-                              );
-                            })
-                          }
-                        >
-                          {busy ? (
-                            <LoaderCircle size={14} className="spin" />
-                          ) : (
-                            <Box size={14} />
-                          )}
-                          {t("生成 CAD")}{" "}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="tool-card">
-                      <div className="card-kicker">
-                        <Sparkles size={14} />
-                        {t("文生 CAD · 图生 CAD")}{" "}
-                      </div>
-                      <textarea
-                        aria-label={t("CAD 设计描述")}
-                        placeholder={t(
-                          "例如：宽 90mm，深 65mm，高 35mm 的桌面外壳，壁厚 2mm",
-                        )}
-                        value={cadText}
-                        onChange={(e) => setCadText(e.target.value)}
-                      />
-                      <button
-                        disabled={!!isRunning || !cadText.trim()}
-                        onClick={() =>
-                          void action(async () =>
-                            setCandidate(
-                              await api(
-                                `/projects/${project.id}/text-parameters`,
-                                "POST",
-                                { instruction: cadText },
-                              ),
-                            ),
-                          )
-                        }
-                      >
-                        {t("从描述提取参数")} <ArrowRight size={14} />
-                      </button>
-                      <div className="image-divider">{t("或从参考图开始")}</div>
-                      <select
-                        aria-label={t("参考图片")}
-                        value={imageId}
-                        onChange={(e) => setImageId(e.target.value)}
-                      >
-                        <option value="">{t("选择已上传参考图")}</option>
-                        {uploads
-                          .filter((u) => u.mime.startsWith("image/"))
-                          .map((u) => (
-                            <option key={u.id} value={u.id}>
-                              {u.name}
-                            </option>
-                          ))}
-                      </select>
-                      <label className="inline-field">
-                        {t("参考外廓宽度")}{" "}
-                        <input
-                          aria-label={t("参考宽度")}
-                          type="number"
-                          min="20"
-                          max="300"
-                          value={width}
-                          onChange={(e) => setWidth(+e.target.value)}
-                        />
-                        mm
-                      </label>
-                      <button
-                        disabled={!!isRunning || !imageId}
-                        onClick={() =>
-                          void action(async () =>
-                            setCandidate(
-                              await api(
-                                `/projects/${project.id}/image-parameters`,
-                                "POST",
-                                {
-                                  attachmentId: imageId,
-                                  referenceWidthMm: width,
-                                  instruction: cadText,
-                                },
-                              ),
-                            ),
-                          )
-                        }
-                      >
-                        <Image size={14} />
-                        {t("理解参考图")}{" "}
-                      </button>
-                      <p className="muted">
-                        {t(
-                          "图像用于推断候选外形。单图不能确定内部结构或精确尺寸，必须确认参数后再生成。",
-                        )}{" "}
-                      </p>
-                    </div>
-                  </div>
-                  {candidate && (
-                    <div className="candidate-card">
-                      <h3>{t("候选参数 · 等待你确认")}</h3>
-                      <ParameterEditor
-                        value={candidate.parameters}
-                        onChange={(p) =>
-                          setCandidate({ ...candidate, parameters: p })
-                        }
-                      />
-                      {[
-                        ...candidate.observations,
-                        ...candidate.uncertainties,
-                      ].map((t: string, i: number) => (
-                        <MarkdownMessage key={i} text={t} card />
-                      ))}
-                      <button
-                        className="primary"
-                        disabled={!!isRunning}
-                        onClick={() => {
-                          setParameters(candidate.parameters);
-                          setCandidate(undefined);
-                        }}
-                      >
-                        {t("采用为待编辑参数")} <Check size={14} />
-                      </button>
-                    </div>
-                  )}
-                  <ArtifactList
-                    projectId={project.id}
-                    artifacts={project.stages.cad.artifacts}
-                  />
-                </>
-              )}
-              {tab === "files" && (
-                <>
-                  <div className="section-heading">
-                    <div>
-                      <div className="eyebrow">PROJECT ARTIFACTS</div>
-                      <h1>{t("每一个可追溯的成果")}</h1>
-                      <p>
-                        {t(
-                          "源文件、工程模型与执行报告。导出包只包含已确认阶段的文件。",
-                        )}{" "}
-                      </p>
-                    </div>
-                  </div>
-                  <ArtifactPreview
-                    key={project.id + artifacts.map((a) => a.id).join()}
-                    projectId={project.id}
-                    artifacts={artifacts}
-                  />
-                  <ArtifactList projectId={project.id} artifacts={artifacts} />
-                </>
-              )}
-              {tab === "history" && (
-                <>
-                  <div className="section-heading">
-                    <div>
-                      <div className="eyebrow">PROJECT HISTORY</div>
-                      <h1>{t("保留每一步决策")}</h1>
-                      <p>{t("阶段、审阅与用户输入的只读版本快照。")}</p>
-                    </div>
-                  </div>
-                  <div className="history-list">
-                    {history.map((h) => (
-                      <details key={h.version}>
-                        <summary>
-                          <strong>V{h.version}</strong>
-                          <span>
-                            {new Date(h.updatedAt).toLocaleString(
-                              language === "en" ? "en-US" : "zh-CN",
-                            )}
-                          </span>
-                          <small>
-                            {h.messageCount} {t("条消息")}
-                          </small>
-                        </summary>
-                        {h.stages.map((s: any) => (
-                          <p key={s.id}>
-                            <b>{t(stageLabels[s.id as StageId])}</b>
-                            <span>
-                              {t(statusLabels[s.status])} · V{s.revision}
-                            </span>
-                            {s.title && <small>{s.title}</small>}
-                          </p>
-                        ))}
-                      </details>
-                    ))}
-                  </div>
-                </>
-              )}
-              {tab === "agents" && (
-                <>
-                  <div className="section-heading">
-                    <div>
-                      <div className="eyebrow">SPECIALISTS, SHARED CONTEXT</div>
-                      <h1>{t("各司其职，共同设计")}</h1>
-                      <p>
-                        {t("独立 MD 定义角色、输入输出、工具权限与停止条件。")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="agent-grid">
-                    {agents.map((a) => (
-                      <details className="agent-card" key={a.id}>
-                        <summary>
-                          <div className="agent-avatar">
-                            <Cpu size={18} />
-                          </div>
-                          <strong>{t(a.name)}</strong>
-                          <small>{a.mode}</small>
-                        </summary>
-                        <code>{a.id}.md</code>
-                        <div className="tool-tags">
-                          {a.allowed_tools.map((t: string) => (
-                            <span key={t}>{t}</span>
-                          ))}
-                        </div>
-                        <MarkdownMessage text={a.prompt} card />
-                      </details>
-                    ))}
-                  </div>
-                  <div className="assumptions">
-                    <strong>{t("合作协议")}</strong>
-                    <p>
-                      {t(
-                        "阶段作者提交 → 独立审阅 → 用户确认 → 下一阶段。所有结果绑定项目与版本，智能体无用户审批权限。",
-                      )}{" "}
-                    </p>
-                  </div>
-                </>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="welcome">
-            <div className="welcome-kicker">
-              <span />
-              YOUR NEXT OBJECT STARTS HERE
-            </div>
-            <div className="welcome-mark">
-              <Layers3 size={43} />
-            </div>
-            <h1>
-              {t("让想法，")} <br />
-              {t("成为手中的实物")}
-              <span>{t("。")}</span>
-            </h1>
-            <p>
-              {t("从开源硬件到打印外壳，从第一句想法到可运行的原型。")} <br />
-              {t("你的智能终端设计工作台。")}{" "}
-            </p>
-            <button className="primary" onClick={() => setNewProject(true)}>
-              {t("开始一个新项目")} <ArrowRight size={16} />
-            </button>
-            <div className="suggestion-grid">
-              {suggestions.map((s) => (
-                <button
-                  key={s.title}
-                  onClick={() => {
-                    setName(t(s.title));
-                    setBrief(t(s.text));
-                    setNewProject(true);
-                  }}
-                >
-                  <s.icon size={21} />
-                  <strong>{t(s.title)}</strong>
-                  <span>
-                    {t("探索这个方向")} <ArrowRight size={13} />
-                  </span>
-                </button>
-              ))}
-            </div>
-            <div className="welcome-bottom">
-              <span>{t("01 需求对齐")}</span>
-              <i />
-              <span>{t("02 开源硬件")}</span>
-              <i />
-              <span>{t("03 参数化 CAD")}</span>
-              <i />
-              <span>{t("04 固件与交付")}</span>
-            </div>
-          </div>
-        )}
+            {picked && <>
+              <p className="wf-status">{roleNames[picked.owner]} · {displayStageStatus(picked.state, disconnected)}{picked.revision > 0 && ` · R${picked.revision}`}</p>
+              <nav className="wf-tabs" aria-label="工作成果视图">
+                {["当前工作", "成果", "记录"].map((name) => <button key={name} aria-pressed={tab === name} onClick={() => setTab(name)}>{name}</button>)}
+              </nav>
+              {picked.id === "appearance" && tab !== "记录" &&
+                <AppearancePreview key={project.id} projectId={project.id} running={picked.state === "running"} />}
+              {picked.id === "hardware_selection" && picked.artifact && tab !== "记录" &&
+                <HardwarePurchases key={`${project.id}:${picked.artifact.pin.content_hash}`}
+                  projectId={project.id} hash={picked.artifact.pin.content_hash} />}
+              {hasCadResults(picked.id) && tab !== "记录" &&
+                <CadResults key={`${project.id}:${picked.id}`} projectId={project.id} stage={picked} />}
+              {tab === "当前工作" && <section className="wf-current-work">
+                <details className="wf-technical"><summary>工作要求</summary><p>{stageDescription(picked.id)}</p><p>{project.brief}</p></details>
+                {picked.artifact ? <StageMarkdown projectId={project.id} stage={picked} /> : <p>{isRunning && picked.state === "running" ? "团队正在处理，实时工作过程显示在右侧。" : "当前工作尚无记录成果。"}</p>}
+              </section>}
+              {tab === "成果" && <StageArtifact projectId={project.id} stage={picked} />}
+              {tab === "记录" && <><StageArtifact projectId={project.id} stage={picked} /><details open><summary>调用与会话记录 · {runs.length}</summary>
+                {runs.map((run) => <article className="wf-record" key={run[0].runId}>
+                  <strong>{roleNames[eventData(run.find((event) => event.type === "started") ?? run[0]).agent ?? picked.owner]}</strong>
+                  <small>{new Date(run[0].at).toLocaleString()}</small><pre>{JSON.stringify(run, null, 2)}</pre>
+                </article>)}
+              </details></>}
+            </>}
+            </>}
+          </section>
+        </> : <section className="wf-welcome">
+          <small>START WITH AN OUTCOME</small><h1>从一个想法，到一套系统。</h1>
+          <p>描述产品、使用场景和限制，团队将逐步形成可检查的成果。</p>
+          <form onSubmit={(event) => { event.preventDefault(); void create(); }}>
+            <textarea aria-label="产品需求" placeholder="描述你希望制作的产品…" value={brief} maxLength={20000} onChange={(event) => setBrief(event.target.value)} />
+            <details className="wf-new-breakpoints"><summary>设置断点{newBreakpoints.length ? ` · ${newBreakpoints.length}` : ""}</summary>
+              <BreakpointOptions value={newBreakpoints} onChange={setNewBreakpoints} />
+            </details>
+            <button disabled={pending || loading || !brief.trim()}>{pending ? "正在开始…" : "开始探索"}</button>
+          </form>
+        </section>}
       </main>
-      {chat && (
-        <aside className="chat-panel">
-          <ChatResizeHandle onResize={setChatWidth} />
-          <header>
-            <div className="assistant-icon">
-              <Sparkles size={18} />
+      <aside className="wf-agent">
+        <button className="wf-panel-toggle" aria-label={rightOpen ? "收起协作面板" : "展开协作面板"} onClick={() => setRightOpen(!rightOpen)}>{rightOpen ? "收起协作 ›" : "‹ 协作"}</button>
+        {separator("right", "调整协作面板宽度", "vertical")}
+        <header><b>✦ 协作对话</b><small>{isRunning ? "团队正在工作" : "查看工作与结果"}</small></header>
+        <div className="wf-agent-body">
+          {project && pendingToolApprovals.map((request) => <section key={request.token} className="wf-process">
+            <h3>确认工具权限</h3>
+            <p>{request.server}</p>
+            <pre className="wf-markdown" style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", maxHeight: 320, overflow: "auto" }}>{request.message}</pre>
+            <div className="wf-tabs">
+              <button disabled={pending} onClick={() => void act(`/projects/${project.id}/tool-approvals`, {
+                token: request.token, decision: "accept",
+              }, { "x-dreamatic-project-action": "tool-approval" })}>允许本次</button>
+              <button disabled={pending} onClick={() => void act(`/projects/${project.id}/tool-approvals`, {
+                token: request.token, decision: "decline",
+              }, { "x-dreamatic-project-action": "tool-approval" })}>拒绝</button>
             </div>
-            <div>
-              <strong>{t("设计助手")}</strong>
-              <small>
-                <i />
-                {project?.running ? t("正在推进项目") : t("一起把想法做出来")}
-              </small>
-            </div>
-            <span>Pi 1.3</span>
-          </header>
-          <div className="chat-scroll" ref={scroll}>
-            {project ? (
-              <>
-                <div className="conversation-intro">
-                  <span>PROJECT CONVERSATION</span>
-                  <p>{t("每一次讨论，都连接着真实的设计决策。")}</p>
-                </div>
-                {project.messages
-                  .filter(
-                    (message) =>
-                      !(
-                        tab === "overview" &&
-                        !current?.draft &&
-                        stage === project.currentStage &&
-                        message.interaction?.id === pendingQuestion?.id &&
-                        pendingQuestion
-                      ),
-                  )
-                  .map((m) => (
-                    <div key={m.id} className={`message ${m.role}`}>
-                      <div className="message-label">
-                        {m.role === "user"
-                          ? t("你")
-                          : m.role === "system"
-                            ? t("系统")
-                            : (t(agentNames[m.agent ?? "orchestrator"]) ??
-                              t("设计助手"))}
-                      </div>
-                      {m.interaction ? (
-                        <QuestionCard
-                          card={m.interaction}
-                          disabled={busy || project.archived}
-                          onAnswer={(answers) =>
-                            action(async () => {
-                              await api(
-                                `/projects/${project.id}/answers`,
-                                "POST",
-                                { interactionId: m.interaction!.id, answers },
-                              );
-                              await run();
-                            })
-                          }
-                        />
-                      ) : (
-                        <MarkdownMessage text={m.text} />
-                      )}
-                    </div>
-                  ))}
-                {project.running && (
-                  <div className="live-message">
-                    <span>
-                      <LoaderCircle className="spin" size={14} />
-                      {latestTool
-                        ? (latestTool.payload as any).role
-                          ? t(agentNames[(latestTool.payload as any).role])
-                          : t("正在处理")
-                        : t("正在连接模型")}
-                    </span>
-                    {live && <MarkdownMessage text={live} />}
-                  </div>
-                )}
-                {tools.length > 0 && (
-                  <details className="activity-log">
-                    <summary>
-                      <Activity size={13} />
-                      {t("执行记录 ·")} {tools.length}
-                    </summary>
-                    {tools.slice(-20).map((e) => (
-                      <div key={e.id}>
-                        <span
-                          className={e.type === "tool.failed" ? "error" : ""}
-                        >
-                          {e.type === "agent.started"
-                            ? t("开始")
-                            : e.type === "tool.completed"
-                              ? t("完成")
-                              : e.type === "tool.failed"
-                                ? t("失败")
-                                : t("执行")}
-                        </span>
-                        <code>
-                          {toolActivityLabel(
-                            (e.payload as any).name ??
-                              t(agentNames[(e.payload as any).role]) ??
-                              t("智能体"),
-                            (e.payload as any).object,
-                          )}
-                        </code>
-                      </div>
-                    ))}
-                  </details>
-                )}
-                {current?.draft &&
-                  current.review &&
-                  current.status === "awaiting_confirmation" &&
-                  stage === project.currentStage &&
-                  !isRunning &&
-                  !project.archived && (
-                    <ApprovalCard
-                      stage={current}
-                      disabled={!!isRunning || project.archived}
-                      onDecision={decision}
-                      unverifiedParts={
-                        stage === "hardware"
-                          ? catalog
-                              .filter(
-                                (part) =>
-                                  current.draft?.partIds.includes(part.id) &&
-                                  !part.geometryVerified,
-                              )
-                              .map((part) => part.name)
-                          : []
-                      }
-                      onInspectHardware={() => setTab("hardware")}
-                      onSelectChoice={selectChoice}
-                      onAnswerChoices={(answers) =>
-                        action(async () => {
-                          await api(
-                            `/projects/${project.id}/choice-answers`,
-                            "POST",
-                            { stage, revision: current.revision, answers },
-                          );
-                          await run();
-                        })
-                      }
-                    />
-                  )}
-              </>
-            ) : (
-              <div className="chat-welcome">
-                <Sparkles size={26} />
-                <h2>{t("你的创作搭档")}</h2>
-                <p>
-                  {t("描述你想做的智能终端。")} <br />
-                  {t("我们会一起确认需求、选择部件，")} <br />
-                  {t("逐步完成外观、结构与程序。")}{" "}
-                </p>
-                <div>
-                  <span>{t("可审阅的每一步")}</span>
-                  <span>{t("可编辑的工程文件")}</span>
-                  <span>{t("始终由你确认")}</span>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="composer-wrap">
-            {uploads.length > 0 && (
-              <div className="attachment-chips">
-                {uploads.map((u) => (
-                  <span key={u.id}>
-                    <Paperclip size={11} />
-                    {u.name}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="composer">
-              <textarea
-                aria-label={t("发送消息")}
-                disabled={!project || project.archived || busy}
-                placeholder={
-                  project
-                    ? t("描述想法，或告诉我哪里需要调整…")
-                    : t("创建或选择项目，开始设计…")
-                }
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    !e.shiftKey &&
-                    !e.nativeEvent.isComposing
-                  ) {
-                    e.preventDefault();
-                    void send();
-                  }
-                }}
-              />
-              <div className="composer-toolbar">
-                <input
-                  ref={fileInput}
-                  hidden
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,text/plain,application/pdf"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void upload(file);
-                    e.target.value = "";
-                  }}
-                />
-                <button
-                  aria-label={t("添加附件")}
-                  disabled={!project || !!isRunning || project.archived}
-                  onClick={() => fileInput.current?.click()}
-                >
-                  <Plus size={18} />
-                </button>
-                <span>
-                  {project?.running ? t("补充当前任务") : t("项目助手")}
-                  <ChevronRight size={11} />
-                </span>
-                {project?.running ? (
-                  <button
-                    className="send-button stop"
-                    aria-label={t("停止任务")}
-                    onClick={() =>
-                      void action(() =>
-                        api(`/projects/${project.id}/abort`, "POST", {}),
-                      )
-                    }
-                  >
-                    <Square size={13} />
-                  </button>
-                ) : (
-                  <button
-                    className="send-button"
-                    aria-label={t("发送")}
-                    disabled={
-                      !project || !text.trim() || busy || project.archived
-                    }
-                    onClick={() => void send()}
-                  >
-                    <ArrowUp size={17} />
-                  </button>
-                )}
-              </div>
-            </div>
-            <p className="composer-note">
-              {t("设计建议需验证 · 关键阶段由你确认")}
-            </p>
-          </div>
-        </aside>
-      )}
-      {error && (
-        <div className="toast" role="alert">
-          <span>{t(error)}</span>
-          <button aria-label={t("关闭提示")} onClick={() => setError("")}>
-            <X size={16} />
-          </button>
-        </div>
-      )}
-      {settings && <SettingsDialog onClose={() => setSettings(false)} />}
-      {newProject && (
-        <div className="modal-backdrop">
-          <form
-            className="project-dialog"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void create();
-            }}
-          >
-            <div className="dialog-header">
-              <div>
-                <Box size={19} />
-                <h2>{t("开始一个新项目")}</h2>
-              </div>
-              <button
-                type="button"
-                aria-label={t("关闭新建项目")}
-                onClick={() => setNewProject(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <p className="muted">
-              {t("先描述想法，系统会与你一起澄清设计方向。")}
-            </p>
-            <label>
-              {t("项目名称")}{" "}
-              <input
-                autoFocus
-                required
-                maxLength={100}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t("例如：桌面环境终端")}
-              />
-            </label>
-            <label>
-              {t("你想做什么？")}{" "}
-              <textarea
-                required
-                maxLength={16000}
-                value={brief}
-                onChange={(e) => setBrief(e.target.value)}
-                placeholder={t(
-                  "使用场景、主要功能、预算、已有的硬件或外观想法…",
-                )}
-              />
-            </label>
-            <div className="dialog-footer">
-              <span>{t("开源硬件 + 3D 打印")}</span>
-              <button className="primary" disabled={busy}>
-                {t("创建项目")} <ArrowRight size={14} />
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-      {revisionOpen && project && current && (
-        <div className="modal-backdrop">
-          <form
-            className="project-dialog small"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void action(async () => {
-                await api(`/projects/${project.id}/revisions`, "POST", {
-                  stage,
-                  revision: current.revision,
-                  comment: revisionText,
+          </section>)}
+          {project && importedWork ? <>
+            <details className="wf-user"><summary>原始需求</summary><p>{project.brief}</p></details>
+            <section className="wf-process">
+              <h3>{importedWork.role}</h3><p>{importedWork.title} · {importedWork.status}</p>
+              <details open><summary>已记录的工作结果</summary><p>{importedWork.summary}</p></details>
+              <details open={transcript.length > 0}><summary>会话消息</summary>{transcriptContent}</details>
+              <details><summary>会话信息</summary><code>{importedWork.threadId}</code></details>
+            </section>
+          </> : project && picked ? <>
+            <details className="wf-user"><summary>原始需求</summary><p>{project.brief}</p></details>
+            {detailsStage?.id === picked.id && detailsStage.questions && <DesignDetailsForm
+              key={`${project.id}:${picked.id}:${picked.revision}`}
+              questions={detailsStage.questions}
+              disabled={blocked}
+              onConfirm={(answers) => {
+                setFollow(true);
+                void act(`/projects/${project.id}/confirm-details`, { stage: picked.id, revision: picked.revision, answers }, {
+                  "x-dreamatic-confirm": `details:${picked.id}:${picked.revision}`,
                 });
-                setRevisionOpen(false);
-              });
-            }}
-          >
-            <h2>
-              {t("修改")}
-              {t(stageLabels[stage])}
-            </h2>
-            <p className="muted">
-              {t(
-                "将保留历史版本，并使本阶段及下游结果失效。重新执行后需要再次审阅与确认。",
-              )}{" "}
-            </p>
-            <label>
-              {t("修改要求")}{" "}
-              <textarea
-                required
-                maxLength={4000}
-                value={revisionText}
-                onChange={(e) => setRevisionText(e.target.value)}
-              />
-            </label>
-            <div className="dialog-footer">
-              <button type="button" onClick={() => setRevisionOpen(false)}>
-                {t("取消")}{" "}
-              </button>
-              <button className="primary" disabled={!!isRunning}>
-                {t("提交修改")}{" "}
-              </button>
-            </div>
-          </form>
+              }}
+            />}
+            <section className="wf-process">
+              <h3>{stageNames[picked.id]}</h3><p>{roleNames[picked.owner]} · {displayStageStatus(picked.state, disconnected)}</p>
+              <div className="wf-tabs" aria-label="选择节点会话">
+                <button aria-pressed={effectiveConversation === "author"} onClick={() => setConversation("author")}>工作会话</button>
+                {researchThread && <button aria-pressed={effectiveConversation === "research"} onClick={() => setConversation("research")}>调研会话</button>}
+                {picked.hardwareBlocker?.coordinatorThreadId && <button aria-pressed={effectiveConversation === "coordinator"} onClick={() => setConversation("coordinator")}>产品经理</button>}
+              </div>
+              <details open={isRunning}><summary>已记录的工作过程</summary>
+                {transcriptContent}
+              </details>
+              <details><summary>任务与输入</summary><p>{stageDescription(picked.id)}</p>
+                {stageInputs[picked.id].map((id) => <p key={id}><button onClick={() => select(id)}>{stageNames[id]}</button></p>)}
+                {!stageInputs[picked.id].length && <p>{project.brief}</p>}
+              </details>
+              {!!picked.confirmedDetails?.length && <details><summary>已确认的设计细节</summary>
+                <dl>{picked.confirmedDetails.map(({ question, answer }, index) => <div key={index}><dt>{question}</dt><dd>{answer}</dd></div>)}</dl>
+              </details>}
+              <details><summary>调用历史</summary><p>{runs.length} 次调用</p>
+                {runs.map((run) => <details key={run[0].runId}><summary>{new Date(run[0].at).toLocaleString()}</summary><pre>{JSON.stringify(run, null, 2)}</pre></details>)}
+              </details>
+              {threadId && <details><summary>会话信息</summary><code>{threadId}</code></details>}
+              {picked.state === "failed" && stageFailure && <div role="alert">
+                <p>{stageFailure === "workspace routing discovery failed" ? "本次工作未完成，连接模型服务失败。" : "本次工作未完成。"}</p>
+                <details><summary>错误详情</summary>{stageFailure}</details>
+              </div>}
+              {picked.hardwareBlocker && <details open={picked.state === "blocked"}>
+                <summary>{picked.state === "blocked"
+                  ? picked.hardwareBlocker.reportedToCoordinator ? "缺件报告已退回产品经理" : "缺件报告尚未送达产品经理"
+                  : "上次选型的缺件记录"}</summary>
+                <div className="wf-markdown">{picked.hardwareBlocker.reason}</div>
+              </details>}
+              {picked.state !== "failed" && !picked.hardwareBlocker && picked.error &&
+                <div role="alert"><p>本次工作未完成。</p><details><summary>错误详情</summary>{picked.error}</details></div>}
+              {picked.id === "hardware_selection" && picked.artifact?.structured &&
+                !picked.artifact.structured.mechanicalEvidence && (picked.state === "completed" || picked.state === "approved") &&
+                <p>历史选型缺少已核验的零件尺寸附件，装配限位仍需复核。</p>}
+              {picked.state === "paused" && <p>{picked.pauseReason === "breakpoint" ? "已在此阶段开始前暂停。" : picked.pauseReason === "interrupted" ? "本地服务中断，此阶段可以重新执行。" : "当前工作已停止，可以重新执行此阶段。"}</p>}
+              {picked.id === project.activeStage && ["pending", "ready", "paused", "blocked", "failed", "awaiting_approval"].includes(picked.state) &&
+                <button disabled={blocked} onClick={() => void act(`/projects/${project.id}/run`, { resume: picked.state === "paused" })}>{picked.state === "pending" ? "开始当前工作" : "继续当前工作"}</button>}
+            </section>
+            <details><summary>调度记录 · {project.events.length}</summary>
+              {project.events.filter((event) => ["started", "completed", "failed", "stopped"].includes(event.type)).slice(-30).map((event, index) =>
+                <p key={`${event.runId}:${index}`}>{event.stage ? stageNames[event.stage] : "会话"} · {event.type === "started" ? "开始" : event.type === "completed" ? "完成" : event.type === "stopped" ? "停止" : "未完成"}<br /><small>{new Date(event.at).toLocaleString()}</small></p>)}
+            </details>
+          </> : <p>需求和实际工作记录会显示在这里。</p>}
         </div>
-      )}
-      {deleteOpen && project && (
-        <div className="modal-backdrop">
-          <form
-            className="project-dialog small"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="delete-title"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void action(async () => {
-                await api(`/projects/${project.id}`, "DELETE", {
-                  confirmName: deleteName,
-                });
-                selectedRef.current = "";
-                setSelected("");
-                setProject(undefined);
-                setDeleteOpen(false);
-              });
-            }}
-          >
-            <h2 id="delete-title">{t("彻底删除项目")}</h2>
-            <p className="error">
-              {t("将永久删除「")}
-              {project.name}
-              {t("」的全部项目文件、对话、工程产物和历史，无法恢复。")}{" "}
-            </p>
-            <label>
-              {t("输入项目名称以确认")}{" "}
-              <input
-                autoFocus
-                aria-label={t("确认删除项目名称")}
-                value={deleteName}
-                onChange={(e) => setDeleteName(e.target.value)}
-                autoComplete="off"
-              />
-            </label>
-            <div className="dialog-footer">
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => setDeleteOpen(false)}
-              >
-                {t("取消")}{" "}
-              </button>
-              <button
-                className="danger-button"
-                disabled={!!isRunning || deleteName !== project.name}
-              >
-                {t("永久删除")}{" "}
-              </button>
-            </div>
-          </form>
+        {project && (picked || importedWork) && <form className="wf-compose" onSubmit={async (event) => {
+          event.preventDefault();
+          if (!threadId || !message.trim() || blocked) return;
+          const key = messageKey;
+          const ok = await act(`/projects/${project.id}/message`, { threadId, message: message.trim() });
+          if (ok) setDrafts((old) => ({ ...old, [key]: "" }));
+        }}>
+          <textarea aria-label="补充需求" value={message} onChange={(event) => setDrafts((old) => ({ ...old, [messageKey]: event.target.value }))} maxLength={20000}
+            placeholder={importedWork ? `给「${importedWork.role}」补充需求或反馈…` : threadId ? "补充需求、反馈或调整…" : "运行到该工作后可向会话发消息"}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !event.nativeEvent.isComposing) {
+                event.preventDefault();
+                event.currentTarget.form?.requestSubmit();
+              }
+            }} />
+          <button disabled={blocked || !threadId || !message.trim()}>{pending ? "发送中" : "发送"}</button>
+        </form>}
+      </aside>
+      {projectMenu && <div className="wf-project-menu" role="menu" style={{ left: projectMenu.x, top: projectMenu.y }}>
+        <button role="menuitem" autoFocus onClick={() => { setError(""); setDeleteTarget(projectMenu.item); setProjectMenu(undefined); }}>删除项目…</button>
+      </div>}
+      {deleteTarget && <Dialog title="删除项目" close={() => { setDeleteTarget(undefined); setError(""); }}>
+        <p>将「{deleteTarget.name}」从项目列表中移除。</p>
+        {error && <p role="alert">{error}</p>}
+        <div className="wf-buttons">
+          <button onClick={() => setDeleteTarget(undefined)}>取消</button>
+          <button disabled={pending} onClick={() => void deleteProject(deleteTarget)}>删除项目</button>
         </div>
-      )}
-      {rename && project && (
-        <div className="modal-backdrop">
-          <form
-            className="project-dialog small"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const v = new FormData(e.currentTarget).get("name");
-              void action(async () => {
-                await api("/projects/" + project.id, "PATCH", { name: v });
-                setRename(false);
+      </Dialog>}
+      {project && breakpointDraft && <Dialog title="流程断点" close={() => { setBreakpointDraft(undefined); setError(""); }}>
+        <form onSubmit={async (event) => {
+          event.preventDefault();
+          if (await act(`/projects/${project.id}/breakpoints`, { breakpoints: breakpointDraft }, { "x-dreamatic-project-action": "breakpoints" })) setBreakpointDraft(undefined);
+        }}>
+          <BreakpointOptions value={breakpointDraft} onChange={setBreakpointDraft} />
+          {error && <p role="alert">{error}</p>}
+          <button disabled={blocked}>保存断点</button>
+        </form>
+      </Dialog>}
+      {briefOpen && project && <Dialog title="原始需求" close={() => setBriefOpen(false)}><div className="wf-markdown">{project.brief}</div></Dialog>}
+      {library && <HardwareLibrary close={() => setLibrary(false)} />}
+      {settings && <Dialog title="模型设置" close={() => setSettings(false)}>
+        <section className="wf-settings"><p>{model?.runtime ?? "正在加载运行时"} · {model?.model || "使用 Codex 默认模型"}</p>
+          <form className="wf-settings" onSubmit={async (event) => {
+            event.preventDefault();
+            setPending(true);
+            setError("");
+            try {
+              const next = await api<{ runtime: string; model: string | null }>("/model", {
+                method: "POST", headers: { "x-dreamatic-settings": "model" }, body: JSON.stringify({ model: modelDraft.trim() }),
               });
-            }}
-          >
-            <h2>{t("重命名项目")}</h2>
-            <input
-              name="name"
-              required
-              maxLength={100}
-              defaultValue={project.name}
-            />
-            <div className="dialog-footer">
-              <button type="button" onClick={() => setRename(false)}>
-                {t("取消")}{" "}
-              </button>
-              <button className="primary" disabled={!!isRunning}>
-                {t("保存")}{" "}
-              </button>
-            </div>
+              setModel(next);
+              setModelSaved(true);
+            } catch (failure) {
+              setError(String(failure));
+            } finally {
+              setPending(false);
+            }
+          }}>
+            <label>模型<input aria-label="工作流模型" value={modelDraft} onChange={(event) => { setModelDraft(event.target.value); setModelSaved(false); }} placeholder="留空使用运行时默认模型" maxLength={160} /></label>
+            <button disabled={blocked}>{pending ? "正在保存…" : "保存模型设置"}</button>
+            {modelSaved && <p role="status">已保存，将在新的工作会话中使用。</p>}
+            {error && <p role="alert">{error}</p>}
           </form>
-        </div>
-      )}
-      {measure && activePart && (
-        <div className="modal-backdrop">
-          <form
-            className="project-dialog small"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void action(async () => {
-                await api(
-                  `/projects/${project!.id}/catalog/${activePart.id}/measure`,
-                  "PUT",
-                  {
-                    width: measuredWidth,
-                    depth: measuredDepth,
-                    height: measuredHeight,
-                    notes: measureNote,
-                  },
-                );
-                setCatalog(await api(`/projects/${project!.id}/catalog`));
-                setMeasure(false);
-              });
-            }}
-          >
-            <h2>
-              {t("记录")} {activePart.name} {t("实测包络")}
-            </h2>
-            <p className="muted">
-              {t(
-                "记录实测板框宽深、器件与焊点占用的总高度。不包含猜测的安装孔。修改只影响当前项目的硬件及后续阶段，其他项目不受影响。",
-              )}{" "}
-            </p>
-            <label>
-              {t("宽度（mm）")}{" "}
-              <input
-                required
-                type="number"
-                min="1"
-                max="300"
-                step="0.1"
-                value={measuredWidth}
-                onChange={(e) => setMeasuredWidth(+e.target.value)}
-              />
-            </label>
-            <label>
-              {t("深度（mm）")}{" "}
-              <input
-                required
-                type="number"
-                min="1"
-                max="300"
-                step="0.1"
-                value={measuredDepth}
-                onChange={(e) => setMeasuredDepth(+e.target.value)}
-              />
-            </label>
-            <label>
-              {t("总高度（mm）")}{" "}
-              <input
-                aria-label={t("部件总高度")}
-                type="number"
-                min="1"
-                max="100"
-                step="0.1"
-                required
-                value={measuredHeight}
-                onChange={(e) => setMeasuredHeight(+e.target.value)}
-              />
-            </label>
-            <label>
-              {t("测量依据与安装限制")}{" "}
-              <textarea
-                required
-                value={measureNote}
-                onChange={(e) => setMeasureNote(e.target.value)}
-                placeholder={t(
-                  "记录所用板卡、测量方法，以及接头和线缆需要的空间",
-                )}
-              />
-            </label>
-            <div className="dialog-footer">
-              <button type="button" onClick={() => setMeasure(false)}>
-                {t("取消")}{" "}
-              </button>
-              <button className="primary" disabled={!!isRunning}>
-                {t("保存实测数据")}{" "}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+          {agents.filter((agent) => agent.id !== "reviewer").map((agent) => <article className="wf-record" key={agent.id}><strong>{agent.name}</strong><p>{agent.purpose}</p><small>{agent.stages.map((stage) => stageNames[stage]).join(" · ")}</small></article>)}
+        </section>
+      </Dialog>}
     </div>
   );
+}
+
+function BreakpointOptions({ value, onChange }: { value: StageId[]; onChange: (value: StageId[]) => void }) {
+  return <fieldset className="wf-breakpoints">
+    <legend>在选中的阶段开始前暂停</legend>
+    {stageIds.map((id) => <label key={id}>
+      <input type="checkbox" checked={value.includes(id)} onChange={(event) => onChange(event.target.checked ? [...value, id] : value.filter((stage) => stage !== id))} />
+      {stageNames[id]}
+    </label>)}
+  </fieldset>;
+}
+
+function StageArtifact({ projectId, stage }: { projectId: string; stage: StageRecord }) {
+  const artifact = stage.artifact;
+  if (!artifact) return <p>当前工作尚无记录成果。</p>;
+  const revision = artifact.pin.revision;
+  return <details className="wf-output-files" open>
+    <summary>文件与原始记录</summary>
+    <article className="wf-record">
+      <strong>{stageNames[stage.id]} · R{revision}</strong>
+      <small>{new Date(artifact.createdAt).toLocaleString()}</small>
+      {stage.id !== "procurement_assembly_guide" &&
+        <button onClick={() => download(`${stage.id}-r${revision}.md`, artifact.markdown)}>下载原文件</button>}
+      <details><summary>版本与内容指纹</summary><pre>{JSON.stringify(artifact.pin, null, 2)}</pre></details>
+      <StageMarkdown projectId={projectId} stage={stage} downloadable />
+    </article>
+  </details>;
+}
+
+function StageMarkdown({ projectId, stage, downloadable = false }: {
+  projectId: string; stage: StageRecord; downloadable?: boolean;
+}) {
+  const artifact = stage.artifact!;
+  const filename = `${stage.id}-r${artifact.pin.revision}.md`;
+  if (stage.id === "procurement_assembly_guide") {
+    return <GuideMarkdown key={`${projectId}:${artifact.pin.content_hash}`} projectId={projectId}
+      artifact={artifact} filename={downloadable ? filename : undefined} />;
+  }
+  return <div className="wf-markdown">{artifact.markdown}</div>;
+}
+
+function GuideMarkdown({ projectId, artifact, filename }: {
+  projectId: string; artifact: NonNullable<StageRecord["artifact"]>; filename?: string;
+}) {
+  const [preview, setPreview] = useState<{ markdown: string; failed?: boolean }>();
+  const saved = artifact.markdown.includes("\n### 购买链接\n");
+  const hash = artifact.pin.content_hash;
+  useEffect(() => {
+    if (saved) return;
+    let active = true;
+    void api<{ markdown: string }>(`/projects/${projectId}/procurement-guide?hash=${encodeURIComponent(hash)}`)
+      .then((report) => { if (active) setPreview(report); })
+      .catch(() => { if (active) setPreview({ markdown: artifact.markdown, failed: true }); });
+    return () => { active = false; };
+  }, [projectId, hash, saved, artifact.markdown]);
+  const text = preview?.markdown ?? artifact.markdown;
+  return <>
+    {preview?.failed && <p role="status">购买链接暂时无法载入。</p>}
+    {filename && <button disabled={!saved && !preview} onClick={() => download(filename, text)}>下载说明书</button>}
+    <MarkdownPreview text={text} />
+  </>;
+}
+
+function HardwarePurchases({ projectId, hash }: { projectId: string; hash: string }) {
+  const [candidates, setCandidates] = useState<PurchaseCandidate[]>();
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void api<PurchaseCandidate[]>(`/projects/${projectId}/hardware-purchases?hash=${encodeURIComponent(hash)}`)
+      .then((items) => { if (active) setCandidates(items); })
+      .catch(() => { if (active) setFailed(true); });
+    return () => { active = false; };
+  }, [projectId, hash]);
+  if (failed) return <p role="status">购买链接暂时无法载入。</p>;
+  if (!candidates?.length) return null;
+  return <details className="wf-output-files" open>
+    <summary>采购候选 · {candidates.length}</summary>
+    <div className="wf-cards">
+      {candidates.map(({ model, name, status, note, purchase_links }) => <article className="wf-record" key={model}>
+        <strong>{name}</strong><small>{status}{note ? ` · ${note}` : ""}</small>
+        <PurchaseLinks links={purchase_links} />
+      </article>)}
+    </div>
+  </details>;
 }

@@ -1,0 +1,147 @@
+{
+  "record_kind": "component_design",
+  "design_version": "1",
+  "id": "demo.controller",
+  "name": "控制板（概念接口）",
+  "category": "controller",
+  "evidence": {
+    "demo": {
+      "kind": "assumed",
+      "conditions": "工作台概念案例",
+      "note": "尺寸、接口和功能用于设计演示，非厂家数据或制造验证。"
+    }
+  },
+  "platform": "concept-controller",
+  "geometry": {
+    "root_body": "body",
+    "bodies": {
+      "body": {}
+    },
+    "envelopes": {
+      "pcb": {
+        "body_ref": "body",
+        "shape": {
+          "kind": "box",
+          "size_m": [
+            0.045,
+            0.018,
+            0.006
+          ]
+        },
+        "pose": {
+          "translation_m": [
+            0,
+            0,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "approximation": "outer"
+      }
+    }
+  },
+  "wiring": {
+    "terminals": {
+      "vcc": {
+        "physical_pin_number": "1",
+        "label": "vcc",
+        "electrical_role": "power_in",
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.012,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "ground": {
+        "physical_pin_number": "2",
+        "label": "ground",
+        "electrical_role": "ground",
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.008,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "yaw_pwm": {
+        "physical_pin_number": "3",
+        "label": "yaw_pwm",
+        "electrical_role": "output",
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            -0.004,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "shoulder_pwm": {
+        "physical_pin_number": "4",
+        "label": "shoulder_pwm",
+        "electrical_role": "output",
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.0,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "elbow_pwm": {
+        "physical_pin_number": "5",
+        "label": "elbow_pwm",
+        "electrical_role": "output",
+        "body_ref": "body",
+        "pose": {
+          "translation_m": [
+            0.004,
+            -0.008,
+            0
+          ],
+          "rotation_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      }
+    }
+  }
+}

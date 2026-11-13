@@ -1,11 +1,12 @@
 # 来源与致谢
 
-本项目参考同工作区 Dreamatic 的架构、角色定义模式和界面视觉变量进行独立实现，没有复制 Pi 运行时内部源码。
+本分支从 DreamaticMake 的 `design-engine` 分支提取独立引擎与元件设计，保留原有核心代码、契约和示例。
 
-- Dreamatic / DreamaticArt：项目管理、设计上下文与阶段审阅的架构参考。https://github.com/idvxlab/Dreamatic （MIT）
-- Pi：通过 npm 锁定使用 @earendil-works/pi-coding-agent / pi-ai 1.3.0，遵循其 MIT 许可。
-- build123d：参数化 CAD 工作进程使用其 Apache-2.0 许可的库；依赖 Open Cascade 等库的许可仍各自适用。
-- PlatformIO：固件构建工具和平台包使用其各自开源许可，具体版本列于锁文件及导出清单。
-- Raspberry Pi Pico：目录数据引用官方产品资料和公开设计授权，来源链接保存在目录条目中。尺寸完整性与许可证核验状态分别记录。
+- React、React DOM：界面，MIT 许可。
+- Three.js：3D 可视化及 STL 读取，MIT 许可。
+- @jscad/modeling 2.13.0：定制模型 CSG 内核，MIT 许可。
+- Pydantic：Python 数据契约校验，MIT 许可。
+- Trimesh、python-fcl、Rtree：可选 STL 与碰撞后端，许可见各依赖。
+- Vite、TypeScript、Playwright 及其它开发依赖：许可见各软件包。
 
-前端布局和组件为本项目编写；使用 React、Three.js、Lucide 等依赖，第三方许可见各软件包。
+版本由 npm 锁文件、Python 核心依赖文件及可选 mesh 依赖文件记录。示例参数为合成假设，并非测量或实物验证证据。
