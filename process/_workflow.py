@@ -119,7 +119,7 @@ def project_artifact(artifact: DesignArtifact) -> dict:
         'spatial_layout': 'spatial_scene', 'logical_layout': 'circuit_graph',
         'enclosure_detail': 'cad_components', 'motion_detail': 'motion_graph',
         'assembly_detail': 'assembly_scene', 'print_optimization': 'print_scene',
-        'software_design': 'software_projects',
+        'software_design': 'software_projects', 'procurement_assembly_guide': 'documents',
     }[stage]
     return {'schema_version': '0.2.0-draft', 'view_kind': view_kind,
         'artifact_ref': artifact_ref(artifact).model_dump(mode='json'),

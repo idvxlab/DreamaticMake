@@ -60,6 +60,7 @@ process/
 | [运动深化](motion_detail/README.md) | requirements、spatial_layout | 跨元件关节与范围、初值 | design/motion.json |
 | [装配深化](assembly_detail/README.md) | requirements、spatial_layout、enclosure_detail | 深化组件与装配关系 | 元件包、motion/structure、阶段说明 |
 | [打印优化](print_optimization/README.md) | assembly_detail + printer | 打印件、姿态、支撑与修改说明 | 派生元件资产、doc/print_optimization/ |
+| 采购与装配说明 | hardware_selection、logical_layout、assembly_detail、print_optimization | 单台采购清单、试装顺序、首件检查与待确认项 | 项目成果区的 Markdown 文档 |
 
 assembly_detail 可选依赖 motion_detail；引用运动关节时必须提供它。依赖是图，并非固定九步流水线。外观与选型可独立进行；电路逻辑不依赖空间布局；外壳和运动深化也可分别进行。
 
@@ -88,6 +89,10 @@ flowchart LR
   E --> D
   M -. 可选 .-> D
   D --> P[print_optimization]
+  H --> G[procurement_assembly_guide]
+  L --> G
+  D --> G
+  P --> G
 ```
 
 ## 设计文件与产物协议
@@ -143,12 +148,12 @@ result = AppearanceProcess().run(request)
 
 ## 验证与执行证据
 
-```powershell
-.\python.cmd -m process list
-.\python.cmd -m process schema spatial_layout
-.\npm.cmd run check
-.\npm.cmd test
-.\npm.cmd run build
+```sh
+.runtime/python/bin/python -m process list
+.runtime/python/bin/python -m process schema spatial_layout
+npm run check
+npm test
+npm run build
 ```
 
 CLI 只分发注册的 kind，从 stdin 读取有界 JSON，不动态加载任意模块。completed 返回退出码 0，其他流程状态/无效输入返回 2。

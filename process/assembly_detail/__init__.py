@@ -13,7 +13,7 @@ class AssemblyDetailRequest(WorkflowRequest[AssemblyDetailOutput]):
 class AssemblyDetailProcess(WorkflowProcess):
     kind = 'assembly_detail'
     spec = ('装配与连接深化设计', AssemblyDetailOutput,
-        ('requirements', 'spatial_layout', 'enclosure_detail'), ('motion_detail',),
+        ('requirements', 'spatial_layout', 'enclosure_detail'), ('motion_detail', 'hardware_selection'),
         ('enclosure_components', 'hardware_mounts', 'world_poses', 'motion', 'constraints'))
     title = spec[0]
     request_model = AssemblyDetailRequest

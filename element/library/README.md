@@ -1,12 +1,12 @@
 # 元件检索与 LLM 工具接口
 
-元件输入和存储已统一为 D 盘 `element_pool_2` 的逐元件目录，见[目录输入规范](packages.md)。
+元件输入和存储统一为仓库根目录 `element_pool/` 的逐元件目录，见[目录输入规范](packages.md)。
 
 检索按“发现类别 → 搜索候选 → 查看参数证据 → 细化约束 → 明确选型”组织。`element/` 负责元件知识与检索；[`engine/element_search.py`](../../engine/element_search.py) 提供可供宿主注册的工具接口，不接入外部 agent 或模型供应商。
 
 ## 数据源
 
-`load_element_pool(root)` 直接只读加载用户的 `element_pool_2`：
+`load_element_pool(root)` 直接只读加载用户的 `element_pool`：
 
 - 从 `index.json` 读取类别与条目，从各条目的 `structured.json` 读取参数、条件、证据和缺口。
 - 只有 `element_path` 存在、原生定义可解析、身份一致、状态为 `validated_reference` 且无 blocker 时，返回 `native_ref` 和 `selectable=true`。
@@ -14,7 +14,7 @@
 - 原生参数同时覆盖 `ElementDefinition.parameters` 和 `model.parameters`；同名参数以显式库层参数为准。
 - 不创建 SQLite 索引、不发布定义、不读取几何资产、不改写源库。单文件最多 16 MiB，单次加载总计最多 64 MiB、2000 个条目；JSON 路径必须限制在显式根目录内。
 
-当前示例库 `D:\【项目】设计引擎\DreamaticMaker\element_pool_2` 实测 22 个可发现条目，其中 9 个提供原生定义。几何资产仍以各元件目录为独立根；详情返回 `asset_root`，宿主应据此配置受限资产解析器，不能把所有元件的 `assets/` 合并解释。
+仓库默认的 `element_pool/` 只提供目录约定，不捏造硬件记录；导入真实元件包后才会出现可发现条目。几何资产仍以各元件目录为独立根；详情返回 `asset_root`，宿主应据此配置受限资产解析器，不能把所有元件的 `assets/` 合并解释。
 
 已发布的现有 `ElementLibrary` 也可通过 `ElementRetriever.from_library(library)` 加载；只读取当前 active 最新版本，复用原有分页与精确 pin 校验，不改变旧 `search(ElementQuery)` 的行为。
 
@@ -24,7 +24,7 @@
 from element.library.pool import load_element_pool
 from engine.element_search import ElementSearchTool
 
-retriever = load_element_pool(r'D:\【项目】设计引擎\DreamaticMaker\element_pool_2')
+retriever = load_element_pool(r'element_pool')
 tool = ElementSearchTool(retriever)
 schemas = tool.describe()  # 宿主可将三个 JSON Schema 注册给 LLM。
 
@@ -90,18 +90,18 @@ detail = tool.call('element_inspect', result['items'][0]['ref'])
 
 ## 命令行和验证
 
-```powershell
-.\python.cmd -m element categories --root 'D:\【项目】设计引擎\DreamaticMaker\element_pool_2'
-.\python.cmd -m element retrieve query.json --root 'D:\【项目】设计引擎\DreamaticMaker\element_pool_2'
-.\python.cmd -m element inspect-candidate ref.json --root 'D:\【项目】设计引擎\DreamaticMaker\element_pool_2'
-.\python.cmd -m element schema retrieval_query
-.\python.cmd scripts/check-element-pool.py 'D:\【项目】设计引擎\DreamaticMaker\element_pool_2'
+```sh
+.runtime/python/bin/python -m element categories --root 'element_pool'
+.runtime/python/bin/python -m element retrieve query.json --root 'element_pool'
+.runtime/python/bin/python -m element inspect-candidate ref.json --root 'element_pool'
+.runtime/python/bin/python -m element schema retrieval_query
+.runtime/python/bin/python scripts/check-element-pool.py 'element_pool'
 ```
 
 Engine JSON 请求使用 `{request_id, method, arguments}`，`method` 为上述三个工具名；启动时由宿主显式传入 `--element-pool`：
 
-```powershell
-Get-Content request.json -Raw | .\python.cmd -m engine request --element-pool 'D:\【项目】设计引擎\DreamaticMaker\element_pool_2'
+```sh
+.runtime/python/bin/python -m engine request --element-pool 'element_pool' < request.json
 ```
 
 `scripts/check-element-pool.py` 在真实池上验证电机、测温、舵机、电阻和持续扭矩未知五类场景，并对读取的 index/structured/native JSON 做前后 SHA-256 对比；不复制或分发外部库资产。单元测试使用独立合成 fixture，测试自然语言计划、数值边界、未知/假设值、证据保留、准入分离、路径边界、精确引用和两个 CLI。完整回归运行 `npm run check`、`npm test`、`npm run build`。

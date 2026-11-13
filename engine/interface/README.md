@@ -19,7 +19,7 @@ When dependencies are already installed at the repository root, the existing sho
 npm run engine:dev
 ```
 
-Open http://127.0.0.1:4322. The initial example is project_1; use **选择文件夹** or enter a project folder path and **打开项目** to load any project following the v2 folder contract. Successful paths are remembered locally. Set `MAKE_ENGINE_PYTHON` if your Python environment is elsewhere; otherwise the launcher tries `.runtime/python`, `.venv-engine`, then `python`. The Windows repository environment uses `.\npm.cmd run engine:dev`; see [runtime setup](../../RUNTIME.md).
+Open http://127.0.0.1:4322. The initial example is project_1; enter a project folder path and **打开项目** to load any project following the v2 folder contract. Successful paths are remembered locally. Set `MAKE_ENGINE_PYTHON` if your Python environment is elsewhere; otherwise the launcher tries `.runtime/python/bin/python`, then `python3`. See [runtime setup](../../RUNTIME.md).
 
 `npm run build` here (or `npm run engine:build` at the repository root) writes `engine/interface/dist`. `npm run engine:preview` serves that build with the local Python bridge. Opening `index.html` via `file://` is not supported because projections require the local engine.
 
@@ -33,7 +33,7 @@ Source browsing has a folder tree and preview pane. Project scope lists root met
 
 Project folders use `project.json`, `element/index.json`, per-element packages, three design JSON layers and `doc/index.json`; see [the project contract](../project_io.md). No test fixture or copied element-property file is used to populate the selector. Folder loading and previews do not modify the project or library.
 
-The local bridge exposes `open_project`, `view`, `files`, `preview` and `mesh`; requests carry an explicit `project_path` and optional element `target`. Preview paths must be in the current scope's allowlist and remain inside its root, including after symlink resolution. Mesh requests additionally identify the owning element and must match a declared STL envelope asset reference. Reads are confined to that element's custom or pinned library package, limited to 5 MB and SHA-256 checked. Hidden files and executable source are excluded. The Windows-only `pick_project` route opens a native folder dialog; other systems can use the path field. The server binds to localhost and rejects mismatched browser origins. It does not execute notebooks or source documents.
+The local bridge exposes `open_project`, `view`, `files`, `preview` and `mesh`; requests carry an explicit `project_path` and optional element `target`. Preview paths must be in the current scope's allowlist and remain inside its root, including after symlink resolution. Mesh requests additionally identify the owning element and must match a declared STL envelope asset reference. Reads are confined to that element's custom or pinned library package, limited to 5 MB and SHA-256 checked. Hidden files and executable source are excluded. Project folders are selected through the path field. The server binds to localhost and rejects mismatched browser origins. It does not execute notebooks or source documents.
 
 Run browser verification with `MAKE_TEST_BROWSER` pointing to a Chromium browser and `npm run test:ui:standalone-engine`.
 

@@ -1,4 +1,4 @@
-"""Read-only smoke test against the user's element_pool_2, without copying its assets."""
+"""Read-only smoke test against the user's element_pool, without copying its assets."""
 import argparse
 from hashlib import sha256
 import json

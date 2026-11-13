@@ -8,7 +8,7 @@ from element.base.quantity import Quantity
 from element.io.records import element_ref, record_hash
 from element.io.save import canonical_json
 from element.schema.library import Category, ElementQuery
-from element.schema.retrieval import (ParameterFact, ParameterRequirement, RetrievalQuery,
+from element.schema.retrieval import (ParameterFact, ParameterRequirement, PurchaseLink, RetrievalQuery,
     RetrievalRef, RetrievalPlan, RetrievalCandidate, ParameterAssessment, RetrievalResult)
 from element.library.local import normalize, tokens, LibraryError
 
@@ -142,6 +142,7 @@ class SearchRecord:
     native_ref: object = None
     definition: object = None
     detail: dict | None = None
+    purchase_links: tuple[PurchaseLink, ...] = ()
 
 
 def native_facts(definition):
@@ -249,6 +250,7 @@ class ElementRetriever:
         return {'ref': ref.model_dump(mode='json'), 'name': record.name, 'category': record.category,
             'native_ref': record.native_ref.model_dump(mode='json') if record.native_ref else None,
             'selectable': record.native_ref is not None, 'blockers': list(record.blockers),
+            'purchase_links': [link.model_dump(mode='json') for link in record.purchase_links],
             'parameters': {code: fact.model_dump(mode='json') for code, fact in record.parameters.items()},
             'definition': record.definition.model_dump(mode='json') if record.definition else None,
             'source_detail': json.loads(canonical_json(record.detail)) if record.detail else None}
@@ -280,7 +282,9 @@ class ElementRetriever:
             score = float(round(20 * len(matched) + 100 * numeric_score - 100 * rejected, 6))
             candidates.append(RetrievalCandidate(ref=record.ref, native_ref=record.native_ref,
                 name=record.name, category=record.category, selectable=record.native_ref is not None,
-                blockers=record.blockers, score=score, matched_terms=matched, assessments=assessments,
+                blockers=record.blockers, purchase_links=record.purchase_links,
+                purchase_note=(record.detail or {}).get('note', '') if record.purchase_links else '',
+                score=score, matched_terms=matched, assessments=assessments,
                 missing_parameters=unknown, selection_state=state))
         candidates.sort(key=lambda c: (c.selection_state == 'rejected', -c.score, not c.selectable,
             c.ref.library_id, c.ref.element_id))

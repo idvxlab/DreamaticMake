@@ -14,7 +14,7 @@ from process.artifacts import (DesignArtifact, ArtifactRef, artifact_ref, Docume
     RequirementsOutput, AppearanceOutput, AppearanceImage, HardwareSelectionOutput, HardwareChoice,
     SpatialLayoutOutput, HardwarePlacement, LogicalLayoutOutput, EnclosureDetailOutput, CADComponent,
     MotionDetailOutput, AssemblyDetailOutput, AssemblyRelation, PrintOptimizationOutput,
-    PrintPart, PrinterConstraints, SoftwareDesign, SoftwareDesignOutput)
+    PrintPart, PrinterConstraints, SoftwareDesign, SoftwareDesignOutput, ProcurementAssemblyGuideOutput)
 from process.workflows import *
 
 __all__ = [name for name in globals() if not name.startswith('_') and name not in (

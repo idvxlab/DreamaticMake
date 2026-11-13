@@ -6,8 +6,8 @@ The standalone UI uses `examples/project_1` and the configured element pool.
 
 `build_examples.py` regenerates only the three bundle/scenario pairs in `data/`:
 
-```powershell
-.\python.cmd -m engine.tests.fixtures.build_examples
+```sh
+.runtime/python/bin/python -m engine.tests.fixtures.build_examples
 ```
 
 `build_components.py` and `described_components.py` expose test constructors only;

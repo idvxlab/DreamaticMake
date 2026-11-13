@@ -1,0 +1,87 @@
+@import "./workflow.css";
+
+html, body, #root { margin: 0; min-width: 320px; min-height: 100%; }
+body { overflow: hidden; background: #e8e7e1; }
+.wf-canvas { cursor: grab; overflow: clip; }
+.wf-canvas.grabbing, .wf-canvas.grabbing .wf-node { cursor: grabbing; }
+.wf-world { will-change: transform; }
+.wf-node { cursor: grab; user-select: none; touch-action: none; }
+.wf-node strong { line-height: 1.4; margin: 2px 0; }
+.wf-node small { font-size: 11px; }
+.wf-node span { line-height: 1.5; }
+.wf-brief-node { cursor: pointer; }
+.wf-graph-head button { font: inherit; border: 0; border-radius: 6px; background: #ededeb; padding: 4px 7px; white-space: nowrap; }
+.wf-markdown { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+.wf-current-work .wf-markdown { margin-top: 16px; }
+.wf-agent code { overflow-wrap: anywhere; font-size: 11px; }
+.wf-process h3 { margin: 2px 0 8px; }
+.wf-process .wf-tabs { margin-bottom: 12px; }
+.wf-section-head { align-items: center; }
+.wf-header > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf-library input, .wf-library select { max-width: 100%; padding: 8px; border: 1px solid #deddd6; border-radius: 7px; background: #fffef9; }
+.wf-library .wf-cards button { width: 100%; padding: 12px; text-align: left; background: transparent; border: 0; border-radius: 8px; }
+.wf-library .wf-cards button:hover { background: #eeede6; }
+.wf-library .wf-cards strong, .wf-library .wf-cards small { display: block; }
+.wf-library .wf-cards small { color: #768768; }
+.wf-library-item { min-width: 0; background: #fbfaf7; border: 1px solid #deddd6; border-radius: 9px; }
+.wf-purchase-links { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; padding: 8px 12px; font-size: .9em; }
+.wf-purchase-links span { color: #636a58; }
+.wf-purchase-links a { color: #984b34; }
+.wf-library .wf-purchase-note { padding: 0 12px; }
+.wf-imported-preview { margin-top: 12px; }
+.wf-imported-preview .wf-visual-image > button { border: 1px solid #deddd6; border-radius: 8px; background: #fbfaf7; }
+.wf-imported-preview .wf-visual-image img { height: clamp(150px, calc(var(--wf-bottom) - 150px), 520px); }
+.wf-imported-preview .wf-tabs { margin-top: 8px; }
+.wf-imported-preview .wf-tabs button { padding: 4px 8px; white-space: nowrap; }
+.wf-imported-full-image { display: block; width: 100%; max-height: 78dvh; object-fit: contain; margin-top: 10px; }
+.wf-appearance-preview { margin: 12px 0; }
+.wf-appearance-preview .wf-visual-image > button { border: 1px solid #deddd6; border-radius: 8px; background: #fbfaf7; }
+.wf-appearance-preview .wf-visual-image img { display: block; width: 100%; height: clamp(150px, calc(var(--wf-bottom) - 135px), 520px); object-fit: contain; }
+.wf-appearance-preview .wf-tabs { margin-top: 8px; }
+.wf-cad-results { margin: 14px 0; border: 1px solid var(--wf-line); border-radius: 9px; overflow: hidden; background: #fbfaf7; }
+.wf-cad-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 12px; padding: 10px 12px; }
+.wf-cad-heading h3 { margin: 0; font-size: 14px; }
+.wf-cad-heading small { color: #61695d; }
+.wf-cad-select { display: flex; align-items: center; gap: 8px; margin: 0 12px 10px; }
+.wf-cad-select select { min-width: 0; max-width: 100%; font: inherit; color: inherit; }
+.wf-cad-viewer { position: relative; }
+.wf-cad-surface { height: clamp(190px, calc(var(--wf-bottom) - 150px), 540px); background: #f6f7f3; }
+.wf-cad-surface canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+.wf-cad-surface canvas:active { cursor: grabbing; }
+.wf-cad-viewer button { position: absolute; inset: auto 10px 10px auto; }
+.wf-cad-viewer p { position: absolute; inset: 0; display: grid; place-items: center; padding: 10px; text-align: center; pointer-events: none; }
+.wf-cad-results > p { margin: 6px 12px 12px; }
+.wf-cad-files { display: grid; gap: 6px; margin: 0; padding: 10px 12px; list-style: none; border-top: 1px solid var(--wf-line); }
+.wf-cad-files li { display: flex; align-items: baseline; gap: 8px; }
+.wf-cad-files span { flex: 0 0 78px; color: #61695d; font-size: 12px; }
+.wf-cad-files a { min-width: 0; color: #3a5140; overflow-wrap: anywhere; }
+.wf-file-cards { align-items: start; }
+.wf-inline-file-preview { margin-top: 10px; padding: 10px; border-top: 1px solid var(--wf-line); background: #fffef9; border-radius: 0 0 6px 6px; }
+.wf-inline-file-preview img { display: block; width: 100%; max-height: 420px; object-fit: contain; }
+.wf-app .wf-inline-file-preview pre { max-height: min(52dvh, 400px); margin: 0; font-size: 12px; line-height: 1.65; }
+.wf-rendered-markdown { max-height: min(52dvh, 400px); overflow: auto; padding: 4px 8px; overflow-wrap: anywhere; line-height: 1.65; }
+.wf-rendered-markdown > :first-child { margin-top: 0; }
+.wf-rendered-markdown > :last-child { margin-bottom: 0; }
+.wf-rendered-markdown h1 { font-size: 1.45em; line-height: 1.35; }
+.wf-rendered-markdown h2 { font-size: 1.22em; margin: 1.25em 0 .5em; }
+.wf-rendered-markdown h3, .wf-rendered-markdown h4 { font-size: 1.08em; margin: 1em 0 .4em; }
+.wf-file-cards .wf-rendered-markdown p { font-size: inherit; margin: .65em 0; }
+.wf-file-cards .wf-rendered-markdown strong { display: inline; }
+.wf-rendered-markdown blockquote { margin: .8em 0; padding: 2px 12px; border-left: 3px solid #a3b290; background: #f4f3ed; }
+.wf-rendered-markdown ul, .wf-rendered-markdown ol { padding-left: 1.65em; }
+.wf-markdown-table { max-width: 100%; overflow: auto; margin: .8em 0; }
+.wf-markdown-table table { width: 100%; border-collapse: collapse; font-size: .9em; }
+.wf-markdown-table th, .wf-markdown-table td { min-width: 80px; padding: 6px 8px; border: 1px solid #deddd6; vertical-align: top; }
+.wf-markdown-table th { background: #f1f1e9; }
+.wf-rendered-markdown code { padding: 1px 4px; border-radius: 4px; background: #f1f1e9; }
+.wf-rendered-markdown pre { padding: 8px; border-radius: 6px; background: #f1f1e9; }
+.wf-rendered-markdown pre code { padding: 0; }
+.wf-rendered-markdown img { width: auto; max-width: 100%; margin: .8em auto; border-radius: 6px; }
+.wf-markdown-image-label { color: #686c62; }
+.wf-output-files .wf-record small { overflow-wrap: anywhere; }
+@media (max-width: 650px) {
+  .wf-flexible .wf-results { height: min(var(--wf-bottom), 28dvh); }
+  .wf-flexible.wf-canvas-closed .wf-results { flex: 1; height: auto; }
+  .wf-compose > button { white-space: nowrap; }
+  .wf-imported-preview .wf-visual-image img { height: 22dvh; }
+}

@@ -1,4 +1,4 @@
-"""Read-only adapter for element_pool_2's index + structured/native definitions."""
+"""Read-only adapter for element_pool's index + structured/native definitions."""
 from pathlib import Path, PurePosixPath
 from pydantic import TypeAdapter
 from element.base.quantity import Parameter
@@ -11,7 +11,28 @@ from element.library.local import LibraryError, normalize
 from element.library.retrieval import ElementRetriever, SearchRecord, native_record
 
 
-def load_element_pool(root) -> ElementRetriever:
+def _tmp36_definition(data):
+    # This existing package contains a continuous analog sensor and an exact TO-92 drawing.
+    # Its only recorded admission blocker was the required project sampling period.
+    if (data['library_id'], data['element_id'], data['revision']) != ('arduino_basic', 'arduino_kit.tmp36', 1):
+        return None
+    if data['product'].get('model') != 'TMP36GT9Z / TO-92' or data['blockers'] != [
+        'SensorInput必填sample_period_s；TMP36是连续模拟器件，资料没有固有采样时钟，需由系统采样策略绑定。'
+    ]:
+        return None
+    return parse_element({
+        **{key: data[key] for key in ('library_id', 'element_id', 'revision', 'name', 'category', 'product', 'model')},
+        'origin': 'catalog',
+        'sources': {'adi': {'title': 'Analog Devices TMP36 Rev. H', 'locator': 'Page 19, Figure 38 and ordering guide'}},
+        'evidence': {'dimensioned_drawing': {'source_ids': ['adi'], 'basis': 'datasheet',
+            'statement': 'TMP36GT9Z TO-92，原厂 Rev. H，第 19 页图 38（封装外形及引脚尺寸）',
+            'artifact_refs': [{'relative_path': 'sources/s1_datasheet.pdf',
+                'sha256': '6ce062fb73f0bebb61f82775aca0be56903c2b8484a7fc89a0cf71961189f8ee',
+                'media_type': 'application/pdf'}]}},
+    })
+
+
+def load_element_pool(root, *, include_procurement=False) -> ElementRetriever:
     """No index creation, publication, source writes, asset loading or partial-model coercion."""
     root = Path(root).resolve(strict=True)
     budget = 64 * 1024 * 1024
@@ -100,6 +121,10 @@ def load_element_pool(root) -> ElementRetriever:
         if definition is not None and not blockers and data['status'] == entry['status'] == 'validated_reference':
             records.append(native_record(definition, detail=detail))
             continue
+        if definition is None and entry['status'] == data['status'] == 'incomplete' and tuple(data['blockers']) == blockers:
+            if analog := _tmp36_definition(data):
+                records.append(native_record(analog, detail={**detail, 'status': 'validated_reference'}))
+                continue
         model = data['model']
         facts = {}
         for code, raw in model.get('parameters', {}).items():
@@ -119,4 +144,7 @@ def load_element_pool(root) -> ElementRetriever:
         records.append(SearchRecord(ref=ref, name=data['name'], category=data['category'],
             search_text=normalize(' '.join((data['name'], data['element_id'], data.get('product', {}).get('model') or '',
                 data['category']))), parameters=facts, blockers=blockers, detail=detail))
+    if include_procurement:
+        from element.library.procurement import purchase_records
+        records.extend(purchase_records())
     return ElementRetriever(records, diagnostics=diagnostics)

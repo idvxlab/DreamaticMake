@@ -4,14 +4,9 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const candidates = [
-  ".runtime/python/Scripts/python.exe",
-  ".runtime/python/bin/python",
-  ".venv-engine/Scripts/python.exe",
-  ".venv-engine/bin/python",
-];
+const candidates = [".runtime/python/bin/python"];
 const local = candidates.map((path) => resolve(root, path)).find(existsSync);
-const python = process.env.MAKE_ENGINE_PYTHON || local || "python";
+const python = process.env.MAKE_ENGINE_PYTHON || local || "python3";
 const temp = resolve(root, ".runtime/tmp/python-tests");
 mkdirSync(temp, { recursive: true });
 

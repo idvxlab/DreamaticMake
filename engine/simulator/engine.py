@@ -70,6 +70,8 @@ def preflight(ir, scenario):
 
     for key, obj in ir.collection("sensors").items():
         sensor = obj.spec
+        if sensor.sample_period_s is None or sensor.latency_s is None:
+            diagnostics.append(error("sensor.timing", "Specify sensor sampling period and latency before simulation", key))
         if sensor.signal_type.kind not in ("scalar", "digital", "boolean"):
             diagnostics.append(Diagnostic(code="sensor.unsupported", severity="error", outcome="unsupported", message="Only scalar/digital/boolean sensors are simulated", object_refs=(key,)))
         elif sensor.source.kind == "environment":

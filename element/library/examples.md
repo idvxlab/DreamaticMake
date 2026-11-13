@@ -1,6 +1,6 @@
 # 统一库中的合成元件
 
-合成元件位于配置的 `element_pool_2/template_*/component.json`，配套场景为同目录
+安装合成模板包后，元件位于配置的 `element_pool/template_*/component.json`，配套场景为同目录
 `scenario.json`，资产以各元件目录为根。输入规范见 [packages.md](packages.md)。
 所有合成尺寸、额定值和标定均为软件演示假设，不是厂商参数。
 
@@ -11,9 +11,9 @@
 元件构造回归资料归 `engine/tests/fixtures/build_components.py` 和
 `described_components.py`；它们不会自动修改元件库。
 
-```powershell
-.\python.cmd -B -m unittest engine.tests.test_components engine.tests.test_component_descriptions -v
-.\python.cmd scripts/check-element-pool.py 'D:\【项目】设计引擎\DreamaticMaker\element_pool_2'
+```sh
+.runtime/python/bin/python -B -m unittest engine.tests.test_components engine.tests.test_component_descriptions -v
+.runtime/python/bin/python scripts/check-element-pool.py 'element_pool'
 ```
 
 完整的组装案例见 [project_1](../../examples/project_1/README.md)。库记录和测试通过

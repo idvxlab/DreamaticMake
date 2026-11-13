@@ -4,11 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --config engine/interface/vite.config.ts",
+    "dev": "node --import tsx scripts/dev-v3.ts",
+    "dev:server": "node --import tsx apps/server/src/index.ts",
+    "dev:web": "vite --config apps/web/vite.config.ts",
     "check": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts && node scripts/test-python.mjs",
+    "test:orchestrator": "node --import tsx --test tests/orchestrator.test.ts",
     "test:python": "node scripts/test-python.mjs",
-    "build": "tsc --noEmit && vite build --config engine/interface/vite.config.ts",
+    "build": "tsc --noEmit && vite build --config apps/web/vite.config.ts",
+    "build:engine": "tsc --noEmit && vite build --config engine/interface/vite.config.ts",
     "preview": "vite preview --config engine/interface/vite.config.ts",
     "engine:dev": "vite --config engine/interface/vite.config.ts",
     "engine:build": "tsc --noEmit && vite build --config engine/interface/vite.config.ts",
@@ -20,6 +24,8 @@
     "@jscad/modeling": "2.13.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1",
     "three": "0.180.0"
   },
   "devDependencies": {

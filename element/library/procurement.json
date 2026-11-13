@@ -1,0 +1,39 @@
+[
+  {
+    "id": "tmp117aidrvr",
+    "name": "TI TMP117AIDRVR 数字温度传感器",
+    "category": "sensor",
+    "model": "TMP117AIDRVR",
+    "terms": ["TMP117", "TMP117AIDRVR"],
+    "note": "与 TMP117MAIDRVR 同为 WSON-6（TI DRV）。本体标称 2 × 2 mm，封装图最大 2.1 × 2.1 × 0.8 mm。限位按实际 PCB、安装方式和通风间隙核对。TI 额定 −55～150 °C，−40～70 °C 内最大误差 ±0.15 °C。",
+    "purchase_links": [{"supplier": "DigiKey", "url": "https://www.digikey.com/en/products/detail/texas-instruments/TMP117AIDRVR/9746197", "source": "TI 精确料号规格与 DigiKey 商品页"}]
+  },
+  {
+    "id": "stm32c011f6p6",
+    "name": "ST STM32C011F6P6 微控制器",
+    "category": "controller",
+    "model": "STM32C011F6P6",
+    "terms": ["STM32C011F6P6"],
+    "note": "TSSOP-20 本体标称 6.5 × 4.4 mm，引脚总跨度标称 6.4 mm，封装最大高度 1.2 mm。PCB 焊盘、板框及支柱孔位须核对。额定 2.0～3.6 V、−40～85 °C，支持 I²C 和 SWD。",
+    "purchase_links": [{"supplier": "DigiKey", "url": "https://www.digikey.com/en/products/detail/stmicroelectronics/STM32C011F6P6/17071366", "source": "供应商料号页"}]
+  },
+  {
+    "id": "tps7a2033pdbvr",
+    "name": "TI TPS7A2033PDBVR 3.3 V 稳压器",
+    "category": "power",
+    "model": "TPS7A2033PDBVR",
+    "terms": ["TPS7A2033", "TPS7A2033PDBVR"],
+    "note": "SOT-23-5（TI DBV），本体标称约 2.9 × 1.6 mm，含引脚最大宽度 3.0 mm，最大高度 1.45 mm。须为芯片和去耦元件安排 PCB 位置并核对后盖间隙。固定 3.3 V，额定最大 300 mA。",
+    "purchase_links": [{"supplier": "DigiKey", "url": "https://www.digikey.com/en/products/detail/texas-instruments/TPS7A2033PDBVR/13566915", "source": "TI 精确料号规格与 DigiKey 商品页"}]
+  },
+  {
+    "id": "waveshare-oled-d",
+    "name": "Waveshare 0.96inch OLED Module (D) 白色 128×64 I²C / SPI",
+    "category": "display",
+    "model": "Waveshare OLED Module (D) / SSD1315",
+    "terms": ["OLED Module (D)", "SSD1315"],
+    "alternative_for": "SSD1306",
+    "note": "D（白色）版为 SSD1315，模组外形 26 × 26 mm，可视区 21.74 × 11.18 mm，带直排针。须核对支架孔位、插接总高度与镜片开窗。厂商工作温度为 −20～70 °C，不满足本温度计的 −30 °C 下限。",
+    "purchase_links": [{"supplier": "Waveshare", "url": "https://www.waveshare.com/product/displays/0.96inch-oled-module-c.htm", "source": "CuratedReferences:waveshare-0.96inch-oled-module-d"}]
+  }
+]

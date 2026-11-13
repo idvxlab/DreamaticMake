@@ -30,9 +30,9 @@ doc/
 `motion.configuration` 的限位只能收窄元件自身限位。
 项目无 `flow` 层；原控制源移入 `doc/logical_layout/`，不会自动执行。
 
-```powershell
-.\python.cmd -m engine project examples/project_1
-.\python.cmd -m engine language examples/project_1
+```sh
+.runtime/python/bin/python -m engine project examples/project_1
+.runtime/python/bin/python -m engine language examples/project_1
 ```
 
 也可在独立界面中选择 `project_1`，查看结构、运动和电路逻辑。

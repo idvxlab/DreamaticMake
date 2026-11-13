@@ -3,9 +3,9 @@
 当前仅保留 [project_1/](project_1/README.md)：迷你机械臂与夹爪，按 `element/`、
 `design/`、`doc/` 组织。元件引用统一库或项目内自定义定义，设计文件只记录组装信息。
 
-```powershell
-.\python.cmd -m engine project examples/project_1
-.\npm.cmd run engine:dev
+```sh
+.runtime/python/bin/python -m engine project examples/project_1
+npm run engine:dev
 ```
 
 编译/仿真与旧格式回归资料归入 `engine/tests/fixtures/`，九阶段流程回归资料归入

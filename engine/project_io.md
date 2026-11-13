@@ -88,9 +88,9 @@ project/
 每个工程最多遍历 5000 个条目、列出 1000 个文件，单文件预览上限 2 MiB。
 流程接口见 [软件工程设计](../process/software_design/README.md)。
 
-```powershell
-.\python.cmd -m engine project examples/project_1
-.\python.cmd -m engine language examples/project_1
-.\python.cmd -m engine schema project_manifest
-.\python.cmd -m engine schema project_elements
+```sh
+.runtime/python/bin/python -m engine project examples/project_1
+.runtime/python/bin/python -m engine language examples/project_1
+.runtime/python/bin/python -m engine schema project_manifest
+.runtime/python/bin/python -m engine schema project_elements
 ```

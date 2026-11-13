@@ -62,6 +62,12 @@ class ParameterAssessment(Contract):
     explanation: str
 
 
+class PurchaseLink(Contract):
+    supplier: str
+    url: str
+    source: str
+
+
 class RetrievalCandidate(Contract):
     ref: RetrievalRef
     native_ref: ElementRef | None = None
@@ -69,6 +75,8 @@ class RetrievalCandidate(Contract):
     category: Category
     selectable: bool
     blockers: tuple[str, ...] = ()
+    purchase_links: tuple[PurchaseLink, ...] = ()
+    purchase_note: str = ''
     score: float
     matched_terms: tuple[str, ...] = ()
     assessments: tuple[ParameterAssessment, ...] = ()

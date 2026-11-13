@@ -27,6 +27,7 @@ class SensorInput(Contract):
     signal_type: SignalType
     location: LocalFrame | None = None
     source: SensorSource
-    sample_period_s: float = Field(ge=1e-9)
-    latency_s: NonNegative = 0.0
+    # An analog catalog sensor can leave timing to the project. Simulation needs concrete values.
+    sample_period_s: float | None = Field(default=None, ge=1e-9)
+    latency_s: NonNegative | None = 0.0
     evidence_refs: tuple[Id, ...] = ()

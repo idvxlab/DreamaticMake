@@ -85,7 +85,7 @@ information only. `doc/` organizes process-stage documents. Read folders with
 ### Executable component API
 
 For category-specific authoring, start with [the component design API](../element/categories/README.md)
-and [the component examples](D:/【项目】设计引擎/DreamaticMaker/element_pool_2/README.md). `element.categories` provides
+and [the configured element pool](../element_pool/README.md). `element.categories` provides
 strict, immutable types for structure, transmission, actuators, light, displays, sound, human
 input, sensors, controllers, drivers, power, transport and mechanical energy storage. Python
 constructors, mappings, JSON and TOML all lower into the existing execution contracts; structure
@@ -105,8 +105,8 @@ bundle = to_bundle(led)  # Use in the existing application/assembly contract.
 
 ```bash
 python -m engine schema component_design
-python -m engine compile D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_indicator/input.toml
-python -m engine simulate D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_servo/component.json --scenario "D:/【项目】设计引擎/DreamaticMaker/element_pool_2/template_servo/scenario.json"
+python -m engine compile element_pool/template_indicator/input.toml
+python -m engine simulate element_pool/template_servo/component.json --scenario "element_pool/template_servo/scenario.json"
 ```
 
 TOML requires Python 3.11+; the STL example requires the optional mesh stack. Control functions

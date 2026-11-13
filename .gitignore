@@ -11,6 +11,7 @@ coverage/
 .env
 .env.*
 !.env.example
+/element-pool.local.json
 
 # Project runtime data, sessions, uploads and generated engineering artifacts
 /workspace/

@@ -63,7 +63,7 @@ def main(argv=None):
     parser.add_argument("--scenario")
     parser.add_argument("--asset-root", help="Explicit confined asset library for relative STL references")
     parser.add_argument("--unit", choices=["m", "cm", "mm"])
-    parser.add_argument('--element-pool', help='Explicit read-only element_pool_2 root for element_* request tools')
+    parser.add_argument('--element-pool', help='Explicit read-only element_pool root for element_* request tools')
     args = parser.parse_args(argv)
     request_id = None
     try:

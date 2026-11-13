@@ -20,8 +20,8 @@ class WorkflowTests(unittest.TestCase):
     def setUpClass(cls):
         cls.design, cls.artifacts, cls.requests = example()
 
-    def test_nine_stage_roundtrip_and_schema(self):
-        self.assertEqual(len(self.artifacts), 9)
+    def test_stage_roundtrip_and_schema(self):
+        self.assertIn('procurement_assembly_guide', self.artifacts)
         for stage, artifact in self.artifacts.items():
             with self.subTest(stage=stage):
                 restored = DesignArtifact.model_validate_json(artifact.model_dump_json())

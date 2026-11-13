@@ -4,12 +4,21 @@ from pathlib import Path, PurePosixPath
 from element.io.load import _record_object, read_record
 
 
+def pool_settings():
+    config = Path(__file__).resolve().parents[2] / 'element-pool.json'
+    settings = _record_object(read_record(config))
+    local = config.with_name('element-pool.local.json')
+    if local.is_file():
+        settings.update(_record_object(read_record(local)))
+    return config.parent, settings
+
+
 def pool_root():
     configured = os.environ.get('DREAMATIC_ELEMENT_POOL')
     if configured:
         return Path(configured).resolve()
-    config = Path(__file__).resolve().parents[2] / 'element-pool.json'
-    return Path(_record_object(read_record(config))['root']).resolve()
+    directory, settings = pool_settings()
+    return (directory / settings['root']).resolve()
 
 
 def package_file(folder, relative):

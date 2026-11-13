@@ -9,15 +9,9 @@ const root = fileURLToPath(new URL("../../", import.meta.url));
 const interfaceRoot = fileURLToPath(new URL("./", import.meta.url));
 const python =
   process.env.MAKE_ENGINE_PYTHON ||
-  (existsSync(resolve(root, ".runtime/python/Scripts/python.exe"))
-    ? resolve(root, ".runtime/python/Scripts/python.exe")
-    : existsSync(resolve(root, ".runtime/python/bin/python"))
+  (existsSync(resolve(root, ".runtime/python/bin/python"))
       ? resolve(root, ".runtime/python/bin/python")
-      : existsSync(resolve(root, ".venv-engine/Scripts/python.exe"))
-        ? resolve(root, ".venv-engine/Scripts/python.exe")
-        : existsSync(resolve(root, ".venv-engine/bin/python"))
-          ? resolve(root, ".venv-engine/bin/python")
-          : "python");
+      : "python3");
 function api(): Plugin {
   const middleware = async (
     req: IncomingMessage,
@@ -49,32 +43,8 @@ function api(): Plugin {
       }
       const request = JSON.parse(data);
       if (request.method === "pick_project") {
-        if (process.platform !== "win32") {
-          res.statusCode = 422;
-          res.end(JSON.stringify({ error: "请在项目路径中输入本机文件夹的绝对路径。" }));
-          return;
-        }
-        const script = [
-          "Add-Type -AssemblyName System.Windows.Forms",
-          "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)",
-          "$dialog = New-Object System.Windows.Forms.FolderBrowserDialog",
-          "$dialog.Description = '选择包含 project.json 的项目文件夹'",
-          "$dialog.ShowNewFolderButton = $false",
-          "if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { [Console]::Write($dialog.SelectedPath) }",
-          "$dialog.Dispose()",
-        ].join("; ");
-        const picker = spawn("powershell.exe", ["-NoProfile", "-STA", "-Command", script], { windowsHide: true });
-        let chosen = "";
-        picker.stdout.setEncoding("utf8");
-        const timeout = setTimeout(() => picker.kill(), 300000);
-        picker.stdout.on("data", (chunk) => { chosen += chunk.toString("utf8"); });
-        picker.on("error", () => { clearTimeout(timeout); res.statusCode = 503; res.end(JSON.stringify({ error: "无法打开文件夹选择器，请输入项目路径。" })); });
-        picker.on("close", (code) => {
-          clearTimeout(timeout);
-          if (res.writableEnded) return;
-          res.statusCode = code === 0 ? 200 : 422;
-          res.end(JSON.stringify(code === 0 ? { path: chosen.trim() || null } : { error: "文件夹选择器未完成，请输入项目路径。" }));
-        });
+        res.statusCode = 422;
+        res.end(JSON.stringify({ error: "请在项目路径中输入本机文件夹的绝对路径。" }));
         return;
       }
       const child = spawn(python, ["-B", "-m", "engine.interface.bridge"], {

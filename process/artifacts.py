@@ -1,7 +1,7 @@
 """Versioned design deliverables. Native geometry/material/electrical types stay upstream."""
 from hashlib import sha256
 from typing import Annotated, Literal
-from pydantic import Field, model_validator
+from pydantic import Field, StringConstraints, model_validator
 from element.base.contract import Contract, Id, Sha256
 from element.base.frame import Pose
 from element.base.reference import AssetRef
@@ -13,7 +13,7 @@ from engine.design.contracts import Markdown, ObjectRef, Net, Joint, StructureCo
 
 Stage = Literal['requirements', 'appearance', 'hardware_selection', 'spatial_layout',
                 'logical_layout', 'enclosure_detail', 'motion_detail', 'assembly_detail',
-                'print_optimization', 'software_design']
+                'print_optimization', 'software_design', 'procurement_assembly_guide']
 
 
 class Document(Contract):
@@ -83,9 +83,17 @@ class HardwareChoice(Contract):
         return self
 
 
+class PrototypeWiring(Contract):
+    description: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)]
+    quantity: int = Field(ge=1, le=1000)
+    connections: tuple[Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)], ...] = Field(min_length=1, max_length=100)
+    assembly_notes: Markdown = Markdown()
+
+
 class HardwareSelectionOutput(Contract):
     kind: Literal['hardware_selection'] = 'hardware_selection'
     choices: tuple[HardwareChoice, ...] = Field(min_length=1, max_length=1000)
+    prototype_wiring: tuple[PrototypeWiring, ...] = Field(default=(), max_length=100, exclude_if=lambda wiring: not wiring)
 
     @model_validator(mode='after')
     def unique(self):
@@ -229,9 +237,21 @@ class PrintOptimizationOutput(Contract):
     parts: tuple[PrintPart, ...] = Field(min_length=1, max_length=1000)
 
 
+GuideSection = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=20000)]
+
+
+class ProcurementAssemblyGuideOutput(Contract):
+    kind: Literal['procurement_assembly_guide'] = 'procurement_assembly_guide'
+    title: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
+    procurement: GuideSection = Field(description='Markdown list or table with quantities, sources and purchase checks')
+    assembly: GuideSection = Field(description='Markdown instructions for preparation, assembly and fit checks')
+    verification: GuideSection = Field(description='Markdown record of verified results, open issues and first-article checks')
+
+
 Deliverable = Annotated[RequirementsOutput | AppearanceOutput | HardwareSelectionOutput |
     SpatialLayoutOutput | LogicalLayoutOutput | EnclosureDetailOutput | MotionDetailOutput |
-    AssemblyDetailOutput | PrintOptimizationOutput | SoftwareDesignOutput, Field(discriminator='kind')]
+    AssemblyDetailOutput | PrintOptimizationOutput | SoftwareDesignOutput |
+    ProcurementAssemblyGuideOutput, Field(discriminator='kind')]
 
 
 class ArtifactRef(Contract):

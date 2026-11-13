@@ -11,7 +11,7 @@ ProcessKind = Literal['selection', 'placement', 'connection', 'motion',
                       'mechanical_detail', 'circuit_detail', 'logic_detail',
                       'requirements', 'appearance', 'hardware_selection', 'spatial_layout',
                       'logical_layout', 'enclosure_detail', 'motion_detail', 'assembly_detail',
-                      'print_optimization', 'software_design']
+                      'print_optimization', 'software_design', 'procurement_assembly_guide']
 I = TypeVar('I', bound=Contract)
 O = TypeVar('O', bound=Contract)
 

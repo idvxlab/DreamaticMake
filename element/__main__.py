@@ -17,7 +17,7 @@ def main(argv=None):
         if args.method in ('retrieve', 'inspect-candidate', 'categories'):
             from element.library.pool import load_element_pool
             from element.io.package import pool_root
-            retriever = load_element_pool(args.root or pool_root())
+            retriever = load_element_pool(args.root or pool_root(), include_procurement=args.root is None)
             if args.method == 'categories': result = retriever.describe()
             else:
                 if args.input:

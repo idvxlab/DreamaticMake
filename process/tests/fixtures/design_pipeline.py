@@ -1,4 +1,4 @@
-"""Offline authored-data example for all nine workflows; no generation backend is used."""
+"""Offline authored-data example for the design and documentation workflows."""
 import json
 from element.categories import Structure, CADHousing, CADHousingSpec, HousingMaterial
 from element.interfaces.geometry import Box
@@ -13,7 +13,8 @@ from process import (
     Document, RequirementsOutput, AppearanceOutput, AppearanceImage, HardwareSelectionOutput,
     HardwareChoice, SpatialLayoutOutput, HardwarePlacement, LogicalLayoutOutput,
     CADComponent, EnclosureDetailOutput, MotionDetailOutput, AssemblyDetailOutput,
-    AssemblyRelation, PrintOptimizationOutput, PrintPart, PrinterConstraints, artifact_ref,
+    AssemblyRelation, PrintOptimizationOutput, PrintPart, PrinterConstraints,
+    ProcurementAssemblyGuideOutput, artifact_ref,
 )
 from process.registry import get_process
 from process.workflows import SPECS
@@ -74,6 +75,10 @@ def example():
         feature_changes=Markdown(text='No geometry change in this fixture.')),)), printer=PrinterConstraints(
             process='fdm', build_volume_m=(0.2, 0.2, 0.2), min_feature_m=0.0008,
             resolution_m=0.0002, max_unsupported_angle_deg=45.0))
+    submit('procurement_assembly_guide', ProcurementAssemblyGuideOutput(
+        title='Prototype guide', procurement='Confirm two fixtures and one custom shell.',
+        assembly='Dry fit the fixture to the shell.',
+        verification='Check clearance before fastening.'))
     return design, artifacts, requests
 
 

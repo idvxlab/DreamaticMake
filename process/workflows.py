@@ -15,6 +15,9 @@ from process.motion_detail import MotionDetailInput, MotionDetailRequest, Motion
 from process.assembly_detail import AssemblyDetailInput, AssemblyDetailRequest, AssemblyDetailProcess
 from process.print_optimization import PrintOptimizationInput, PrintOptimizationRequest, PrintOptimizationProcess
 from process.software_design import SoftwareDesignInput, SoftwareDesignRequest, SoftwareDesignProcess
+from process.procurement_assembly_guide import (
+    ProcurementAssemblyGuideInput, ProcurementAssemblyGuideRequest, ProcurementAssemblyGuideProcess,
+)
 
 WORKFLOWS = {cls.kind: cls for cls in (
     RequirementsProcess,
@@ -27,6 +30,7 @@ WORKFLOWS = {cls.kind: cls for cls in (
     AssemblyDetailProcess,
     PrintOptimizationProcess,
     SoftwareDesignProcess,
+    ProcurementAssemblyGuideProcess,
 )}
 SPECS = {kind: cls.spec for kind, cls in WORKFLOWS.items()}
 

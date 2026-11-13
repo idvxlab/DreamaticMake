@@ -1,9 +1,10 @@
 # 元件目录输入
 
-统一数据源为 `D:\【项目】设计引擎\DreamaticMaker\element_pool_2`。
+统一数据源为 `element_pool`。
 仓库中的 `element/` 保留协议、加载和检索代码，不存放元件数据。
-在 [element-pool.json](../../element-pool.json) 配置路径；也可用环境变量
-`DREAMATIC_ELEMENT_POOL` 覆盖。其他机器运行示例及完整回归前，需要提供同一格式的库。
+[element-pool.json](../../element-pool.json) 提供默认路径。本机可在 `element-pool.local.json` 中设置
+`root` 和可选的 `procurement_catalog`，或用 `DREAMATIC_ELEMENT_POOL` 和
+`DREAMATIC_PROCUREMENT_CATALOG` 覆盖。其他机器运行示例及完整回归前，需要提供同一格式的库。
 
 每个元件一个文件夹，目录名不承担身份或版本含义。例如：
 
